@@ -13,7 +13,7 @@
 //
 //
 var script = /*#__PURE__*/{
-  name: "FormBuilder",
+  name: 'FormBuilder',
 
   // vue component name
   data() {
@@ -32,29 +32,29 @@ var script = /*#__PURE__*/{
       const {
         message
       } = this;
-      if (!message.action) return "initialized";
-      return `${message?.action} ${message.amount ?? ""}`.trim();
+      if (!message.action) return 'initialized';
+      return `${message?.action} ${message.amount ?? ''}`.trim();
     }
 
   },
   methods: {
     increment(arg) {
-      const amount = typeof arg !== "number" ? 1 : arg;
+      const amount = typeof arg !== 'number' ? 1 : arg;
       this.counter += amount;
-      this.message.action = "incremented by";
+      this.message.action = 'incremented by';
       this.message.amount = amount;
     },
 
     decrement(arg) {
-      const amount = typeof arg !== "number" ? 1 : arg;
+      const amount = typeof arg !== 'number' ? 1 : arg;
       this.counter -= amount;
-      this.message.action = "decremented by";
+      this.message.action = 'decremented by';
       this.message.amount = amount;
     },
 
     reset() {
       this.counter = this.initCounter;
-      this.message.action = "reset";
+      this.message.action = 'reset';
       this.message.amount = null;
     }
 
@@ -182,7 +182,7 @@ var __vue_staticRenderFns__ = [];
 const __vue_inject_styles__ = undefined;
 /* scoped */
 
-const __vue_scope_id__ = "data-v-0b4dd520";
+const __vue_scope_id__ = "data-v-5c3c1136";
 /* module identifier */
 
 const __vue_module_identifier__ = undefined;

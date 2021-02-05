@@ -67,7 +67,7 @@ function _nonIterableRest() {
 //
 //
 var script = /*#__PURE__*/{
-  name: "FormBuilder",
+  name: 'FormBuilder',
   // vue component name
   data: function data() {
     return {
@@ -84,26 +84,26 @@ var script = /*#__PURE__*/{
       var _message$amount;
 
       var message = this.message;
-      if (!message.action) return "initialized";
-      return "".concat(message === null || message === void 0 ? void 0 : message.action, " ").concat((_message$amount = message.amount) !== null && _message$amount !== void 0 ? _message$amount : "").trim();
+      if (!message.action) return 'initialized';
+      return "".concat(message === null || message === void 0 ? void 0 : message.action, " ").concat((_message$amount = message.amount) !== null && _message$amount !== void 0 ? _message$amount : '').trim();
     }
   },
   methods: {
     increment: function increment(arg) {
-      var amount = typeof arg !== "number" ? 1 : arg;
+      var amount = typeof arg !== 'number' ? 1 : arg;
       this.counter += amount;
-      this.message.action = "incremented by";
+      this.message.action = 'incremented by';
       this.message.amount = amount;
     },
     decrement: function decrement(arg) {
-      var amount = typeof arg !== "number" ? 1 : arg;
+      var amount = typeof arg !== 'number' ? 1 : arg;
       this.counter -= amount;
-      this.message.action = "decremented by";
+      this.message.action = 'decremented by';
       this.message.amount = amount;
     },
     reset: function reset() {
       this.counter = this.initCounter;
-      this.message.action = "reset";
+      this.message.action = 'reset';
       this.message.amount = null;
     }
   }
@@ -193,7 +193,7 @@ var __vue_render__ = function __vue_render__() {
 
   return _c('div', {
     staticClass: "form-builder"
-  }, [_vm._ssrNode("<p data-v-0b4dd520>" + _vm._ssrEscape("\n    The counter was " + _vm._s(_vm.changedBy) + " to ") + "<b data-v-0b4dd520>" + _vm._ssrEscape(_vm._s(_vm.counter)) + "</b>.\n  </p> <button data-v-0b4dd520>Click +1</button> <button data-v-0b4dd520>Click -1</button> <button data-v-0b4dd520>Click +5</button> <button data-v-0b4dd520>Click -5</button> <button data-v-0b4dd520>Reset</button>")]);
+  }, [_vm._ssrNode("<p data-v-5c3c1136>" + _vm._ssrEscape("\n    The counter was " + _vm._s(_vm.changedBy) + " to ") + "<b data-v-5c3c1136>" + _vm._ssrEscape(_vm._s(_vm.counter)) + "</b>.\n  </p> <button data-v-5c3c1136>Click +1</button> <button data-v-5c3c1136>Click -1</button> <button data-v-5c3c1136>Click +5</button> <button data-v-5c3c1136>Click -5</button> <button data-v-5c3c1136>Reset</button>")]);
 };
 
 var __vue_staticRenderFns__ = [];
@@ -202,10 +202,10 @@ var __vue_staticRenderFns__ = [];
 var __vue_inject_styles__ = undefined;
 /* scoped */
 
-var __vue_scope_id__ = "data-v-0b4dd520";
+var __vue_scope_id__ = "data-v-5c3c1136";
 /* module identifier */
 
-var __vue_module_identifier__ = "data-v-0b4dd520";
+var __vue_module_identifier__ = "data-v-5c3c1136";
 /* functional template */
 
 var __vue_is_functional_template__ = false;
