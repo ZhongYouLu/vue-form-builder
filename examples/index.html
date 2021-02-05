@@ -1,0 +1,24 @@
+<html>
+  <head>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.12"></script>
+    <!-- <script src="https://cdn.bootcss.com/babel-polyfill/6.26.0/polyfill.js"></script> -->
+    <!-- <link rel="stylesheet" href="./bundle.css" /> -->
+  </head>
+  <body>
+    <p>hello rollup + vuejs</p>
+    <div id="App">
+      <test></test>
+    </div>
+    <!-- <script src="../dist/form-builder.min.js"></script> -->
+    <script type="module">
+      import FormBuilder from "../dist/form-builder.esm.js";
+      // Vue.component("test", FormBuilder);
+      var app = new Vue({
+        el: "#app",
+        components: {
+          test: FormBuilder,
+        },
+      });
+    </script>
+  </body>
+</html>
