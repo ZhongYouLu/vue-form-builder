@@ -52,8 +52,22 @@ function _arrayLikeToArray(arr, len) {
 
 function _nonIterableRest() {
   throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
-}var script = /*#__PURE__*/{
-  name: 'FormBuilder',
+}//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+var script = /*#__PURE__*/{
+  name: "FormBuilder",
   // vue component name
   data: function data() {
     return {
@@ -70,26 +84,26 @@ function _nonIterableRest() {
       var _message$amount;
 
       var message = this.message;
-      if (!message.action) return 'initialized';
-      return "".concat(message === null || message === void 0 ? void 0 : message.action, " ").concat((_message$amount = message.amount) !== null && _message$amount !== void 0 ? _message$amount : '').trim();
+      if (!message.action) return "initialized";
+      return "".concat(message === null || message === void 0 ? void 0 : message.action, " ").concat((_message$amount = message.amount) !== null && _message$amount !== void 0 ? _message$amount : "").trim();
     }
   },
   methods: {
     increment: function increment(arg) {
-      var amount = typeof arg !== 'number' ? 1 : arg;
+      var amount = typeof arg !== "number" ? 1 : arg;
       this.counter += amount;
-      this.message.action = 'incremented by';
+      this.message.action = "incremented by";
       this.message.amount = amount;
     },
     decrement: function decrement(arg) {
-      var amount = typeof arg !== 'number' ? 1 : arg;
+      var amount = typeof arg !== "number" ? 1 : arg;
       this.counter -= amount;
-      this.message.action = 'decremented by';
+      this.message.action = "decremented by";
       this.message.amount = amount;
     },
     reset: function reset() {
       this.counter = this.initCounter;
-      this.message.action = 'reset';
+      this.message.action = "reset";
       this.message.amount = null;
     }
   }
@@ -166,46 +180,6 @@ function _nonIterableRest() {
         }
     }
     return script;
-}function createInjectorSSR(context) {
-    if (!context && typeof __VUE_SSR_CONTEXT__ !== 'undefined') {
-        context = __VUE_SSR_CONTEXT__;
-    }
-    if (!context)
-        return () => { };
-    if (!('styles' in context)) {
-        context._styles = context._styles || {};
-        Object.defineProperty(context, 'styles', {
-            enumerable: true,
-            get: () => context._renderStyles(context._styles)
-        });
-        context._renderStyles = context._renderStyles || renderStyles;
-    }
-    return (id, style) => addStyle(id, style, context);
-}
-function addStyle(id, css, context) {
-    const group =  css.media || 'default' ;
-    const style = context._styles[group] || (context._styles[group] = { ids: [], css: '' });
-    if (!style.ids.includes(id)) {
-        style.media = css.media;
-        style.ids.push(id);
-        let code = css.source;
-        style.css += code + '\n';
-    }
-}
-function renderStyles(styles) {
-    let css = '';
-    for (const key in styles) {
-        const style = styles[key];
-        css +=
-            '<style data-vue-ssr-id="' +
-                Array.from(style.ids).join(' ') +
-                '"' +
-                (style.media ? ' media="' + style.media + '"' : '') +
-                '>' +
-                style.css +
-                '</style>';
-    }
-    return css;
 }/* script */
 var __vue_script__ = script;
 /* template */
@@ -219,36 +193,32 @@ var __vue_render__ = function __vue_render__() {
 
   return _c('div', {
     staticClass: "form-builder"
-  }, [_vm._ssrNode("<p data-v-72c49527>" + _vm._ssrEscape("The counter was " + _vm._s(_vm.changedBy) + " to ") + "<b data-v-72c49527>" + _vm._ssrEscape(_vm._s(_vm.counter)) + "</b>.</p> <button data-v-72c49527>\n    Click +1\n  </button> <button data-v-72c49527>\n    Click -1\n  </button> <button data-v-72c49527>\n    Click +5\n  </button> <button data-v-72c49527>\n    Click -5\n  </button> <button data-v-72c49527>\n    Reset\n  </button>")]);
+  }, [_vm._ssrNode("<p data-v-0b4dd520>" + _vm._ssrEscape("\n    The counter was " + _vm._s(_vm.changedBy) + " to ") + "<b data-v-0b4dd520>" + _vm._ssrEscape(_vm._s(_vm.counter)) + "</b>.\n  </p> <button data-v-0b4dd520>Click +1</button> <button data-v-0b4dd520>Click -1</button> <button data-v-0b4dd520>Click +5</button> <button data-v-0b4dd520>Click -5</button> <button data-v-0b4dd520>Reset</button>")]);
 };
 
 var __vue_staticRenderFns__ = [];
 /* style */
 
-var __vue_inject_styles__ = function __vue_inject_styles__(inject) {
-  if (!inject) return;
-  inject("data-v-72c49527_0", {
-    source: ".form-builder[data-v-72c49527]{display:block;width:400px;margin:25px auto;border:1px solid #ccc;background:#eaeaea;text-align:center;padding:25px}.form-builder p[data-v-72c49527]{margin:0 0 1em}",
-    map: undefined,
-    media: undefined
-  });
-};
+var __vue_inject_styles__ = undefined;
 /* scoped */
 
-
-var __vue_scope_id__ = "data-v-72c49527";
+var __vue_scope_id__ = "data-v-0b4dd520";
 /* module identifier */
 
-var __vue_module_identifier__ = "data-v-72c49527";
+var __vue_module_identifier__ = "data-v-0b4dd520";
 /* functional template */
 
 var __vue_is_functional_template__ = false;
+/* style inject */
+
+/* style inject SSR */
+
 /* style inject shadow dom */
 
 var __vue_component__ = /*#__PURE__*/normalizeComponent({
   render: __vue_render__,
   staticRenderFns: __vue_staticRenderFns__
-}, __vue_inject_styles__, __vue_script__, __vue_scope_id__, __vue_is_functional_template__, __vue_module_identifier__, false, undefined, createInjectorSSR, undefined);// Import vue component
+}, __vue_inject_styles__, __vue_script__, __vue_scope_id__, __vue_is_functional_template__, __vue_module_identifier__, false, undefined, undefined, undefined);// Import vue component
 // IIFE injects install function into component, allowing component
 // to be registered via Vue.use() as well as Vue.component(),
 

@@ -8,13 +8,30 @@ import resolve from '@rollup/plugin-node-resolve';
 import replace from '@rollup/plugin-replace';
 import babel from '@rollup/plugin-babel';
 import { terser } from 'rollup-plugin-terser';
+import css from 'rollup-plugin-css-only';
 import minimist from 'minimist';
+import { external, globals } from './declination.js';
+import pkg from '../package.json';
+
+const { name, version } = pkg;
+const prod = process.env.PRODUCTION;
+//const mode = prod ? 'production' : 'development';
 
 // Get browserslist config and remove ie from es build targets
-const esbrowserslist = fs.readFileSync('./.browserslistrc')
+const esbrowserslist = fs
+  .readFileSync('./.browserslistrc')
   .toString()
   .split('\n')
   .filter((entry) => entry && entry.substring(0, 2) !== 'ie');
+
+// Convert kebab-case to camelCase
+const camelize = (s) => s.replace(/-./g, (x) => x[1].toUpperCase());
+
+// Convert kebab-case to Capital
+const capitalize = (s) => {
+  const temp = camelize(s);
+  return temp[0].toUpperCase() + temp.substring(1);
+};
 
 const argv = minimist(process.argv.slice(2));
 
@@ -37,38 +54,21 @@ const baseConfig = {
       }),
     ],
     replace: {
-      'process.env.NODE_ENV': JSON.stringify('production'),
+      'process.env.NODE_ENV': JSON.stringify(prod ? 'production' : 'development'),
     },
     vue: {
-      css: true,
+      css: false,
       template: {
         isProduction: true,
       },
     },
-    postVue: [
-    ],
+    postVue: [css({ output: `${name}.css` })],
     babel: {
       exclude: 'node_modules/**',
       extensions: ['.js', '.jsx', '.ts', '.tsx', '.vue'],
       babelHelpers: 'bundled',
     },
   },
-};
-
-// ESM/UMD/IIFE shared settings: externals
-// Refer to https://rollupjs.org/guide/en/#warning-treating-module-as-external-dependency
-const external = [
-  // list external dependencies, exactly the way it is written in the import statement.
-  // eg. 'jquery'
-  'vue',
-];
-
-// UMD/IIFE shared settings: output.globals
-// Refer to https://rollupjs.org/guide/en#output-globals for details
-const globals = {
-  // Provide global variable names to replace your external imports
-  // eg. jquery: '$'
-  vue: 'Vue',
 };
 
 // Customize configs for individual targets
@@ -79,14 +79,16 @@ if (!argv.format || argv.format === 'es') {
     input: 'src/entry.esm.js',
     external,
     output: {
-      file: 'dist/form-builder.esm.js',
+      file: pkg.module,
       format: 'esm',
       exports: 'named',
     },
     plugins: [
-      replace(baseConfig.plugins.replace),
+      replace({ ...baseConfig.plugins.replace }),
       ...baseConfig.plugins.preVue,
-      vue(baseConfig.plugins.vue),
+      vue({
+        ...baseConfig.plugins.vue,
+      }),
       ...baseConfig.plugins.postVue,
       babel({
         ...baseConfig.plugins.babel,
@@ -111,14 +113,14 @@ if (!argv.format || argv.format === 'cjs') {
     external,
     output: {
       compact: true,
-      file: 'dist/form-builder.ssr.js',
+      file: pkg.main,
       format: 'cjs',
-      name: 'FormBuilder',
+      name: capitalize(name),
       exports: 'auto',
       globals,
     },
     plugins: [
-      replace(baseConfig.plugins.replace),
+      replace({ ...baseConfig.plugins.replace }),
       ...baseConfig.plugins.preVue,
       vue({
         ...baseConfig.plugins.vue,
@@ -128,7 +130,7 @@ if (!argv.format || argv.format === 'cjs') {
         },
       }),
       ...baseConfig.plugins.postVue,
-      babel(baseConfig.plugins.babel),
+      babel({ ...baseConfig.plugins.babel }),
       commonjs(),
     ],
   };
@@ -141,18 +143,23 @@ if (!argv.format || argv.format === 'iife') {
     external,
     output: {
       compact: true,
-      file: 'dist/form-builder.min.js',
+      file: pkg.unpkg,
       format: 'iife',
-      name: 'FormBuilder',
+      name: capitalize(pkg.name),
       exports: 'auto',
       globals,
+      banner:
+        '/*!\n' +
+        ` * ${name} v${version} | MIT License | https://github.com/{author}/{repo}\n` +
+        ` * https://unpkg.com/${name}@${version}/${pkg.unpkg}\n` +
+        ' */',
     },
     plugins: [
-      replace(baseConfig.plugins.replace),
+      replace({ ...baseConfig.plugins.replace }),
       ...baseConfig.plugins.preVue,
-      vue(baseConfig.plugins.vue),
+      vue({ ...baseConfig.plugins.vue }),
       ...baseConfig.plugins.postVue,
-      babel(baseConfig.plugins.babel),
+      babel({ ...baseConfig.plugins.babel }),
       commonjs(),
       terser({
         output: {

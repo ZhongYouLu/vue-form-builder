@@ -5,14 +5,13 @@ import FormBuilder from '@/form-builder.vue';
 export default Vue.extend({
   name: 'ServeDev',
   components: {
-    FormBuilder
-  }
+    FormBuilder,
+  },
 });
 </script>
 
 <template>
   <div id="app">
-    <form-builder />
     <form-builder />
   </div>
 </template>
