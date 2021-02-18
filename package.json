@@ -1,25 +1,25 @@
 {
-  "name": "form-builder",
-  "version": "1.0.1",
+  "name": "@zhongyoulu/vue-sfc-rollup-demo",
+  "version": "1.0.2",
   "description": "",
-  "main": "dist/form-builder.ssr.js",
-  "browser": "dist/form-builder.esm.js",
-  "module": "dist/form-builder.esm.js",
-  "unpkg": "dist/form-builder.min.js",
+  "main": "dist/bundle.ssr.js",
+  "browser": "dist/bundle.esm.js",
+  "module": "dist/bundle.esm.js",
+  "unpkg": "dist/bundle.min.js",
   "files": [
     "dist/*",
     "src/**/*.vue"
   ],
-  "homepage": "https://github.com/ZhongYouLu/vue-sfc-rollup-demo",
-  "bugs": "https://github.com/ZhongYouLu/vue-sfc-rollup-demo/issues",
+  "homepage": "https://github.com/zhongyoulu/vue-sfc-rollup-demo",
+  "bugs": "https://github.com/zhongyoulu/vue-sfc-rollup-demo/issues",
   "author": {
-    "name": "ZhongYouLu",
+    "name": "ZhongYou Lu",
     "email": "mk816017@gmail.com",
     "url": "https://github.com/zhongyoulu"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/ZhongYouLu/vue-sfc-rollup-demo.git"
+    "url": "https://github.com/zhongyoulu/vue-sfc-rollup-demo.git"
   },
   "license": "MIT",
   "sideEffects": false,

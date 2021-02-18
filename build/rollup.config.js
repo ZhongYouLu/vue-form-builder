@@ -14,9 +14,17 @@ import { pascalify } from './lib/helpers.js';
 import { external, globals } from './declination.js';
 import pkg from '../package.json';
 
-const { name, version, repository } = pkg;
+const { name: pkgName, version, repository, license } = pkg;
+const outputName = pascalify('form-builder');
+
 const prod = process.env.PRODUCTION;
 //const mode = prod ? 'production' : 'development';
+
+const banner =
+  '/*!\n' +
+  ` * ${pkgName} v${version} | ${license} License | ${repository.url}\n` +
+  //` * https://unpkg.com/${pkgName}@${version}/${pkg.unpkg}\n` +
+  ' */';
 
 // Get browserslist config and remove ie from es build targets
 const esbrowserslist = fs
@@ -54,7 +62,7 @@ const baseConfig = {
         isProduction: true,
       },
     },
-    postVue: [css({ output: `${name}.css` })],
+    postVue: [css({ output: 'main.css' })],
     babel: {
       exclude: 'node_modules/**',
       extensions: ['.js', '.jsx', '.ts', '.tsx', '.vue'],
@@ -107,7 +115,7 @@ if (!argv.format || argv.format === 'cjs') {
       compact: true,
       file: pkg.main,
       format: 'cjs',
-      name: pascalify(name),
+      name: outputName,
       exports: 'auto',
       globals,
     },
@@ -137,14 +145,10 @@ if (!argv.format || argv.format === 'iife') {
       compact: true,
       file: pkg.unpkg,
       format: 'iife',
-      name: pascalify(pkg.name),
+      name: outputName,
       exports: 'auto',
       globals,
-      banner:
-        '/*!\n' +
-        ` * ${name} v${version} | MIT License | ${repository.url}\n` +
-        ` * https://unpkg.com/${name}@${version}/${pkg.unpkg}\n` +
-        ' */',
+      banner,
     },
     plugins: [
       replace({ ...baseConfig.plugins.replace }),
