@@ -1,19 +1,20 @@
 // rollup.config.js
 import fs from 'fs';
 import path from 'path';
-import vue from 'rollup-plugin-vue';
+import babel from '@rollup/plugin-babel'; // babel外掛用於處理es6程式碼的轉換，使轉換出來的程式碼可以用於不支援es6的環境使用
+import resolve from '@rollup/plugin-node-resolve'; // resolve將我們編寫的原始碼與依賴的第三方庫進行合併
+import commonjs from '@rollup/plugin-commonjs'; // 解決rollup.js無法識別CommonJS模組
+import replace from '@rollup/plugin-replace'; // 全域性替換變數比如process.env
 import alias from '@rollup/plugin-alias';
-import commonjs from '@rollup/plugin-commonjs';
-import resolve from '@rollup/plugin-node-resolve';
-import replace from '@rollup/plugin-replace';
-import babel from '@rollup/plugin-babel';
-import { terser } from 'rollup-plugin-terser';
+import { terser } from 'rollup-plugin-terser'; // 壓縮打包程式碼
+import vue from 'rollup-plugin-vue';
 import css from 'rollup-plugin-css-only';
 import minimist from 'minimist';
+import { pascalify } from './lib/helpers.js';
 import { external, globals } from './declination.js';
 import pkg from '../package.json';
 
-const { name, version } = pkg;
+const { name, version, repository } = pkg;
 const prod = process.env.PRODUCTION;
 //const mode = prod ? 'production' : 'development';
 
@@ -23,15 +24,6 @@ const esbrowserslist = fs
   .toString()
   .split('\n')
   .filter((entry) => entry && entry.substring(0, 2) !== 'ie');
-
-// Convert kebab-case to camelCase
-const camelize = (s) => s.replace(/-./g, (x) => x[1].toUpperCase());
-
-// Convert kebab-case to Capital
-const capitalize = (s) => {
-  const temp = camelize(s);
-  return temp[0].toUpperCase() + temp.substring(1);
-};
 
 const argv = minimist(process.argv.slice(2));
 
@@ -115,7 +107,7 @@ if (!argv.format || argv.format === 'cjs') {
       compact: true,
       file: pkg.main,
       format: 'cjs',
-      name: capitalize(name),
+      name: pascalify(name),
       exports: 'auto',
       globals,
     },
@@ -145,12 +137,12 @@ if (!argv.format || argv.format === 'iife') {
       compact: true,
       file: pkg.unpkg,
       format: 'iife',
-      name: capitalize(pkg.name),
+      name: pascalify(pkg.name),
       exports: 'auto',
       globals,
       banner:
         '/*!\n' +
-        ` * ${name} v${version} | MIT License | https://github.com/{author}/{repo}\n` +
+        ` * ${name} v${version} | MIT License | ${repository.url}\n` +
         ` * https://unpkg.com/${name}@${version}/${pkg.unpkg}\n` +
         ' */',
     },

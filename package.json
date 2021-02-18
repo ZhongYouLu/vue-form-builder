@@ -1,6 +1,6 @@
 {
   "name": "form-builder",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "",
   "main": "dist/form-builder.ssr.js",
   "browser": "dist/form-builder.esm.js",
@@ -10,6 +10,18 @@
     "dist/*",
     "src/**/*.vue"
   ],
+  "homepage": "https://github.com/ZhongYouLu/vue-sfc-rollup-demo",
+  "bugs": "https://github.com/ZhongYouLu/vue-sfc-rollup-demo/issues",
+  "author": {
+    "name": "ZhongYouLu",
+    "email": "mk816017@gmail.com",
+    "url": "https://github.com/zhongyoulu"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ZhongYouLu/vue-sfc-rollup-demo.git"
+  },
+  "license": "MIT",
   "sideEffects": false,
   "scripts": {
     "serve": "vue-cli-service serve dev/serve.js",
