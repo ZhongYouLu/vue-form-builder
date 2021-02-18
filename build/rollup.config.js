@@ -23,7 +23,7 @@ const prod = process.env.PRODUCTION;
 const banner =
   '/*!\n' +
   ` * ${pkgName} v${version} | ${license} License | ${repository.url}\n` +
-  //` * https://unpkg.com/${pkgName}@${version}/${pkg.unpkg}\n` +
+  ` * https://unpkg.com/${pkgName}@${version}/${pkg.unpkg}\n` +
   ' */';
 
 // Get browserslist config and remove ie from es build targets

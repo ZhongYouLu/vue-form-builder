@@ -2,16 +2,16 @@
   <head>
     <script src="https://cdn.jsdelivr.net/npm/vue@2.6.12"></script>
     <!-- <script src="https://cdn.bootcss.com/babel-polyfill/6.26.0/polyfill.js"></script> -->
-    <link rel="stylesheet" href="/vue-sfc-rollup-demo/dist/form-builder.css" />
+    <link rel="stylesheet" href="https://unpkg.com/@mk816017/form-builder@1.0.3/dist/main.css" />
   </head>
   <body>
     <p>hello rollup + vuejs</p>
     <div id="App">
       <test></test>
     </div>
-    <!-- <script src="../dist/form-builder.min.js"></script> -->
+    <!-- <script src="https://unpkg.com/@mk816017/form-builder@1.0.2/dist/bundle.min.js"></script> -->
     <script type="module">
-      import FormBuilder from "/vue-sfc-rollup-demo/dist/form-builder.esm.js";
+      import FormBuilder from "https://unpkg.com/@mk816017/form-builder@1.0.3/dist/bundle.esm.js";
       // Vue.component("test", FormBuilder);
       var app = new Vue({
         el: "#app",
