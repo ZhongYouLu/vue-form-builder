@@ -9,6 +9,7 @@ import alias from '@rollup/plugin-alias';
 import { terser } from 'rollup-plugin-terser'; // 壓縮打包程式碼
 import vue from 'rollup-plugin-vue';
 import css from 'rollup-plugin-css-only';
+import PurgeIcons from 'rollup-plugin-purge-icons';
 import minimist from 'minimist';
 import { pascalify } from './lib/helpers.js';
 import { external, globals } from './declination.js';
@@ -62,7 +63,12 @@ const baseConfig = {
         isProduction: true,
       },
     },
-    postVue: [css({ output: 'main.css' })],
+    postVue: [
+      css({ output: 'main.css' }),
+      PurgeIcons({
+        /* PurgeIcons Options */
+      }),
+    ],
     babel: {
       exclude: 'node_modules/**',
       extensions: ['.js', '.jsx', '.ts', '.tsx', '.vue'],

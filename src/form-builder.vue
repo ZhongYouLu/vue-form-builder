@@ -9,6 +9,12 @@
     <button @click="increment(5)">Click +5</button>
     <button @click="decrement(5)">Click -5</button>
     <button @click="reset">Reset</button>
+    <span class="iconify" data-icon="fa:home"></span>
+    <!-- Font Awesome -->
+    <span class="iconify" data-icon="noto:bird"></span>
+    <!-- Note Icons -->
+    <span class="iconify" data-icon="mdi:alert"></span>
+    <!-- Material Design Icons -->
   </div>
 </template>
 

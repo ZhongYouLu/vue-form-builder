@@ -66,6 +66,12 @@ function _nonIterableRest() {
 //
 //
 //
+//
+//
+//
+//
+//
+//
 var script = /*#__PURE__*/{
   name: 'FormBuilder',
   // vue component name
@@ -193,7 +199,7 @@ var __vue_render__ = function __vue_render__() {
 
   return _c('div', {
     staticClass: "form-builder"
-  }, [_vm._ssrNode("<p data-v-5c3c1136>" + _vm._ssrEscape("\n    The counter was " + _vm._s(_vm.changedBy) + " to ") + "<b data-v-5c3c1136>" + _vm._ssrEscape(_vm._s(_vm.counter)) + "</b>.\n  </p> <button data-v-5c3c1136>Click +1</button> <button data-v-5c3c1136>Click -1</button> <button data-v-5c3c1136>Click +5</button> <button data-v-5c3c1136>Click -5</button> <button data-v-5c3c1136>Reset</button>")]);
+  }, [_vm._ssrNode("<p data-v-6f2d5b31>" + _vm._ssrEscape("\n    The counter was " + _vm._s(_vm.changedBy) + " to ") + "<b data-v-6f2d5b31>" + _vm._ssrEscape(_vm._s(_vm.counter)) + "</b>.\n  </p> <button data-v-6f2d5b31>Click +1</button> <button data-v-6f2d5b31>Click -1</button> <button data-v-6f2d5b31>Click +5</button> <button data-v-6f2d5b31>Click -5</button> <button data-v-6f2d5b31>Reset</button> <span data-icon=\"fa:home\" class=\"iconify\" data-v-6f2d5b31></span> <span data-icon=\"noto:bird\" class=\"iconify\" data-v-6f2d5b31></span> <span data-icon=\"mdi:alert\" class=\"iconify\" data-v-6f2d5b31></span>")]);
 };
 
 var __vue_staticRenderFns__ = [];
@@ -202,10 +208,10 @@ var __vue_staticRenderFns__ = [];
 var __vue_inject_styles__ = undefined;
 /* scoped */
 
-var __vue_scope_id__ = "data-v-5c3c1136";
+var __vue_scope_id__ = "data-v-6f2d5b31";
 /* module identifier */
 
-var __vue_module_identifier__ = "data-v-5c3c1136";
+var __vue_module_identifier__ = "data-v-6f2d5b31";
 /* functional template */
 
 var __vue_is_functional_template__ = false;

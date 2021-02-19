@@ -12,6 +12,12 @@
 //
 //
 //
+//
+//
+//
+//
+//
+//
 var script = /*#__PURE__*/{
   name: 'FormBuilder',
 
@@ -173,7 +179,22 @@ var __vue_render__ = function () {
     on: {
       "click": _vm.reset
     }
-  }, [_vm._v("Reset")])]);
+  }, [_vm._v("Reset")]), _vm._v(" "), _c('span', {
+    staticClass: "iconify",
+    attrs: {
+      "data-icon": "fa:home"
+    }
+  }), _vm._v(" "), _c('span', {
+    staticClass: "iconify",
+    attrs: {
+      "data-icon": "noto:bird"
+    }
+  }), _vm._v(" "), _c('span', {
+    staticClass: "iconify",
+    attrs: {
+      "data-icon": "mdi:alert"
+    }
+  })]);
 };
 
 var __vue_staticRenderFns__ = [];
@@ -182,7 +203,7 @@ var __vue_staticRenderFns__ = [];
 const __vue_inject_styles__ = undefined;
 /* scoped */
 
-const __vue_scope_id__ = "data-v-5c3c1136";
+const __vue_scope_id__ = "data-v-6f2d5b31";
 /* module identifier */
 
 const __vue_module_identifier__ = undefined;
