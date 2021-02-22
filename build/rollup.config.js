@@ -11,22 +11,32 @@ import vue from 'rollup-plugin-vue';
 import css from 'rollup-plugin-css-only';
 import PurgeIcons from 'rollup-plugin-purge-icons';
 import minimist from 'minimist';
-import { pascalify } from './lib/helpers.js';
-import { external, globals } from './declination.js';
 import pkg from '../package.json';
+import { pascalify } from './lib/helpers.js';
+// import { external, globals } from './declination.js';
 
-const { name: pkgName, version, repository, license } = pkg;
-const outputName = pascalify('form-builder');
+const argv = minimist(process.argv.slice(2));
+const { PRODUCTION } = process.env;
 
-const prod = process.env.PRODUCTION;
-//const mode = prod ? 'production' : 'development';
+const PATH_ROOT = path.resolve(__dirname, '..');
+const PATH_SRC = path.resolve(PATH_ROOT, 'src').replace(/\\/gi, '/');
+const PATH_NODE_MODULES = path.resolve(PATH_ROOT, 'node_modules').replace(/\\/gi, '/');
 
-const banner =
+const { name, globals } = pkg.rollup_config;
+const outputName = pascalify(name);
+const external = Object.keys(pkg.peerDependencies);
+
+// TODO: use argv
+const isSingle = true;
+const componentType = isSingle ? 'single' : 'library';
+const inputPath = `src/entry/${componentType}/entry.js`;
+const inputPath_ESM = `src/entry/${componentType}/entry.esm.js`;
+
+const banner = (outputPath) =>
   '/*!\n' +
-  ` * ${pkgName} v${version} | ${license} License | ${repository.url}\n` +
-  ` * https://unpkg.com/${pkgName}@${version}/${pkg.unpkg}\n` +
+  ` * ${pkg.name} v${pkg.version} | ${pkg.license} License | ${pkg.repository.url}\n` +
+  ` * https://unpkg.com/${pkg.name}@${pkg.version}/${outputPath}\n` +
   ' */';
-
 // Get browserslist config and remove ie from es build targets
 const esbrowserslist = fs
   .readFileSync('./.browserslistrc')
@@ -34,19 +44,16 @@ const esbrowserslist = fs
   .split('\n')
   .filter((entry) => entry && entry.substring(0, 2) !== 'ie');
 
-const argv = minimist(process.argv.slice(2));
-
-const projectRoot = path.resolve(__dirname, '..');
-
 const baseConfig = {
-  input: 'src/entry.js',
+  input: inputPath,
+  preserveModules: false,
   plugins: {
     preVue: [
       alias({
         entries: [
           {
             find: '@',
-            replacement: `${path.resolve(projectRoot, 'src')}`,
+            replacement: PATH_SRC,
           },
         ],
         customResolver: resolve({
@@ -55,10 +62,28 @@ const baseConfig = {
       }),
     ],
     replace: {
-      'process.env.NODE_ENV': JSON.stringify(prod ? 'production' : 'development'),
+      'process.env.NODE_ENV': JSON.stringify(PRODUCTION ? 'production' : 'development'),
     },
     vue: {
       css: false,
+      data: {
+        // This helps to inject variables in each <style> tag of every Vue SFC
+        scss: () => `@import "@/assets/scss/utils.scss";`,
+        sass: () => `@import "@/assets/scss/utils.scss"`,
+      },
+      style: {
+        preprocessOptions: {
+          scss: {
+            importer: [
+              function (url, _prev) {
+                return {
+                  file: url.replace(/^~/, `${PATH_NODE_MODULES}/`).replace(/^@/, PATH_SRC), // ain't pretty, it can be easily improved
+                };
+              },
+            ],
+          },
+        },
+      },
       template: {
         isProduction: true,
       },
@@ -79,18 +104,19 @@ const baseConfig = {
 
 // Customize configs for individual targets
 const buildFormats = [];
-if (!argv.format || argv.format === 'es') {
+if (!argv.format || argv.format === 'esm') {
   const esConfig = {
     ...baseConfig,
-    input: 'src/entry.esm.js',
+    input: inputPath_ESM,
     external,
     output: {
       file: pkg.module,
       format: 'esm',
       exports: 'named',
+      banner: banner(pkg.module),
     },
     plugins: [
-      replace({ ...baseConfig.plugins.replace }),
+      replace(baseConfig.plugins.replace),
       ...baseConfig.plugins.preVue,
       vue({
         ...baseConfig.plugins.vue,
@@ -113,56 +139,46 @@ if (!argv.format || argv.format === 'es') {
   buildFormats.push(esConfig);
 }
 
-if (!argv.format || argv.format === 'cjs') {
-  const umdConfig = {
-    ...baseConfig,
-    external,
-    output: {
-      compact: true,
-      file: pkg.main,
-      format: 'cjs',
-      name: outputName,
-      exports: 'auto',
-      globals,
-    },
-    plugins: [
-      replace({ ...baseConfig.plugins.replace }),
-      ...baseConfig.plugins.preVue,
-      vue({
-        ...baseConfig.plugins.vue,
-        template: {
-          ...baseConfig.plugins.vue.template,
-          optimizeSSR: true,
-        },
-      }),
-      ...baseConfig.plugins.postVue,
-      babel({ ...baseConfig.plugins.babel }),
-      commonjs(),
-    ],
-  };
+const umdConfig = {
+  ...baseConfig,
+  external,
+  output: {
+    file: pkg.main,
+    format: 'umd',
+    exports: 'auto',
+    name: outputName,
+    globals,
+    compact: true,
+    banner: banner(pkg.main),
+  },
+  plugins: [
+    replace(baseConfig.plugins.replace),
+    ...baseConfig.plugins.preVue,
+    vue({
+      ...baseConfig.plugins.vue,
+    }),
+    ...baseConfig.plugins.postVue,
+    babel({
+      ...baseConfig.plugins.babel,
+    }),
+    commonjs(),
+  ],
+};
+
+if (!argv.format || argv.format === 'umd') {
   buildFormats.push(umdConfig);
 }
 
-if (!argv.format || argv.format === 'iife') {
+if (!argv.format || argv.format === 'unpkg') {
   const unpkgConfig = {
-    ...baseConfig,
-    external,
+    ...umdConfig,
     output: {
-      compact: true,
+      ...umdConfig.output,
       file: pkg.unpkg,
-      format: 'iife',
-      name: outputName,
-      exports: 'auto',
-      globals,
-      banner,
+      banner: banner(pkg.unpkg),
     },
     plugins: [
-      replace({ ...baseConfig.plugins.replace }),
-      ...baseConfig.plugins.preVue,
-      vue({ ...baseConfig.plugins.vue }),
-      ...baseConfig.plugins.postVue,
-      babel({ ...baseConfig.plugins.babel }),
-      commonjs(),
+      ...umdConfig.plugins,
       terser({
         output: {
           ecma: 5,

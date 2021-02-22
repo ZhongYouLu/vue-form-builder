@@ -1,5 +1,5 @@
 // Import vue component
-import component from '@/form-builder.vue';
+import component from '@/components/FormBuilder.vue';
 
 // Default export is installable instance of component.
 // IIFE injects install function into component, allowing component
@@ -10,7 +10,7 @@ export default /*#__PURE__*/ (() => {
 
   // Attach install function executed by Vue.use()
   installable.install = (Vue) => {
-    Vue.component('FormBuilder', installable);
+    Vue.component(installable.name, installable);
   };
   return installable;
 })();
