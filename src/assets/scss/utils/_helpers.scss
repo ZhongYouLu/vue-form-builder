@@ -1,0 +1,85 @@
+// ========================================================
+// === Classes ===
+// ========================================================
+
+// ========================================================
+// === 基本 ===
+// ========================================================
+.hide {
+  display: none;
+}
+
+.text-ellipsis {
+  @include truncate(100%);
+}
+
+.flex-centered {
+  @include content-centered();
+}
+.flex-centered-X {
+  @include content-centered($y: false);
+}
+.flex-centered-Y {
+  @include content-centered($x: false);
+}
+
+.border-top-dashed {
+  margin-top: $gap-lg;
+  border-top: 1px dashed $border-color;
+}
+
+.btn {
+  padding: $gap;
+  text-align: center;
+  color: $btn-text-color;
+  background-color: $btn-bg-color;
+  border: $border-width solid $border-color;
+  border-radius: $border-radius;
+  outline: none;
+  user-select: none;
+  cursor: pointer;
+
+  &:hover {
+    background-color: $btn-bg-color-hover;
+  }
+}
+
+.icon-btn {
+  $len: $font-size + $gap * 2;
+  @extend .flex-centered;
+  flex: 0 1 $len;
+  width: $len;
+  height: $len;
+  line-height: $len;
+  font-size: $font-size;
+  text-align: center;
+  border-radius: 50%;
+  outline: none;
+  user-select: none;
+  cursor: pointer;
+
+  .icon {
+    width: $len * 0.9;
+    height: $len * 0.9;
+  }
+
+  &:hover {
+    background-color: lighten($color-gray-dark, 30);
+  }
+}
+
+.hyperlink {
+  text-decoration: none;
+  transition: all 0.3s ease;
+
+  &:link,
+  &:visited {
+    color: $link-text-color;
+  }
+  &:active,
+  &:hover {
+    color: $link-text-color--hover;
+    text-decoration: underline;
+    cursor: pointer;
+  }
+}

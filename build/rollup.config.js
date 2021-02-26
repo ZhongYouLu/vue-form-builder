@@ -27,7 +27,7 @@ const outputName = pascalify(name);
 const external = Object.keys(pkg.peerDependencies);
 
 // TODO: use argv
-const isSingle = true;
+const isSingle = false;
 const componentType = isSingle ? 'single' : 'library';
 const inputPath = `src/entry/${componentType}/entry.js`;
 const inputPath_ESM = `src/entry/${componentType}/entry.esm.js`;

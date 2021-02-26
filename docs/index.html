@@ -1,25 +1,48 @@
 <html>
   <head>
     <script src="https://cdn.jsdelivr.net/npm/vue@2.6.12"></script>
-    <!-- <script src="https://cdn.bootcss.com/babel-polyfill/6.26.0/polyfill.js"></script> -->
-    <script src="https://cdn.jsdelivr.net/npm/@iconify/iconify@1.0.7/dist/iconify.min.js"></script>
-    <!-- <link rel="stylesheet" href="../dist/main.css" /> -->
-    <link rel="stylesheet" href="https://unpkg.com/@mk816017/form-builder@1.0.5/dist/main.css" />
+    <script src="https://cdn.bootcss.com/babel-polyfill/6.26.0/polyfill.js"></script>
+    <!-- <script src="https://polyfill.io/v3/polyfill.min.js?features=es7"></script> -->
+    <script src="https://cdn.jsdelivr.net/npm/@iconify/iconify@2.0.0-rc.6/dist/iconify.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.8.4/Sortable.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Vue.Draggable/2.20.0/vuedraggable.umd.min.js"></script>
+    <script src="https://unpkg.com/vue-select@3.10.8/dist/vue-select.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/3.4.6/fuse.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/2.7.2/umd/popper.min.js"></script>
+    <link rel="stylesheet" href="../dist/main.css" />
+    <!-- <link rel="stylesheet" href="https://unpkg.com/@mk816017/form-builder@1.0.5/dist/main.css" /> -->
   </head>
   <body>
     <p>hello rollup + vuejs</p>
     <div id="App">
-      <test></test>
+      <form-builder v-bind="formJson"></form-builder>
     </div>
+    <script src="../dist/bundle.min.js"></script>
     <!-- <script src="https://unpkg.com/@mk816017/form-builder@1.0.5/dist/bundle.min.js"></script> -->
     <script type="module">
       // import FormBuilder from "../dist/bundle.esm.js";
-      import FormBuilder from "https://unpkg.com/@mk816017/form-builder@1.0.5/dist/bundle.esm.js";
-      // Vue.component("test", FormBuilder);
+      // import FormBuilder from "https://unpkg.com/@mk816017/form-builder@1.0.5/dist/bundle.esm.js";
+      Vue.component('FormBuilder', FormBuilder);
+      Vue.use(vuedraggable);
       var app = new Vue({
-        el: "#app",
-        components: {
-          test: FormBuilder,
+        el: '#app',
+        data: function () {
+          return {
+            formJson: {
+              id: 'demo',
+              columns: [],
+            },
+            componentKey: 0,
+          };
+        },
+        methods: {
+          updateFormJson(val) {
+            this.formJson = val;
+            this.forceRerender();
+          },
+          forceRerender() {
+            this.componentKey += 1;
+          },
         },
       });
     </script>

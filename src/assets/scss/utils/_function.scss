@@ -1,0 +1,25 @@
+// 轉換比例
+@function calc-percent($target, $container) {
+  @return ($target / $container) * 100%;
+}
+
+// 轉換比例(簡寫)
+@function cp($target, $container) {
+  @return calc-percent($target, $container);
+}
+
+// strip units helper function
+@function num($input) {
+  @return $input/($input * 0 + 1);
+}
+
+// Z指數
+// 因為在處理幾個不同的文件時，你很容易忘記你的z-index值， 所以我們創建了這個，以便我們可以將它們存儲在一個便於編輯/錄製的地方
+@function z($name) {
+  @if index($z-indexes, $name) {
+    @return (length($z-indexes) - index($z-indexes, $name))+1;
+  } @else {
+    @warn 'There is no item "#{$name}" in this list; choose one of: #{$z-indexes}';
+    @return null;
+  }
+}

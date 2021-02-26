@@ -1,0 +1,36 @@
+// ========================================================
+// === Mixins ===
+// ========================================================
+@mixin pad {
+  @media (max-width: 768px) {
+    @content;
+  }
+}
+
+@mixin content-centered($x: true, $y: true) {
+  display: flex;
+  @if $x == true {
+    justify-content: center;
+  }
+  @if $y == true {
+    align-items: center;
+  }
+}
+
+// 文字省略
+@mixin text-ellipsis-by-line($line: 1) {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  @if $line > 1 {
+    display: -webkit-box;
+    -webkit-line-clamp: $line;
+    -webkit-box-orient: vertical;
+    white-space: normal;
+  }
+}
+// 文字截斷: 需要指定具有最大寬度值的邊界
+@mixin truncate($truncation-boundary) {
+  @include text-ellipsis-by-line(1);
+  max-width: $truncation-boundary;
+}

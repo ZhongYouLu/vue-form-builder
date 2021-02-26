@@ -1,0 +1,273 @@
+// ==============================
+// RWD mixin
+// ==============================
+
+// Media queries
+//節省大量時間！您可以只使用像素值，但我們有一些默認斷點設置也能正常工作，
+// 另一個節省時間，同時保持斷點一致。
+// 下面的示例顯示一旦視口超過1024px，填充和字體大小就會增加。
+// .site-header {
+//   padding: 2rem;
+//   font-size: 1.8rem;
+//   @include mq('tablet-wide') {
+//     padding-top: 4rem;
+//     font-size: 2.4rem;
+//   }
+// }
+
+@mixin mq($width, $type: min) {
+  @if map_has_key($breakpoints, $width) {
+    $width: map_get($breakpoints, $width);
+
+    @if $type==max {
+      $width: $width - 1px;
+    }
+
+    @media only screen and (#{$type}-width: $width) {
+      @content;
+    }
+  }
+}
+
+// 寬
+@mixin responsive-width($desktop, $tablet, $phablet, $phone) {
+  //電腦
+  @include mq(desktop) {
+    width: $desktop;
+  }
+
+  @include mq(desktop, max) {
+    width: $desktop;
+  }
+
+  //平板電腦
+  @include mq(tablet, max) {
+    width: $tablet;
+  }
+
+  //平板手機
+  @include mq(phablet, max) {
+    width: $phablet;
+  }
+
+  //手機
+  @include mq(phone, max) {
+    width: $phone;
+  }
+}
+
+// 高
+@mixin responsive-height($desktop, $tablet, $phablet, $phone) {
+  //電腦
+  @include mq(desktop) {
+    height: $desktop;
+  }
+
+  @include mq(desktop, max) {
+    height: $desktop;
+  }
+
+  //平板電腦
+  @include mq(tablet, max) {
+    height: $tablet;
+  }
+
+  //平板手機
+  @include mq(phablet, max) {
+    height: $phablet;
+  }
+
+  //手機
+  @include mq(phone, max) {
+    height: $phone;
+  }
+}
+
+// 外距
+@mixin responsive-margin($desktop, $tablet, $phablet, $phone) {
+  //電腦
+  @include mq(desktop) {
+    margin: $desktop;
+  }
+
+  @include mq(desktop, max) {
+    margin: $desktop;
+  }
+
+  //平板電腦
+  @include mq(tablet, max) {
+    margin: $tablet;
+  }
+
+  //平板手機
+  @include mq(phablet, max) {
+    margin: $phablet;
+  }
+
+  //手機
+  @include mq(phone, max) {
+    margin: $phone;
+  }
+}
+
+// 外距(上)
+@mixin responsive-marginTop($desktop, $tablet, $phablet, $phone) {
+  //電腦
+  @include mq(desktop) {
+    margin-top: $desktop;
+  }
+
+  @include mq(desktop, max) {
+    margin-top: $desktop;
+  }
+
+  //平板電腦
+  @include mq(tablet, max) {
+    margin-top: $tablet;
+  }
+
+  //平板手機
+  @include mq(phablet, max) {
+    margin-top: $phablet;
+  }
+
+  //手機
+  @include mq(phone, max) {
+    margin-top: $phone;
+  }
+}
+
+// 外距(左)
+@mixin responsive-marginLeft($desktop, $tablet, $phablet, $phone) {
+  //電腦
+  @include mq(desktop) {
+    margin-left: $desktop;
+  }
+
+  @include mq(desktop, max) {
+    margin-left: $desktop;
+  }
+
+  //平板電腦
+  @include mq(tablet, max) {
+    margin-left: $tablet;
+  }
+
+  //平板手機
+  @include mq(phablet, max) {
+    margin-left: $phablet;
+  }
+
+  //手機
+  @include mq(phone, max) {
+    margin-left: $phone;
+  }
+}
+
+// 內距
+@mixin responsive-padding($desktop, $tablet, $phablet, $phone) {
+  //電腦
+  @include mq(desktop) {
+    padding: $desktop;
+  }
+
+  @include mq(desktop, max) {
+    padding: $desktop;
+  }
+
+  //平板電腦
+  @include mq(tablet, max) {
+    padding: $tablet;
+  }
+
+  //平板手機
+  @include mq(phablet, max) {
+    padding: $phablet;
+  }
+
+  //手機
+  @include mq(phone, max) {
+    padding: $phone;
+  }
+}
+
+// 內距(下)
+@mixin responsive-paddingBottom($desktop, $tablet, $phablet, $phone) {
+  //電腦
+  @include mq(desktop) {
+    padding-bottom: $desktop;
+  }
+
+  @include mq(desktop, max) {
+    padding-bottom: $desktop;
+  }
+
+  //平板電腦
+  @include mq(tablet, max) {
+    padding-bottom: $tablet;
+  }
+
+  //平板手機
+  @include mq(phablet, max) {
+    padding-bottom: $phablet;
+  }
+
+  //手機
+  @include mq(phone, max) {
+    padding-bottom: $phone;
+  }
+}
+
+// 定位(上)
+@mixin responsive-top($desktop, $tablet, $phablet, $phone) {
+  //電腦
+  @include mq(desktop) {
+    top: $desktop;
+  }
+
+  @include mq(desktop, max) {
+    top: $desktop;
+  }
+
+  //平板電腦
+  @include mq(tablet, max) {
+    top: $tablet;
+  }
+
+  //平板手機
+  @include mq(phablet, max) {
+    top: $phablet;
+  }
+
+  //手機
+  @include mq(phone, max) {
+    top: $phone;
+  }
+}
+
+// 行高
+@mixin responsive-lineHeight($desktop, $tablet, $phablet, $phone) {
+  //電腦
+  @include mq(desktop) {
+    line-height: $desktop;
+  }
+
+  @include mq(desktop, max) {
+    line-height: $desktop;
+  }
+
+  //平板電腦
+  @include mq(tablet, max) {
+    line-height: $tablet;
+  }
+
+  //平板手機
+  @include mq(phablet, max) {
+    line-height: $phablet;
+  }
+
+  //手機
+  @include mq(phone, max) {
+    line-height: $phone;
+  }
+}

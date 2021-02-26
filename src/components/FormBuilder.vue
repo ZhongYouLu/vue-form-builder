@@ -2,7 +2,7 @@
   <div class="form-builder">
     <h1>Form ID: {{ id }}</h1>
     <main class="form-builder__main">
-      <FormSetting :id="id" :columns="columns" />
+      <FormSetting :id="id" :columns="columns" :update-colums="updateColums" />
       <FormDemo :id="id" :columns="columns" />
     </main>
   </div>
@@ -25,6 +25,10 @@ export default /*#__PURE__*/ {
     },
     columns: {
       type: Array,
+      required: true,
+    },
+    updateColums: {
+      type: Function,
       required: true,
     },
   },
