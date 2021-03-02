@@ -1,81 +1,92 @@
 <template>
-  <label :class="['input-row', { required: isRequired }]">
-    <div class="for">
-      <p>{{ label }}</p>
-    </div>
-    <div class="field">
-      <slot>
-        <template v-if="isInput">
-          <div class="input">
-            <input v-bind="$attrs" :value="value" :type="type" @input="update" />
-          </div>
-        </template>
-        <template v-else-if="type === 'radio'">
-          <div class="radio-row">
-            <label v-for="option in options" :key="option.text">
-              <input
-                type="radio"
-                :value="option.value"
-                :checked="option.value === value"
-                @change="setSelected(option.value)"
-              />
-              <span>{{ option.text }}</span>
-              <slot v-if="option.value === value" :name="option.value" />
-            </label>
-          </div>
-        </template>
-        <template v-else-if="type === 'select'">
-          <VueSelect
-            v-bind="$attrs"
-            :value="value"
-            :options="options"
-            :reduce="(option) => option.value"
-            :get-option-label="(option) => option.text"
-            :append-to-body="true"
-            :calculate-position="withPopper"
-            :clearable="false"
-            :searchable="false"
-            @input="setSelected"
-          />
-        </template>
-        <template v-else-if="type === 'select-search'">
-          <VueSelect
-            v-bind="$attrs"
-            :value="value"
-            :options="columnsExcludeSelf"
-            :reduce="(option) => option.id"
-            :get-option-label="(option) => option.name"
-            :append-to-body="true"
-            :calculate-position="withPopper"
-            :filter="fuseSearch"
-            :reset-on-options-change="true"
-            @input="setSelected"
-          >
-            <template #option="option">
-              {{ option.name || option.id }}
-              <br />
-              <em>{{ option.label }}</em>
-            </template>
-            <template #no-options="{ search, searching }">
-              <template v-if="searching">
-                查無
-                <em>{{ search }}</em> 相關.
+  <fragment>
+    <label :class="['input-row', { required: isRequired }]">
+      <div class="for">
+        <p>{{ label }}</p>
+      </div>
+      <div class="field">
+        <slot>
+          <template v-if="isInput">
+            <div class="input">
+              <input v-bind="$attrs" :value="value" :type="type" @input="update" />
+            </div>
+          </template>
+          <template v-else-if="type === 'radio'">
+            <div class="radio-row">
+              <label v-for="option in options" :key="option.text">
+                <input
+                  type="radio"
+                  :value="option.value"
+                  :checked="option.value === value"
+                  @change="setSelected(option.value)"
+                />
+                <span>{{ option.text }}</span>
+              </label>
+            </div>
+          </template>
+          <template v-else-if="type === 'select'">
+            <VueSelect
+              v-bind="$attrs"
+              :value="value"
+              :options="options"
+              :clearable="false"
+              :append-to-body="true"
+              :calculate-position="withPopper"
+              :searchable="false"
+              :reduce="(option) => option.value"
+              :get-option-label="(option) => option.text"
+              @input="setSelected"
+            />
+          </template>
+          <template v-else-if="type === 'select-search'">
+            <VueSelect
+              v-bind="$attrs"
+              :value="value"
+              :options="options"
+              :clearable="true"
+              :append-to-body="true"
+              :calculate-position="withPopper"
+              :searchable="true"
+              :reduce="reduce"
+              :get-option-label="getOptionLabel"
+              :filter="fuseSearch"
+              :reset-on-options-change="false"
+              @input="setSelected"
+            >
+              <template #option="option">
+                {{ option.name || option.id }}
+                <br />
+                <em>{{ option.label }}</em>
               </template>
-              <em v-else style="opacity: 0.5">開始嘗試搜尋欄位</em>
-            </template>
-          </VueSelect>
-        </template>
-      </slot>
+              <template #no-options="{ search, searching }">
+                <template v-if="searching">
+                  查無
+                  <em>{{ search }}</em> 相關.
+                </template>
+                <em v-else style="opacity: 0.5">開始嘗試搜尋欄位</em>
+              </template>
+              <template v-for="(_, slot) in $scopedSlots" #[slot]="props">
+                <slot :name="slot" v-bind="props" />
+              </template>
+            </VueSelect>
+          </template>
+        </slot>
+      </div>
+    </label>
+    <div>
+      <slot name="msg" />
     </div>
-  </label>
+  </fragment>
 </template>
 <script>
+import { Fragment } from 'vue-fragment';
 import VueSelect from 'vue-select';
 import Fuse from 'fuse.js';
 import { createPopper } from '@popperjs/core';
 
 export default /*#__PURE__*/ {
   components: {
+    Fragment,
     VueSelect,
   },
   inheritAttrs: false,
@@ -91,6 +102,8 @@ export default /*#__PURE__*/ {
       },
     },
     options: { type: Array, default: () => [] },
+    reduce: { type: Function, default: (option) => option.id },
+    getOptionLabel: { type: Function, default: (option) => option.name || option.id },
   },
   emits: ['input'],
   data() {
@@ -108,6 +121,7 @@ export default /*#__PURE__*/ {
       this.$emit('input', e.target.value);
     },
     setSelected(value) {
+      console.log(`setSelected:${this.label}`, value);
       this.$emit('input', value);
     },
     fuseSearch(options, search) {

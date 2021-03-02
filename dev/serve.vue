@@ -8,16 +8,15 @@
         :callback="forceRerender"
       />
       <h1>Form ID: {{ formJson.id }}</h1>
-      <main class="form-builder__main">
-        <FormMainLogic :key="componentKey" v-slot="props" :columns.sync="formJson.columns">
-          <!-- columns: {{ props.columns }}
-          <br /> -->
-          <!-- cleanColumns: {{ props.cleanColumns }}
-          <hr /> -->
+      <FormMainLogic :key="componentKey" v-slot="props" :columns.sync="formJson.columns">
+        <main class="form-builder__main">
           <FormSetting v-bind="props" />
-        </FormMainLogic>
-        <FormDemo v-bind="formJson" />
-      </main>
+          <div>
+            <FormDemo :columns="props.columns" />
+            <FormDemo :columns="props.cleanColumns" />
+          </div>
+        </main>
+      </FormMainLogic>
     </div>
   </div>
 </template>

@@ -46,6 +46,7 @@
     "@popperjs/core": "^2.7.1",
     "fuse.js": "^6.4.6",
     "sortablejs": "^1.13.0",
+    "vue-fragment": "^1.5.2",
     "vue-select": "^3.11.2",
     "vuedraggable": "^2.24.3"
   },

@@ -8,7 +8,7 @@
           <Icon icon="mdi:drag" />
           <span>#{{ idx + 1 }}</span>
         </div>
-        <div class="text-ellipsis">{{ mutableColumn.name ? mutableColumn.name : '(請設定欄位名稱)' }}</div>
+        <div class="text-ellipsis">{{ mutableColumn.name ? mutableColumn.name : `${id} (請設定欄位名稱)` }}</div>
         <div class="controll">
           <div class="icon-btn" @click="handleOpen">
             <Icon :icon="isOpen ? 'mdi:eye-minus' : 'mdi:eye-settings'" />
@@ -41,11 +41,12 @@
           </div>
         </template>
       </nav>
+
       <component
-        :is="comp.component"
-        v-bind="{ ...comp.props }"
+        :is="currentCmp.component"
+        v-bind="currentCmp.props"
         v-if="tabDisplayConditions[currentTab]"
-        @update="update(currentTab, $event)"
+        @update="updateColumn(currentTab, $event)"
       />
     </form>
   </div>
@@ -72,6 +73,7 @@ export default /*#__PURE__*/ {
   },
   props: {
     idx: { type: Number, required: true },
+    columns: { type: Array, required: true },
     //-----------
     // 識別碼
     id: { type: String, required: true },
@@ -122,7 +124,7 @@ export default /*#__PURE__*/ {
         condition: true,
       };
     },
-    comp() {
+    currentCmp() {
       const base = {
         component: `setting-${this.currentTab}`,
         props: {
@@ -139,6 +141,12 @@ export default /*#__PURE__*/ {
       switch (this.currentTab) {
         case 'base':
         case 'rule':
+          base.props = {
+            ...base.props,
+            columnsExcludeSelf: this.columnsExcludeSelf,
+          };
+
+          break;
         case 'item':
         case 'condition':
         default:
@@ -188,7 +196,8 @@ export default /*#__PURE__*/ {
     },
   },
   methods: {
-    update(tab, val) {
+    updateColumn(tab, val) {
+      console.log(`updateMutableColumn:${tab}`, val);
       this.mutableColumn[tab] = val;
     },
     handleRemove: function () {

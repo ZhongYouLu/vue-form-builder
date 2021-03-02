@@ -56,7 +56,7 @@
 import Draggable from 'vuedraggable';
 import Field from '@/components/Field.vue';
 import Icon from '@/components/Icon';
-import { uuid, convertOptions } from '@/assets/js/helper.js';
+import { nanoid, convertOptions } from '@/assets/js/helper.js';
 
 export default /*#__PURE__*/ {
   name: 'ColumnSettingItem',
@@ -108,7 +108,7 @@ export default /*#__PURE__*/ {
       sync: {
         items: this.items.map((item) => {
           return {
-            id: uuid(),
+            id: nanoid(6),
             ...item,
           };
         }),
@@ -149,7 +149,7 @@ export default /*#__PURE__*/ {
   methods: {
     invokeAdd() {
       this.sync.items.push({
-        id: uuid(),
+        id: nanoid(6),
         text: '',
         value: '',
       });

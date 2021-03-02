@@ -10,6 +10,27 @@ export function uuid() {
   });
 }
 
+export function generateUID() {
+  // I generate the UID from two parts here
+  // to ensure the random number provide enough bits.
+  var firstPart = (Math.random() * 46656) | 0;
+  var secondPart = (Math.random() * 46656) | 0;
+  firstPart = ('000' + firstPart.toString(36)).slice(-3);
+  secondPart = ('000' + secondPart.toString(36)).slice(-3);
+  return firstPart + secondPart;
+}
+
+// https://github.com/ai/nanoid
+export let nanoid = (t = 21) => {
+  let e = '',
+    r = crypto.getRandomValues(new Uint8Array(t));
+  for (; t--; ) {
+    let n = 63 & r[t];
+    e += n < 36 ? n.toString(36) : n < 62 ? (n - 26).toString(36).toUpperCase() : n < 63 ? '_' : '-';
+  }
+  return e;
+};
+
 export function deepCopy(obj) {
   if (!obj || typeof obj !== 'object') {
     return obj;
@@ -44,3 +65,46 @@ export function json2ObjByKey(json, key) {
 export function convertOptions(obj) {
   return Object.entries(obj).reduce((p, [k, v]) => [...p, { value: k, text: v }], []);
 }
+
+export function isEmptyObject(value) {
+  return value && Object.keys(value).length === 0 && value.constructor === Object;
+}
+
+export function isEmpty(obj) {
+  // null and undefined are "empty"
+  if (obj == null) return true;
+
+  // Assume if it has a length property with a non-zero value
+  // that that property is correct.
+  if (obj.length > 0) return false;
+  if (obj.length === 0) return true;
+
+  // If it isn't an object at this point
+  // it is empty, but it can't be anything *but* empty
+  // Is it empty?  Depends on your application.
+  if (typeof obj !== 'object') return true;
+
+  // Otherwise, does it have any properties of its own?
+  // Note that this doesn't handle
+  // toString and valueOf enumeration bugs in IE < 9
+  for (var key in obj) {
+    if (hasOwnProperty.call(obj, key)) return false;
+  }
+
+  return true;
+}
+
+// eslint-disable-next-line no-unused-vars
+export const removeProperty = (propKey, { [propKey]: propValue, ...rest }) => rest;
+
+export function removeObjInArrByKey(array, key, value) {
+  const index = array.findIndex((obj) => obj[key] === value);
+  return index >= 0 ? [...array.slice(0, index), ...array.slice(index + 1)] : array;
+}
+
+// export function arrPropRemove() {
+//   Array.prototype.remove = function (key, value) {
+//     const index = this.findIndex((obj) => obj[key] === value);
+//     return index >= 0 ? [...this.slice(0, index), ...this.slice(index + 1)] : this;
+//   };
+// }

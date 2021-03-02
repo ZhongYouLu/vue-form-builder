@@ -12,7 +12,7 @@
 </template>
 
 <script>
-import { uuid, deepCopy } from '@/assets/js/helper.js';
+import { nanoid, deepCopy, removeProperty, isEmpty } from '@/assets/js/helper.js';
 
 export default /*#__PURE__*/ {
   name: 'FormMainLogic',
@@ -33,7 +33,7 @@ export default /*#__PURE__*/ {
       // 可變的欄位群 (預設id)
       mutableColumns: deepCopy(this.columns).map((column) => {
         return {
-          id: uuid(),
+          id: nanoid(6),
           ...column,
         };
       }),
@@ -44,31 +44,42 @@ export default /*#__PURE__*/ {
     cleanColumns() {
       const newColumns = this.mutableColumns.map((column) => {
         // TODO: 待清除完整
-        // eslint-disable-next-line no-unused-vars
-        const { id, item, ...newColumn } = column;
 
-        if (item) {
-          const { items, api, ...newItem } = item;
+        // const entries = Object.entries(removeProperty('id', column));
+        const entries = Object.entries(column);
 
-          switch (newItem.srcMode) {
-            case 'api':
-              newItem['api'] = api;
-              break;
+        let newColumn = entries.reduce((p, [k, v]) => {
+          if (!isEmpty(v)) {
+            if (k === 'rule') {
+              const { msg, ...newRule } = v;
 
-            default:
-              if (items) {
-                const newItems = column['item'].items.map((item) => {
-                  // eslint-disable-next-line no-unused-vars
-                  const { id, ...newItem } = item;
-                  return newItem;
-                });
-                newItem['items'] = newItems;
+              const newMsg = Object.entries(msg).reduce((p, [k, v]) => {
+                if (v && newRule[k]) p[k] = v;
+                return p;
+              }, {});
+
+              if (!isEmpty(newMsg)) newRule['msg'] = newMsg;
+
+              v = newRule;
+            } else if (k === 'item') {
+              const { items, api, ...newItem } = v;
+
+              switch (newItem.srcMode) {
+                case 'api':
+                  newItem['api'] = api;
+                  break;
+                case 'list':
+                  newItem['items'] = items.map((item) => removeProperty('id', item));
+                  break;
               }
-              break;
-          }
 
-          newColumn['item'] = newItem;
-        }
+              v = newItem;
+            }
+
+            if (!isEmpty(v)) p[k] = v;
+          }
+          return p;
+        }, {});
 
         return newColumn;
       });
@@ -90,7 +101,7 @@ export default /*#__PURE__*/ {
       this.mutableColumns = newVal;
     },
     invokeAdd() {
-      this.mutableColumns.push({ id: uuid() });
+      this.mutableColumns.push({ id: nanoid(6) });
     },
     invokeUpdate(idx, newVal) {
       this.$set(this.mutableColumns, idx, {

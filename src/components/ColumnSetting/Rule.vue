@@ -11,41 +11,19 @@
         { value: 0, text: '否' },
       ]"
     >
-      <template #1>
-        <Field
-          v-if="sync.required"
-          v-model="sync.msg.required"
-          label="是否必填"
-          :placeholder="'[' + name + '] 為必填。'"
-        />
+      <template #msg>
+        <div v-if="sync.required">
+          <Field v-model="syncMsg.required" label="是否必填-訊息" :placeholder="`[${name}] 為必填。`" />
+        </div>
       </template>
     </Field>
-    <Field v-model="sync.sameAs" label="與..相符">
-      <!-- <VueSelect
-        v-model="column.rule.sameAs"
-        :options="columnsExcludeSelf"
-        :reduce="(option) => option.id"
-        :get-option-label="(option) => option.info.name"
-        placeholder="請選擇欄位"
-        :append-to-body="true"
-        :calculate-position="withPopper"
-        :filter="fuseSearch"
-        :reset-on-options-change="true"
-      >
-        <template #option="option">
-          {{ option.info.name || option.id }}
-          <br />
-          <em>{{ option.info.label }}</em>
-        </template>
-        <template #no-options="{ search, searching }">
-          <template v-if="searching">
-            查無
-            <em>{{ search }}</em> 相關.
-          </template>
-          <em v-else style="opacity: 0.5">開始嘗試搜尋欄位</em>
-        </template>
-      </VueSelect> -->
-    </Field>
+    <Field
+      v-model="sync.sameAs"
+      label="與..相符"
+      placeholder="請選擇欄位"
+      type="select-search"
+      :options="columnsExcludeSelf"
+    />
     <template v-if="isText">
       <Field v-model.number="sync.minimum" label="字元下限" type="number" />
       <Field v-model.number="sync.maximum" label="字元上限" type="number" />
@@ -65,6 +43,7 @@
 </template>
 <script>
 import Field from '@/components/Field.vue';
+// import { removeProperty } from '@/assets/js/helper.js';
 
 export default /*#__PURE__*/ {
   name: 'ColumnSettingBase',
@@ -77,6 +56,8 @@ export default /*#__PURE__*/ {
     isText: { type: Boolean, default: false },
     // 屬於多選框
     isCheckBox: { type: Boolean, default: false },
+    //
+    columnsExcludeSelf: { type: Array, required: true },
     //-----------
     // 必填
     required: { type: Number, default: null },
@@ -98,7 +79,6 @@ export default /*#__PURE__*/ {
   data() {
     return {
       sync: {
-        msg: this.msg,
         required: this.required,
         minimum: this.minimum,
         maximum: this.maximum,
@@ -106,26 +86,32 @@ export default /*#__PURE__*/ {
         sameAs: this.sameAs,
         limit: this.limit,
       },
+      syncMsg: this.msg,
     };
   },
   watch: {
+    syncMsg: function (newVal) {
+      this.$emit('update:msg', newVal);
+    },
     sync: {
       handler: function (newVal) {
+        const vm = this;
         const temp = Object.entries(newVal).reduce((p, [k, v]) => {
           if (v) {
             p[k] = v;
+            if (vm.syncMsg[k] === undefined) {
+              vm.syncMsg = { ...vm.syncMsg, [k]: null };
+            }
+          } else {
+            // vm.syncMsg = removeProperty(k, vm.syncMsg);
           }
+
           return p;
         }, {});
 
-        this.$emit('update', temp);
+        this.$emit('update', { ...temp, msg: this.syncMsg });
       },
       deep: true,
-    },
-    'sync.required': function (newVal) {
-      if (newVal && this.sync.msg['required'] === undefined) {
-        this.sync.msg = { ...this.sync.msg, required: null };
-      }
     },
   },
 };

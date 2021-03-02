@@ -13,10 +13,10 @@
 export default /*#__PURE__*/ {
   name: 'FormDemo',
   props: {
-    id: {
-      type: String,
-      required: true,
-    },
+    // id: {
+    //   type: String,
+    //   required: true,
+    // },
     columns: {
       type: Array,
       required: true,
