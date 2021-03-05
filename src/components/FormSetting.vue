@@ -1,12 +1,12 @@
 <template>
   <div class="form-setting">
-    <Draggable v-model="mutableColumns" animation="300" ghost-class="ghost" handle=".card__drag">
+    <Draggable v-model="localColumns" animation="300" ghost-class="ghost" handle=".card__drag">
       <ColumnSetting
         v-for="(column, idx) in columns"
         :key="column.id"
         :idx="idx"
-        v-bind="column"
         :columns="columns"
+        v-bind="column"
         @update="invokeUpdate"
         @remove="invokeRemove"
       >
@@ -21,7 +21,7 @@
 
 <script>
 import Draggable from 'vuedraggable';
-import ColumnSetting from '@/components/ColumnSetting.vue';
+import ColumnSetting from '@/components/ColumnSetting';
 
 export default /*#__PURE__*/ {
   name: 'FormSetting',
@@ -37,12 +37,12 @@ export default /*#__PURE__*/ {
     invokeRemove: { type: Function, required: true },
   },
   computed: {
-    mutableColumns: {
+    localColumns: {
       get() {
         return this.columns;
       },
-      set(value) {
-        this.invokeUpdateColumns(value);
+      set(val) {
+        this.invokeUpdateColumns(val);
       },
     },
   },

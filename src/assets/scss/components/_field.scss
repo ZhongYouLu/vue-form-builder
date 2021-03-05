@@ -36,8 +36,6 @@ input[type='checkbox'] {
   // 自定義框
   & + span {
     position: relative;
-    display: inline-block;
-    vertical-align: middle;
     padding-left: $font-size + $input-gap;
     cursor: pointer;
 
@@ -137,6 +135,7 @@ input[type='checkbox'] {
   }
 
   .for {
+    @include content-centered($x: false);
     flex: 0 1 25%;
     white-space: nowrap; /* 強迫不換行 */
   }
@@ -199,5 +198,11 @@ input[type='checkbox'] {
         }
       }
     }
+  }
+}
+
+.input-group {
+  &:not(:last-child) {
+    margin-bottom: $gap-lg;
   }
 }

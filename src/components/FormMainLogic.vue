@@ -1,7 +1,7 @@
 <template>
   <div>
     <slot
-      :columns="mutableColumns"
+      :columns="localColumns"
       :cleanColumns="cleanColumns"
       :invokeUpdateColumns="invokeUpdateColumns"
       :invokeAdd="invokeAdd"
@@ -12,7 +12,7 @@
 </template>
 
 <script>
-import { nanoid, deepCopy, removeProperty, isEmpty } from '@/assets/js/helper.js';
+import { nanoid, removeProperty, isEmpty } from '@/assets/js/helper.js';
 
 export default /*#__PURE__*/ {
   name: 'FormMainLogic',
@@ -24,29 +24,24 @@ export default /*#__PURE__*/ {
     // 欄位群
     columns: { type: Array, required: true },
   },
-  emits: [
-    // :columns.sync
-    'update:columns',
-  ],
-  data() {
-    return {
-      // 可變的欄位群 (預設id)
-      mutableColumns: deepCopy(this.columns).map((column) => {
-        return {
-          id: nanoid(6),
-          ...column,
-        };
-      }),
-    };
-  },
+  emits: ['update:columns'],
   computed: {
+    // 本地的欄位群
+    localColumns: {
+      get() {
+        return this.columns;
+      },
+      set(val) {
+        this.invokeUpdateColumns(val);
+      },
+    },
     // 乾淨欄位群 (清除不必要屬性的)
     cleanColumns() {
-      const newColumns = this.mutableColumns.map((column) => {
+      const newColumns = this.localColumns.map((column) => {
         // TODO: 待清除完整
 
-        // const entries = Object.entries(removeProperty('id', column));
         const entries = Object.entries(column);
+        // const entries = Object.entries(removeProperty('id', column));
 
         let newColumn = entries.reduce((p, [k, v]) => {
           if (!isEmpty(v)) {
@@ -61,7 +56,7 @@ export default /*#__PURE__*/ {
               if (!isEmpty(newMsg)) newRule['msg'] = newMsg;
 
               v = newRule;
-            } else if (k === 'item') {
+            } else if (k === 'data') {
               const { items, api, ...newItem } = v;
 
               switch (newItem.srcMode) {
@@ -87,59 +82,72 @@ export default /*#__PURE__*/ {
       return newColumns;
     },
   },
-  watch: {
-    // 監聽可變的欄位群，更新父組件。 (單向資料流)
-    mutableColumns: {
-      handler: function (newVal) {
-        this.$emit('update:columns', newVal);
-      },
-      deep: true,
-    },
-  },
   methods: {
-    invokeUpdateColumns(newVal) {
-      this.mutableColumns = newVal;
+    // 更新欄位群
+    emitUpdate(newColumns, note) {
+      console.log(`${note && `[${note}] `}update:columns`, newColumns);
+      this.$emit('update:columns', newColumns);
     },
+    // 呼叫更新欄位群
+    invokeUpdateColumns(newColumns) {
+      this.emitUpdate(newColumns, 'invokeUpdateColumns');
+    },
+    // 呼叫新增欄位
     invokeAdd() {
-      this.mutableColumns.push({ id: nanoid(6) });
+      const emptyColumn = { id: nanoid(6) };
+      const newColumns = [...this.localColumns, emptyColumn];
+
+      this.emitUpdate(newColumns, 'invokeAdd');
     },
-    invokeUpdate(idx, newVal) {
-      this.$set(this.mutableColumns, idx, {
-        id: this.mutableColumns[idx].id,
-        ...newVal,
-      });
-    },
-    invokeRemove(idx) {
-      const allowFunc = () => {
-        this.mutableColumns.splice(idx, 1);
+    // 呼叫更新欄位
+    invokeUpdate(idx, newColumn) {
+      const newColumns = [...this.localColumns];
+      newColumns[idx] = {
+        id: this.localColumns[idx].id,
+        ...newColumn,
       };
 
-      const column = this.mutableColumns[idx];
-      const showMsg = `確定刪除欄位 #${idx + 1} [${column.base ? column.base.name : null || column.id}] ?`;
+      this.emitUpdate(newColumns, 'invokeUpdate');
+    },
+    // 呼叫刪除欄位
+    invokeRemove(idx) {
+      const { id, name } = this.localColumns[idx];
+
+      // 確認刪除函式
+      const allowFunc = () => {
+        const newColumns = [...this.localColumns];
+        // 消除其他欄位相關連動
+        newColumns.forEach((c) => {
+          // 如果有規則 - [與...相符]
+          if (!isEmpty(c.rule && c.rule.sameAs) && c.rule.sameAs === id) {
+            // 取消設置
+            c.rule.sameAs = null;
+          }
+
+          // 如果有條件 - 顯示
+          if (!isEmpty(c.condition && c.condition.display)) {
+            c.condition.display = c.condition.display.reduce((p, obj) => {
+              // 排除該項
+              if (obj.triggerID !== id) return p;
+              // else
+              p = [...p, obj];
+              return p;
+            }, []);
+          }
+        });
+        // 刪除該索引之欄位
+        newColumns.splice(idx, 1);
+
+        this.emitUpdate(newColumns, 'invokeRemove');
+      };
+
+      const showMsg = `確定刪除欄位 #${idx + 1} [${name || id}] ?`;
 
       if (this.handleConfirm) {
         this.handleConfirm(showMsg, allowFunc);
       } else {
         if (confirm(showMsg)) allowFunc();
       }
-    },
-    getColumnTemp: function () {
-      return {
-        // 顯示條件
-        conditions: [
-          // {
-          //   triggerID: 'babyNum',
-          //   findOne: ['1', '2', '3', '4'], // 滿足其一
-          //   findAll: ['1', '2', '3', '4'], // 滿足全部
-          //   // other...
-          // },
-          // multiple..
-        ],
-        // 其他檢查設定
-        requiredSync: [], // 連動必填元素 (如果自身有值，其元素必填)
-        requiredCheck: [], // 自身必填檢查 (來自其他元素的 requiredSync)
-        sameAsReverseCheck: [], // 反向相符檢查 元素值是否相符 (來自其他元素的 rule.sameAs)
-      };
     },
   },
 };

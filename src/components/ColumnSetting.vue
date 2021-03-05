@@ -3,14 +3,27 @@
   <div class="card">
     <!-- Header -->
     <header class="card__header">
-      <slot name="header" :handleOpen="handleOpen" :isOpen="isOpen" :column="mutableColumn">
+      <slot name="header" :idx="idx + 1" :column="column" :isOpen="isOpen" :toggleIsOpen="toggleIsOpen">
         <div class="card__drag">
           <Icon icon="mdi:drag" />
           <span>#{{ idx + 1 }}</span>
         </div>
-        <div class="text-ellipsis">{{ mutableColumn.name ? mutableColumn.name : `${id} (請設定欄位名稱)` }}</div>
+        <template v-if="isEditName">
+          <div class="input">
+            <Field :value="column.name" :placeholder="column.id" @input="updateColumn('name', $event)" />
+          </div>
+          <div class="icon-btn" @click="toggleIsEditName">
+            <Icon icon="ic:baseline-done-outline" />
+          </div>
+        </template>
+        <template v-else>
+          <div class="text-ellipsis">{{ column.name ? column.name : column.id }}</div>
+          <div class="icon-btn" @click="toggleIsEditName">
+            <Icon icon="mi:edit-alt" />
+          </div>
+        </template>
         <div class="controll">
-          <div class="icon-btn" @click="handleOpen">
+          <div class="icon-btn" @click="toggleIsOpen">
             <Icon :icon="isOpen ? 'mdi:eye-minus' : 'mdi:eye-settings'" />
           </div>
           <div class="icon-btn" @click="handleRemove">
@@ -20,22 +33,20 @@
       </slot>
     </header>
     <!-- Form -->
-    <form v-show="isOpen" :id="id" class="card__form">
-      <div>
-        <Field v-model="mutableColumn.name" :label="'欄位名稱'" is-required />
-        <Field
-          v-model="mutableColumn.type"
-          :label="'欄位屬性'"
-          :type="'select'"
-          :options="columnTypeOptions"
-          placeholder="請選擇屬性"
-          is-required
-        />
-      </div>
+    <form v-show="isOpen" :id="`form_${id}`" class="card__form">
+      <InputRow
+        :value="column.type"
+        label="欄位屬性"
+        placeholder="請選擇屬性"
+        type="select"
+        :options="columnTypeOptions"
+        @input="updateColumn('type', $event)"
+      />
+
       <nav class="tabs block">
         <template v-for="tab in tabOptions">
           <div v-if="tabDisplayConditions[tab.value]" :key="tab.value">
-            <div class="tab" :class="{ active: currentTab === tab.value }" @click="currentTab = tab.value">
+            <div :class="['tab', { active: currentTab === tab.value }]" @click="currentTab = tab.value">
               {{ tab.text }}
             </div>
           </div>
@@ -52,22 +63,23 @@
   </div>
 </template>
 <script>
+import InputRow from '@/components/InputRow';
+import Field from '@/components/Field';
 import Icon from '@/components/Icon';
-import Field from '@/components/Field.vue';
-import ColumnSettingBase from '@/components/ColumnSetting/Base.vue';
-import ColumnSettingItem from '@/components/ColumnSetting/Item.vue';
-import ColumnSettingRule from '@/components/ColumnSetting/Rule.vue';
-import ColumnSettingCondition from '@/components/ColumnSetting/Condition.vue';
+import ColumnSettingBase from '@/components/ColumnSetting/Base';
+import ColumnSettingData from '@/components/ColumnSetting/Data';
+import ColumnSettingRule from '@/components/ColumnSetting/Rule';
+import ColumnSettingCondition from '@/components/ColumnSetting/Condition';
 import { convertOptions, json2ObjByKey } from '@/assets/js/helper.js';
 
 export default /*#__PURE__*/ {
   name: 'ColumnSetting',
   components: {
-    // Draggable,
-    Icon,
+    InputRow,
     Field,
+    Icon,
     'setting-base': ColumnSettingBase,
-    'setting-item': ColumnSettingItem,
+    'setting-data': ColumnSettingData,
     'setting-rule': ColumnSettingRule,
     'setting-condition': ColumnSettingCondition,
   },
@@ -85,10 +97,8 @@ export default /*#__PURE__*/ {
     base: { type: Object, default: () => ({}) },
     // 欄位 - 規則設定
     rule: { type: Object, default: () => ({}) },
-    // 欄位 - 規則提示
-    ruluMsg: { type: Object, default: () => ({}) },
     // 欄位 - 項目設定
-    item: { type: Object, default: () => ({}) },
+    data: { type: Object, default: () => ({}) },
     // 欄位 - 顯示條件
     condition: { type: Object, default: () => ({}) },
   },
@@ -96,64 +106,74 @@ export default /*#__PURE__*/ {
   data() {
     return {
       isOpen: false,
+      isEditName: false,
       currentTab: 'base',
-      mutableColumn: {
-        name: this.name,
-        type: this.type,
-        base: this.base,
-        rule: this.rule,
-        item: this.item,
-        condition: this.condition,
-      },
     };
   },
   computed: {
+    column: {
+      get() {
+        return {
+          id: this.id,
+          name: this.name,
+          type: this.type,
+          base: this.base,
+          rule: this.rule,
+          data: this.data,
+          condition: this.condition,
+        };
+      },
+      set(newColumn) {
+        this.$emit('update', this.idx, newColumn);
+      },
+    },
     tabOptions() {
       return convertOptions({
         base: '基本',
         rule: '規則',
-        item: '項目',
-        condition: '顯示條件',
+        data: '項目',
+        condition: '條件',
       });
     },
     tabDisplayConditions() {
       return {
         base: true,
         rule: true,
-        item: this.needItems,
+        data: this.needItems,
         condition: true,
       };
     },
     currentCmp() {
-      const base = {
+      const config = {
         component: `setting-${this.currentTab}`,
         props: {
           class: `block block--${this.currentTab}`,
           // -------------------------------------
-          name: this.mutableColumn.name,
+          id: this.column.id,
+          name: this.column.name,
           isText: this.isText,
           isCheckBox: this.isCheckBox,
-          ...this.mutableColumn[this.currentTab],
+          // -------------------------------------
+          ...this.column[this.currentTab],
         },
       };
 
-      let temp = base;
       switch (this.currentTab) {
-        case 'base':
         case 'rule':
-          base.props = {
-            ...base.props,
-            columnsExcludeSelf: this.columnsExcludeSelf,
-          };
-
-          break;
-        case 'item':
         case 'condition':
+          config.props = {
+            ...config.props,
+            columnsExcludeSelf: this.columnsExcludeSelf,
+            columnsObjByKey: this.columnsObjByKey,
+          };
+          break;
+        case 'data':
+        case 'base':
         default:
           break;
       }
 
-      return temp;
+      return config;
     },
     columnTypeOptions() {
       return convertOptions({
@@ -165,46 +185,35 @@ export default /*#__PURE__*/ {
       });
     },
     isText() {
-      return this.mutableColumn.type === 'text';
+      return this.column.type === 'text';
     },
     isCheckBox() {
-      return this.mutableColumn.type === 'checkbox';
-    },
-    isInput() {
-      return ['text', 'number'].includes(this.mutableColumn.type);
+      return this.column.type === 'checkbox';
     },
     needItems() {
-      return ['select', 'radio', 'checkbox'].includes(this.mutableColumn.type);
+      return ['select', 'radio', 'checkbox'].includes(this.column.type);
     },
     columnsExcludeSelf() {
       const selfID = this.id;
       return this.columns.filter((column) => column.id !== selfID);
     },
-    columnsArr() {
+    columnsObjByKey() {
       return json2ObjByKey(this.columns, 'id');
-    },
-  },
-  watch: {
-    mutableColumn: {
-      handler: function (newVal) {
-        this.$emit('update', this.idx, {
-          id: this.id,
-          ...newVal,
-        });
-      },
-      deep: true,
     },
   },
   methods: {
     updateColumn(tab, val) {
-      console.log(`updateMutableColumn:${tab}`, val);
-      this.mutableColumn[tab] = val;
+      console.log(`updateColumn:${tab}`, val);
+      this.column = { ...this.column, [tab]: val };
     },
-    handleRemove: function () {
+    handleRemove() {
       this.$emit('remove', this.idx);
     },
-    handleOpen: function () {
+    toggleIsOpen() {
       this.isOpen = !this.isOpen;
+    },
+    toggleIsEditName() {
+      this.isEditName = !this.isEditName;
     },
   },
 };
@@ -235,6 +244,10 @@ export default /*#__PURE__*/ {
     color: $color-white;
     font-weight: bolder;
     background-color: lighten($color-gray-dark, 20);
+
+    input {
+      color: $color-black;
+    }
 
     .controll {
       display: flex;
@@ -280,6 +293,10 @@ export default /*#__PURE__*/ {
     height: $len * 0.9;
   }
 
+  * ~ & {
+    margin-left: $gap;
+  }
+
   &:hover {
     background-color: lighten($color-gray-dark, 30);
   }
@@ -304,7 +321,7 @@ export default /*#__PURE__*/ {
   }
   &--option {
   }
-  &--item {
+  &--data {
     .item__drag {
       cursor: move;
     }

@@ -2,34 +2,23 @@
   <!-- 基本設定 -->
   <fieldset>
     <!-- <legend>基本設定</legend> -->
-    <Field v-model="sync.label" :label="'欄位說明'" />
-    <Field v-model="sync.subLabel" :label="'欄位子說明'" />
-    <Field v-model="sync.defaultValue" :label="'預設值'" />
-    <template v-if="isText">
-      <div class="hr-dashed"></div>
-      <Field v-model="sync.placeholder" :label="'提示文字'" placeholder="提示文字" />
-      <Field
-        v-model="sync.autocomplete"
-        :label="'自動完成'"
-        :type="'select'"
-        :options="autocompleteOptions"
-        placeholder="請選擇屬性"
-      />
+    <template v-for="(v, k) in fields">
+      <InputRow :key="k" :value="base[k]" v-bind="v.bind" @input="updateBase(k, $event)" />
     </template>
   </fieldset>
 </template>
 <script>
-import Field from '@/components/Field.vue';
+import InputRow from '@/components/InputRow';
 import { convertOptions } from '@/assets/js/helper.js';
 
 export default /*#__PURE__*/ {
   name: 'ColumnSettingBase',
   components: {
-    Field,
+    InputRow,
   },
   props: {
     // 屬於文字輸入框
-    isText: { type: Boolean, default: false },
+    isText: { type: Boolean, required: true },
     //-----------
     // 欄位說明
     label: { type: String, default: null },
@@ -43,20 +32,50 @@ export default /*#__PURE__*/ {
     autocomplete: { type: String, default: null },
   },
   emits: ['update'],
-  data() {
-    return {
-      sync: {
-        name: this.name,
-        label: this.label,
-        subLabel: this.subLabel,
-        type: this.type,
-        placeholder: this.placeholder,
-        defaultValue: this.defaultValue,
-        autocomplete: this.autocomplete,
-      },
-    };
-  },
   computed: {
+    base: {
+      get() {
+        return {
+          label: this.label,
+          subLabel: this.subLabel,
+          placeholder: this.placeholder,
+          defaultValue: this.defaultValue,
+          autocomplete: this.autocomplete,
+        };
+      },
+      set(newBase) {
+        newBase = Object.entries(newBase).reduce((p, [k, v]) => {
+          if (v) p[k] = v;
+          return p;
+        }, {});
+
+        this.$emit('update', newBase);
+      },
+    },
+    fields() {
+      let temp = {
+        label: { bind: { label: '欄位說明' } },
+        subLabel: { bind: { label: '欄位子說明' } },
+        defaultValue: { bind: { label: '預設值' } },
+      };
+
+      if (this.isText) {
+        temp = {
+          ...temp,
+          placeholder: { bind: { label: '提示文字' } },
+          autocomplete: {
+            bind: {
+              label: '自動完成',
+              placeholder: '請選擇屬性',
+              type: 'select',
+              options: this.autocompleteOptions,
+            },
+          },
+        };
+      }
+
+      return temp;
+    },
     autocompleteOptions() {
       // https://developer.mozilla.org/zh-TW/docs/Web/HTML/Element/input
       // https://html.spec.whatwg.org/multipage/form-control-infrastructure.html#autofilling-form-controls:-the-autocomplete-attribute
@@ -71,17 +90,10 @@ export default /*#__PURE__*/ {
       });
     },
   },
-  watch: {
-    sync: {
-      handler: function (newVal) {
-        const temp = Object.entries(newVal).reduce((p, [k, v]) => {
-          if (v) p[k] = v;
-          return p;
-        }, {});
-
-        this.$emit('update', temp);
-      },
-      deep: true,
+  methods: {
+    updateBase(key, val) {
+      console.log(`updateBase: ${key}`, val);
+      this.base = { ...this.base, [key]: val };
     },
   },
 };

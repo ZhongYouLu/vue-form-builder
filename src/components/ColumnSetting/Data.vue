@@ -2,22 +2,23 @@
   <!-- 項目設定 -->
   <fieldset>
     <!-- <legend>項目設定</legend> -->
-    <Field
-      v-model="sync.srcMode"
+    <InputRow
+      :value="data.srcMode"
       :label="'資料來源'"
       :type="'select'"
       :options="sourceModeOptions"
       placeholder="請選擇來源"
       is-required
+      @input="updateData('srcMode', $event)"
     />
-    <template v-if="sync.srcMode === 'api'">
-      <Field v-model="sync.api.url" :label="'API URL'" />
-      <Field v-model="sync.api.textKey" :label="'Value Key'" />
-      <Field v-model="sync.api.valueKey" :label="'Text Key'" />
+    <template v-if="data.srcMode === 'api'">
+      <InputRow v-model.trim="data.api.url" :label="'API URL'" />
+      <InputRow v-model.trim="data.api.textKey" :label="'Value Key'" />
+      <InputRow v-model.trim="data.api.valueKey" :label="'Text Key'" />
     </template>
     <template v-else>
-      <table v-if="sync.items.length" class="table table-striped">
-        <thead class="thead-dark">
+      <table v-if="data.items.length" class="items">
+        <thead>
           <tr>
             <th scope="col"></th>
             <th scope="col">idx</th>
@@ -26,8 +27,8 @@
             <th scope="col"></th>
           </tr>
         </thead>
-        <Draggable v-model="sync.items" animation="300" ghost-class="ghost" handle=".item__drag" tag="tbody">
-          <tr v-for="(item, idx) in sync.items" :key="item.id">
+        <Draggable v-model="data.items" animation="300" ghost-class="ghost" handle=".item__drag" tag="tbody">
+          <tr v-for="(item, idx) in data.items" :key="item.id">
             <td scope="row">
               <div class="icon-btn item__drag">
                 <Icon icon="mdi:drag" />
@@ -35,10 +36,10 @@
             </td>
             <td>{{ idx + 1 }}</td>
             <td>
-              <div class="input"><input v-model="item.text" type="text" /></div>
+              <div class="input"><input v-model.trim="item.text" type="text" /></div>
             </td>
             <td>
-              <div class="input"><input v-model="item.value" type="text" /></div>
+              <div class="input"><input v-model.trim="item.value" type="text" /></div>
             </td>
             <td>
               <div class="icon-btn" @click="invokeRemove(idx)">
@@ -54,7 +55,7 @@
 </template>
 <script>
 import Draggable from 'vuedraggable';
-import Field from '@/components/Field.vue';
+import InputRow from '@/components/InputRow';
 import Icon from '@/components/Icon';
 import { nanoid, convertOptions } from '@/assets/js/helper.js';
 
@@ -62,16 +63,13 @@ export default /*#__PURE__*/ {
   name: 'ColumnSettingItem',
   components: {
     Draggable,
-    Field,
+    InputRow,
     Icon,
   },
   inject: ['handleConfirm'],
   props: {
     // 項目
-    items: {
-      type: Array,
-      default: () => [],
-    },
+    items: { type: Array, default: () => [] },
     // 資料來源模式
     srcMode: {
       type: String,
@@ -92,33 +90,38 @@ export default /*#__PURE__*/ {
     api: {
       type: Object,
       // default: null,
-      default() {
-        return {
-          url: '',
-          textKey: '',
-          valueKey: '',
-        };
-      },
+      default: () => ({
+        url: '',
+        textKey: '',
+        valueKey: '',
+      }),
     },
-    handleDelete: { type: Function, default: null },
   },
   emits: ['update'],
-  data() {
-    return {
-      sync: {
-        items: this.items.map((item) => {
-          return {
-            id: nanoid(6),
-            ...item,
-          };
-        }),
-        srcMode: this.srcMode,
-        displayMode: this.displayMode,
-        api: this.api,
-      },
-    };
-  },
   computed: {
+    data: {
+      get() {
+        return {
+          items: this.items.map((item) => {
+            return {
+              id: nanoid(6),
+              ...item,
+            };
+          }),
+          srcMode: this.srcMode,
+          displayMode: this.displayMode,
+          api: this.api,
+        };
+      },
+      set(newData) {
+        newData = Object.entries(newData).reduce((p, [k, v]) => {
+          if (v) p[k] = v;
+          return p;
+        }, {});
+
+        this.$emit('update', newData);
+      },
+    },
     sourceModeOptions() {
       return convertOptions({
         list: '手動設置',
@@ -133,22 +136,13 @@ export default /*#__PURE__*/ {
       });
     },
   },
-  watch: {
-    sync: {
-      handler: function (newVal) {
-        const temp = Object.entries(newVal).reduce((p, [k, v]) => {
-          if (v) p[k] = v;
-          return p;
-        }, {});
-
-        this.$emit('update', temp);
-      },
-      deep: true,
-    },
-  },
   methods: {
+    updateData(key, val) {
+      console.log(`updateData: ${key}`, val);
+      this.data = { ...this.data, [key]: val };
+    },
     invokeAdd() {
-      this.sync.items.push({
+      this.data.items.push({
         id: nanoid(6),
         text: '',
         value: '',
@@ -156,11 +150,11 @@ export default /*#__PURE__*/ {
     },
     invokeRemove(idx) {
       const allowFunc = () => {
-        this.sync.items.splice(idx, 1);
+        this.data.items.splice(idx, 1);
       };
 
-      const item = this.sync.items[idx];
-      const showMsg = `確定刪除欄位 #${idx + 1} [${item.text ? item.text : item.id}] ?`;
+      const item = this.data.items[idx];
+      const showMsg = `確定刪除欄位 #${idx + 1} [${item.text || item.id}] ?`;
 
       if (this.handleConfirm) {
         this.handleConfirm(showMsg, allowFunc);
@@ -171,3 +165,12 @@ export default /*#__PURE__*/ {
   },
 };
 </script>
+<style lang="scss">
+@import '@/assets/scss/utils.scss';
+
+.items {
+  td {
+    padding: $gap;
+  }
+}
+</style>

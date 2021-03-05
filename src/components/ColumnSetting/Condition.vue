@@ -1,98 +1,67 @@
 <template>
-  <!-- 基本設定 -->
+  <!-- 條件設定 -->
   <fieldset>
-    <!-- <legend>基本設定</legend> -->
-    <Field v-model="sync.name" :label="'欄位名稱'" is-required />
-    <Field
-      v-model="sync.type"
-      :label="'欄位屬性'"
-      :type="'select'"
-      :options="columnTypeOptions"
-      placeholder="請選擇屬性"
-      is-required
-    />
-    <Field v-model="sync.label" :label="'欄位說明'" />
-    <Field v-model="sync.subLabel" :label="'欄位子說明'" />
-    <Field v-model="sync.defaultValue" :label="'預設值'" />
-    <template v-if="type === 'text'">
-      <hr />
-      <Field v-model="sync.placeholder" :label="'提示文字'" placeholder="提示文字" />
-      <Field
-        v-model="sync.autocomplete"
-        :label="'自動完成'"
-        :type="'select'"
-        :options="autocompleteOptions"
-        placeholder="請選擇屬性"
-        is-required
-      />
-    </template>
+    <!-- <legend>條件設定</legend> -->
+    <div v-for="(d, idx) in sync.display" :key="d.id">
+      <div>
+        <span>#{{ idx + 1 }}</span>
+        <div class="icon-btn" @click="invokeRemove(idx)">
+          <Icon icon="mdi:close-thick" />
+        </div>
+        <Field v-model="d.triggerID" type="select-search" label="監聽欄位" :options="columnsExcludeSelf" />
+        <template v-if="columnsObjByKey[d.triggerID] && columnsObjByKey[d.triggerID].type === 'select'">
+          <Field
+            v-if="columnsObjByKey[d.triggerID].data.srcMode === 'list'"
+            v-model="d.findOne"
+            type="select"
+            label="相等"
+            :options="columnsObjByKey[d.triggerID].data.items"
+          />
+        </template>
+        {{ d }}
+      </div>
+    </div>
+    <button class="btn btn--add" @click.prevent="invokeAdd">&#10010;</button>
   </fieldset>
 </template>
 <script>
 import Field from '@/components/Field.vue';
-import { convertOptions } from '@/assets/js/helper.js';
+import Icon from '@/components/Icon';
+import { nanoid } from '@/assets/js/helper.js';
 
 export default /*#__PURE__*/ {
-  name: 'ColumnSettingBase',
+  name: 'ColumnSettingCondition',
   components: {
     Field,
+    Icon,
   },
+  inject: ['handleConfirm'],
   props: {
+    // 識別碼
+    id: { type: String, required: true },
     // 欄位名稱
-    name: { type: String, default: null },
-    // 欄位說明
-    label: { type: String, default: null },
-    // 欄位子說明
-    subLabel: { type: String, default: null },
-    // 欄位屬性
-    type: { type: String, default: null },
-    // 提示文字
-    placeholder: { type: String, default: null },
-    // 預設值
-    defaultValue: { type: String, default: null },
-    // 自動完成
-    autocomplete: { type: String, default: null },
-    // 屬於輸入欄位
-    isInput: { type: Boolean, default: false },
+    name: { type: String, default: '(no name)' },
+    // 屬於文字輸入框
+    isText: { type: Boolean, default: false },
+    // 屬於多選框
+    isCheckBox: { type: Boolean, default: false },
+    // 排除自己的所有欄位群
+    columnsExcludeSelf: { type: Array, required: true },
+    // 所有欄位群 (obj by key)
+    columnsObjByKey: { type: Object, required: true },
+    //-----------
+    // 顯示條件
+    display: { type: Array, default: () => [] },
   },
   emits: ['update'],
   data() {
     return {
       sync: {
-        name: this.name,
-        label: this.label,
-        subLabel: this.subLabel,
-        type: this.type,
-        placeholder: this.placeholder,
-        defaultValue: this.defaultValue,
-        autocomplete: this.autocomplete,
+        display: this.display,
       },
     };
   },
-  computed: {
-    columnTypeOptions() {
-      return convertOptions({
-        text: '文字框 (text)',
-        number: '數字框 (number)',
-        select: '下拉選單 (select)',
-        radio: '單選框 (radio)',
-        checkbox: '勾選框 (checkbox)',
-      });
-    },
-    autocompleteOptions() {
-      // https://developer.mozilla.org/zh-TW/docs/Web/HTML/Element/input
-      // https://html.spec.whatwg.org/multipage/form-control-infrastructure.html#autofilling-form-controls:-the-autocomplete-attribute
-      return convertOptions({
-        off: '關閉',
-        on: '開啟',
-        name: '全名',
-        email: '信箱',
-        username: '帳號',
-        'current-password': '密碼',
-        'new-password': '新密碼',
-      });
-    },
-  },
+  computed: {},
   watch: {
     sync: {
       handler: function (newVal) {
@@ -104,6 +73,36 @@ export default /*#__PURE__*/ {
         this.$emit('update', temp);
       },
       deep: true,
+    },
+  },
+  methods: {
+    invokeAdd() {
+      this.sync.display.push({
+        id: nanoid(6),
+        triggerID: null,
+        findOne: [], // 滿足其一
+        findAll: [], // 滿足全部
+      });
+    },
+    invokeRemove(idx) {
+      const allowFunc = () => {
+        this.sync.display.splice(idx, 1);
+      };
+      const showMsg = `確定刪除條件 #${idx + 1} ?`;
+
+      if (this.handleConfirm) {
+        this.handleConfirm(showMsg, allowFunc);
+      } else {
+        if (confirm(showMsg)) allowFunc();
+      }
+    },
+    getColumnTemp: function () {
+      return {
+        // 其他檢查設定
+        requiredSync: [], // 連動必填元素 (如果自身有值，其元素必填)
+        requiredCheck: [], // 自身必填檢查 (來自其他元素的 requiredSync)
+        sameAsReverseCheck: [], // 反向相符檢查 元素值是否相符 (來自其他元素的 rule.sameAs)
+      };
     },
   },
 };

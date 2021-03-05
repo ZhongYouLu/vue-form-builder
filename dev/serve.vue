@@ -1,14 +1,9 @@
 <template>
   <div id="app">
     <div class="form-builder">
-      <RecordControls
-        v-model="formJson"
-        :record-name="'formBuilder-' + formJson.id"
-        :record-limit="5"
-        :callback="forceRerender"
-      />
+      <RecordControls v-model="formJson" :record-name="'formBuilder-' + formJson.id" :record-limit="5" />
       <h1>Form ID: {{ formJson.id }}</h1>
-      <FormMainLogic :key="componentKey" v-slot="props" :columns.sync="formJson.columns">
+      <FormMainLogic v-slot="props" :columns.sync="formJson.columns">
         <main class="form-builder__main">
           <FormSetting v-bind="props" />
           <div>
@@ -49,14 +44,9 @@ export default Vue.extend({
         id: 'demo',
         columns: [],
       },
-      componentKey: 0,
     };
   },
   methods: {
-    forceRerender(val) {
-      console.log('forceRerender', val);
-      this.componentKey += 1;
-    },
     handleConfirm(msg, allowFunc) {
       if (confirm(msg)) allowFunc();
     },
