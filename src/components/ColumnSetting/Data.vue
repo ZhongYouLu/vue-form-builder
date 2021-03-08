@@ -55,8 +55,8 @@
 </template>
 <script>
 import Draggable from 'vuedraggable';
-import InputRow from '@/components/InputRow';
-import Icon from '@/components/Icon';
+import InputRow from '@/components/ui/InputRow';
+import Icon from '@/components/ui/Icon';
 import { nanoid, convertOptions } from '@/assets/js/helper.js';
 
 export default /*#__PURE__*/ {

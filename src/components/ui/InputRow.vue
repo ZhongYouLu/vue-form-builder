@@ -13,7 +13,7 @@
   </label>
 </template>
 <script>
-import Field from '@/components/Field';
+import Field from '@/components/ui/Field';
 
 export default /*#__PURE__*/ {
   name: 'InputRow',

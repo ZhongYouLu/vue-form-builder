@@ -63,9 +63,9 @@
   </div>
 </template>
 <script>
-import InputRow from '@/components/InputRow';
-import Field from '@/components/Field';
-import Icon from '@/components/Icon';
+import InputRow from '@/components/ui/InputRow';
+import Field from '@/components/ui/Field';
+import Icon from '@/components/ui/Icon';
 import ColumnSettingBase from '@/components/ColumnSetting/Base';
 import ColumnSettingData from '@/components/ColumnSetting/Data';
 import ColumnSettingRule from '@/components/ColumnSetting/Rule';

@@ -19,8 +19,8 @@
   </fieldset>
 </template>
 <script>
-import InputRow from '@/components/InputRow';
-import Icon from '@/components/Icon';
+import InputRow from '@/components/ui/InputRow';
+import Icon from '@/components/ui/Icon';
 // import { removeProperty } from '@/assets/js/helper.js';
 
 export default /*#__PURE__*/ {

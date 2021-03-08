@@ -8,7 +8,7 @@
   </fieldset>
 </template>
 <script>
-import InputRow from '@/components/InputRow';
+import InputRow from '@/components/ui/InputRow';
 import { convertOptions } from '@/assets/js/helper.js';
 
 export default /*#__PURE__*/ {

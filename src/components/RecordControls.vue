@@ -24,7 +24,7 @@
 </template>
 
 <script>
-import Icon from '@/components/Icon';
+import Icon from '@/components/ui/Icon';
 import { deepCopy } from '@/assets/js/helper.js';
 
 export default /*#__PURE__*/ {
