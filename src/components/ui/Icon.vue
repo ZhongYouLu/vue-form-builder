@@ -1,5 +1,5 @@
 <template>
-  <span ref="el" class="icon" />
+  <span ref="el" class="icon" :class="{ 'icon--btn': isBtn }" @click="$emit('click')" />
 </template>
 
 <script>
@@ -11,6 +11,10 @@ export default /*#__PURE__*/ {
     icon: {
       type: String,
       required: true,
+    },
+    isBtn: {
+      type: Boolean,
+      default: false,
     },
   },
   watch: {
@@ -40,17 +44,40 @@ export default /*#__PURE__*/ {
 };
 </script>
 <style lang="scss">
+@import '@/assets/scss/utils.scss';
+
 .icon {
-  display: inline-block;
+  display: flex;
   width: 1em;
   height: 1em;
-  vertical-align: middle;
 
   .iconify {
-    display: inline-block;
     width: 100%;
     height: 100%;
-    vertical-align: super;
+  }
+
+  &--btn {
+    @include content-centered();
+    width: 1.1em;
+    height: 1.1em;
+    text-align: center;
+    border-radius: 50%;
+    outline: none;
+    user-select: none;
+    cursor: pointer;
+
+    &:hover {
+      background-color: lighten($color-gray-dark, 30);
+    }
+
+    * ~ & {
+      margin-left: $gap;
+    }
+
+    .iconify {
+      width: 90%;
+      height: 90%;
+    }
   }
 }
 </style>

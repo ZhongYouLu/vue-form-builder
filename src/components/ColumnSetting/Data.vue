@@ -30,9 +30,7 @@
         <Draggable v-model="data.items" animation="300" ghost-class="ghost" handle=".item__drag" tag="tbody">
           <tr v-for="(item, idx) in data.items" :key="item.id">
             <td scope="row">
-              <div class="icon-btn item__drag">
-                <Icon icon="mdi:drag" />
-              </div>
+              <Icon icon="mdi:drag" class="item__drag" />
             </td>
             <td>{{ idx + 1 }}</td>
             <td>

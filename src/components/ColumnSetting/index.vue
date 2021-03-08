@@ -1,66 +1,32 @@
 /* eslint-disable vue/no-mutating-props */
 <template>
-  <div class="card">
-    <!-- Header -->
-    <header class="card__header">
-      <slot name="header" :idx="idx + 1" :column="column" :isOpen="isOpen" :toggleIsOpen="toggleIsOpen">
-        <div class="card__drag">
-          <Icon icon="mdi:drag" />
-          <span>#{{ idx + 1 }}</span>
-        </div>
-        <template v-if="isEditName">
-          <div class="input">
-            <Field :value="column.name" :placeholder="column.id" @input="updateColumn('name', $event)" />
-          </div>
-          <div class="icon-btn" @click="toggleIsEditName">
-            <Icon icon="ic:baseline-done-outline" />
-          </div>
-        </template>
-        <template v-else>
-          <div class="text-ellipsis">{{ column.name ? column.name : column.id }}</div>
-          <div class="icon-btn" @click="toggleIsEditName">
-            <Icon icon="mi:edit-alt" />
-          </div>
-        </template>
-        <div class="controll">
-          <div class="icon-btn" @click="toggleIsOpen">
-            <Icon :icon="isOpen ? 'mdi:eye-minus' : 'mdi:eye-settings'" />
-          </div>
-          <div class="icon-btn" @click="handleRemove">
-            <Icon icon="mdi:close-thick" />
+  <form :id="`form_${id}`">
+    <InputRow
+      :value="column.type"
+      label="欄位屬性"
+      placeholder="請選擇屬性"
+      type="select"
+      :options="columnTypeOptions"
+      @input="updateColumn('type', $event)"
+    />
+
+    <nav class="tabs">
+      <template v-for="tab in tabOptions">
+        <div v-if="tabDisplayConditions[tab.value]" :key="tab.value">
+          <div :class="['tab', { active: currentTab === tab.value }]" @click="currentTab = tab.value">
+            {{ tab.text }}
           </div>
         </div>
-      </slot>
-    </header>
-    <!-- Form -->
-    <form v-show="isOpen" :id="`form_${id}`" class="card__form">
-      <InputRow
-        :value="column.type"
-        label="欄位屬性"
-        placeholder="請選擇屬性"
-        type="select"
-        :options="columnTypeOptions"
-        @input="updateColumn('type', $event)"
-      />
+      </template>
+    </nav>
 
-      <nav class="tabs block">
-        <template v-for="tab in tabOptions">
-          <div v-if="tabDisplayConditions[tab.value]" :key="tab.value">
-            <div :class="['tab', { active: currentTab === tab.value }]" @click="currentTab = tab.value">
-              {{ tab.text }}
-            </div>
-          </div>
-        </template>
-      </nav>
-
-      <component
-        :is="currentCmp.component"
-        v-bind="currentCmp.props"
-        v-if="tabDisplayConditions[currentTab]"
-        @update="updateColumn(currentTab, $event)"
-      />
-    </form>
-  </div>
+    <component
+      :is="currentCmp.component"
+      v-bind="currentCmp.props"
+      v-if="tabDisplayConditions[currentTab]"
+      @update="updateColumn(currentTab, $event)"
+    />
+  </form>
 </template>
 <script>
 import InputRow from '@/components/ui/InputRow';
@@ -102,11 +68,9 @@ export default /*#__PURE__*/ {
     // 欄位 - 顯示條件
     condition: { type: Object, default: () => ({}) },
   },
-  emits: ['update', 'delete'],
+  emits: ['update'],
   data() {
     return {
-      isOpen: false,
-      isEditName: false,
       currentTab: 'base',
     };
   },
@@ -147,8 +111,6 @@ export default /*#__PURE__*/ {
       const config = {
         component: `setting-${this.currentTab}`,
         props: {
-          class: `block block--${this.currentTab}`,
-          // -------------------------------------
           id: this.column.id,
           name: this.column.name,
           isText: this.isText,
@@ -206,131 +168,11 @@ export default /*#__PURE__*/ {
       console.log(`updateColumn:${tab}`, val);
       this.column = { ...this.column, [tab]: val };
     },
-    handleRemove() {
-      this.$emit('remove', this.idx);
-    },
-    toggleIsOpen() {
-      this.isOpen = !this.isOpen;
-    },
-    toggleIsEditName() {
-      this.isEditName = !this.isEditName;
-    },
   },
 };
 </script>
 <style lang="scss">
 @import '@/assets/scss/utils.scss';
-
-.card {
-  // overflow: hidden;
-  position: relative;
-  margin-bottom: $gap-lg;
-  background-color: $color-white;
-  border-radius: $border-radius;
-  box-shadow: $shadow-52;
-  transition: box-shadow 0.2s ease-in;
-
-  &:hover {
-    box-shadow: $shadow-56;
-  }
-
-  &__form {
-    padding: $gap-lg;
-  }
-
-  &__header {
-    @include content-centered($x: false);
-    padding: $gap $gap-lg;
-    color: $color-white;
-    font-weight: bolder;
-    background-color: lighten($color-gray-dark, 20);
-
-    input {
-      color: $color-black;
-    }
-
-    .controll {
-      display: flex;
-      margin-left: auto;
-    }
-  }
-
-  &__drag {
-    $len: $font-size;
-    flex: 0 1 $len;
-    @include content-centered();
-    margin-right: $gap * 2;
-    user-select: none;
-    cursor: move;
-
-    &:hover {
-      background-color: lighten($color-gray-dark, 30);
-    }
-
-    svg {
-      width: $len;
-      height: $len;
-    }
-  }
-}
-
-.icon-btn {
-  $len: $font-size;
-  @include content-centered();
-  flex: 0 1 $len;
-  width: $len;
-  height: $len;
-  line-height: $len;
-  font-size: $font-size;
-  text-align: center;
-  border-radius: 50%;
-  outline: none;
-  user-select: none;
-  cursor: pointer;
-
-  .icon {
-    width: $len * 0.9;
-    height: $len * 0.9;
-  }
-
-  * ~ & {
-    margin-left: $gap;
-  }
-
-  &:hover {
-    background-color: lighten($color-gray-dark, 30);
-  }
-}
-
-.text-ellipsis {
-  @include truncate(100%);
-}
-
-.block {
-  box-sizing: border-box;
-  padding: $gap-lg;
-  border: 0;
-  border-radius: $border-radius;
-  box-shadow: $shadow-52;
-
-  legend {
-    // font-size: 24px;
-    line-height: 10px;
-    font-weight: bold;
-    // margin: auto;
-  }
-  &--option {
-  }
-  &--data {
-    .item__drag {
-      cursor: move;
-    }
-  }
-  &--rule {
-  }
-  &--msg {
-  }
-}
 
 .tabs {
   display: flex;
@@ -356,10 +198,5 @@ export default /*#__PURE__*/ {
       }
     }
   }
-}
-
-.hr-dashed {
-  margin: $gap-lg 0;
-  border-top: 1px dashed $border-color;
 }
 </style>

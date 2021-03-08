@@ -6,8 +6,8 @@
       <div :key="k" class="input-group">
         <InputRow :value="rule[k]" v-bind="v.bind" @input="updateRule(k, $event)">
           <template #label-right>
-            <div v-if="rule[k]" class="icon-btn" @click.prevent="toggle[k] = !toggle[k]">
-              <Icon icon="mdi:ideogram-cjk-variant" />
+            <div v-if="rule[k]" @click.prevent="toggle[k] = !toggle[k]">
+              <Icon icon="mdi:ideogram-cjk-variant" is-btn />
             </div>
           </template>
         </InputRow>

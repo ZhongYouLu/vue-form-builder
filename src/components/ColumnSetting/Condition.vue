@@ -5,9 +5,7 @@
     <div v-for="(d, idx) in sync.display" :key="d.id">
       <div>
         <span>#{{ idx + 1 }}</span>
-        <div class="icon-btn" @click="invokeRemove(idx)">
-          <Icon icon="mdi:close-thick" />
-        </div>
+        <Icon icon="mdi:close-thick" is-btn @click="invokeRemove(idx)" />
         <Field v-model="d.triggerID" type="select-search" label="監聽欄位" :options="columnsExcludeSelf" />
         <template v-if="columnsObjByKey[d.triggerID] && columnsObjByKey[d.triggerID].type === 'select'">
           <Field

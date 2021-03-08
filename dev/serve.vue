@@ -5,7 +5,12 @@
       <h1>Form ID: {{ formJson.id }}</h1>
       <FormMainLogic v-slot="props" :columns.sync="formJson.columns">
         <main class="form-builder__main">
-          <FormSetting v-bind="props" />
+          <FormSetting v-bind="props">
+            <!-- <template #cardHeader="test">
+              <button @click="test.toggleIsOpen(test.columnId)">{{ test.isOpen ? 'close' : 'open' }}</button>
+            </template> -->
+            <!-- <template #cardMain="xxx"> {{ xxx }} </template> -->
+          </FormSetting>
           <div>
             <FormDemo :columns="props.columns" />
             <FormDemo :columns="props.cleanColumns" />
@@ -63,8 +68,8 @@ export default Vue.extend({
     display: flex;
 
     & > * {
-      width: 50%;
       padding: $gap;
+      width: 50%;
     }
   }
 }
