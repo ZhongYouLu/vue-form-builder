@@ -12,9 +12,9 @@
     <button :disabled="!hasThis" @click="restoreThis">
       <Icon icon="mdi:restore" />
     </button>
-    <!-- <button :disabled="!hasThis" @click="removeRecord">
+    <button :disabled="!hasThis" @click="removeRecord">
       <Icon icon="mdi:trash-can" />
-    </button> -->
+    </button>
 
     <span v-show="hasThis">
       {{ recordIdx + 1 }} / {{ recordLimit }} 筆 : {{ record[recordIdx] && record[recordIdx].created }}
@@ -38,7 +38,6 @@ export default /*#__PURE__*/ {
     value: { type: [String, Number, Boolean, Array, Object, Date, Function, Symbol], required: true },
     callback: { type: Function, default: null },
   },
-  emits: ['update', 'cb'],
   data() {
     return {
       record: [],
@@ -61,7 +60,10 @@ export default /*#__PURE__*/ {
   },
   methods: {
     removeRecord() {
-      localStorage.removeItem(this.recordName);
+      if (confirm(`確定清除 [${this.recordName}] 的所有存檔?`)) {
+        localStorage.removeItem(this.recordName);
+        window.location.reload();
+      }
     },
     getRecord() {
       this.record = JSON.parse(localStorage.getItem(this.recordName)) || [];
@@ -75,8 +77,8 @@ export default /*#__PURE__*/ {
     },
     addToRecord() {
       this.record.push({
-        created: new Date().toLocaleString(),
         value: deepCopy(this.value),
+        created: new Date().toLocaleString(),
       });
 
       if (this.record.length > this.recordLimit) {
