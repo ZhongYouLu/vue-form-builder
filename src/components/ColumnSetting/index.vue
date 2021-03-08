@@ -66,10 +66,10 @@
 import InputRow from '@/components/ui/InputRow';
 import Field from '@/components/ui/Field';
 import Icon from '@/components/ui/Icon';
-import ColumnSettingBase from '@/components/ColumnSetting/Base';
-import ColumnSettingData from '@/components/ColumnSetting/Data';
-import ColumnSettingRule from '@/components/ColumnSetting/Rule';
-import ColumnSettingCondition from '@/components/ColumnSetting/Condition';
+import ColumnSettingBase from './Base';
+import ColumnSettingData from './Data';
+import ColumnSettingRule from './Rule';
+import ColumnSettingCondition from './Condition';
 import { convertOptions, json2ObjByKey } from '@/assets/js/helper.js';
 
 export default /*#__PURE__*/ {
