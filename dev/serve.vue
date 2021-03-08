@@ -1,7 +1,7 @@
 <template>
   <div id="app">
     <div class="form-builder">
-      <RecordControls v-model="formJson" :record-name="'formBuilder-' + formJson.id" :record-limit="5" />
+      <RecordControls v-model="formJson" :record-name="'formBuilder-' + formJson.id" :record-limit="5" immediate />
       <h1>Form ID: {{ formJson.id }}</h1>
       <FormMainLogic v-slot="props" :columns.sync="formJson.columns">
         <main class="form-builder__main">

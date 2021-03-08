@@ -36,6 +36,7 @@ export default /*#__PURE__*/ {
     recordName: { type: String, required: true },
     recordLimit: { type: Number, default: 5 },
     value: { type: [String, Number, Boolean, Array, Object, Date, Function, Symbol], required: true },
+    immediate: { type: Boolean, default: false },
     callback: { type: Function, default: null },
   },
   data() {
@@ -68,10 +69,10 @@ export default /*#__PURE__*/ {
     getRecord() {
       this.record = JSON.parse(localStorage.getItem(this.recordName)) || [];
 
-      // if (!this.record || !this.record.length) {
-      //   this.record = [];
-      //   this.addToRecord();
-      // }
+      if (this.immediate && (!this.record || !this.record.length)) {
+        this.record = [];
+        this.addToRecord();
+      }
 
       this.restoreLast();
     },
