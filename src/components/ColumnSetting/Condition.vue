@@ -25,7 +25,7 @@
   </fieldset>
 </template>
 <script>
-import Field from '@/components/ui/Field.vue';
+import Field from '@/components/ui/Field';
 import Icon from '@/components/ui/Icon';
 import { nanoid } from '@/assets/js/helper.js';
 

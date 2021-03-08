@@ -59,11 +59,11 @@
 // import VueSelect from 'vue-select';
 // import Fuse from 'fuse.js';
 // import { createPopper } from '@popperjs/core';
-import FieldText from '@/components/ui/Field/Text';
-import FieldNumber from '@/components/ui/Field/Number';
-import FieldRadio from '@/components/ui/Field/Radio';
-import FieldCheckbox from '@/components/ui/Field/Checkbox';
-import FieldSelect from '@/components/ui/Field/Select';
+import FieldText from './Text';
+import FieldNumber from './Number';
+import FieldRadio from './Radio';
+import FieldCheckbox from './Checkbox';
+import FieldSelect from './Select';
 
 export default /*#__PURE__*/ {
   name: 'Field',
