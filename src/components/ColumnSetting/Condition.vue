@@ -25,7 +25,7 @@
 <script>
 import Field from '@/components/ui/Field';
 import Icon from '@/components/ui/Icon';
-import { nanoid } from '@/assets/js/helper.js';
+import { nanoid, isEmpty } from '@/assets/js/helper.js';
 
 export default /*#__PURE__*/ {
   name: 'ColumnSettingCondition',
@@ -64,7 +64,7 @@ export default /*#__PURE__*/ {
     sync: {
       handler: function (newVal) {
         const temp = Object.entries(newVal).reduce((p, [k, v]) => {
-          if (v) p[k] = v;
+          if (!isEmpty(v)) p[k] = v;
           return p;
         }, {});
 

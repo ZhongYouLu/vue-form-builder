@@ -7,6 +7,7 @@
     </component>
   </div>
 </template>
+
 <script>
 import FieldText from '@/components/ui/Field/Text';
 import FieldNumber from '@/components/ui/Field/Number';
@@ -51,6 +52,7 @@ export default /*#__PURE__*/ {
   },
 };
 </script>
+
 <style lang="scss">
 @import '@/assets/scss/utils.scss';
 @import '@/assets/scss/components/_field.scss';

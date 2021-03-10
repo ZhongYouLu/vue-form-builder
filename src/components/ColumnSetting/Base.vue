@@ -7,9 +7,10 @@
     </template>
   </fieldset>
 </template>
+
 <script>
 import InputRow from '@/components/ui/InputRow';
-import { convertOptions } from '@/assets/js/helper.js';
+import { isEmpty, convertOptions } from '@/assets/js/helper.js';
 
 export default /*#__PURE__*/ {
   name: 'ColumnSettingBase',
@@ -45,7 +46,7 @@ export default /*#__PURE__*/ {
       },
       set(newBase) {
         newBase = Object.entries(newBase).reduce((p, [k, v]) => {
-          if (v) p[k] = v;
+          if (!isEmpty(v)) p[k] = v;
           return p;
         }, {});
 

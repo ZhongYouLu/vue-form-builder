@@ -15,11 +15,13 @@
     </footer>
   </div>
 </template>
+
 <script>
 export default /*#__PURE__*/ {
   name: 'Card',
 };
 </script>
+
 <style lang="scss">
 @import '@/assets/scss/utils.scss';
 

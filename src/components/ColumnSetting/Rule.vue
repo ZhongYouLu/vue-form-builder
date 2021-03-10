@@ -10,14 +10,16 @@
               <Icon icon="mdi:ideogram-cjk-variant" is-btn />
             </div>
           </template>
+          <template v-for="(_, slot) in $scopedSlots" #[slot]="props">
+            <slot :name="slot" v-bind="props" />
+          </template>
         </InputRow>
-        <template v-if="rule[k] && toggle[k]">
-          <InputRow v-model.trim="rule.msg[k]" :placeholder="v.msg" />
-        </template>
+        <InputRow v-if="rule[k] && toggle[k]" v-model="rule.msg[k]" :placeholder="v.msg" />
       </div>
     </template>
   </fieldset>
 </template>
+
 <script>
 import InputRow from '@/components/ui/InputRow';
 import Icon from '@/components/ui/Icon';
@@ -118,8 +120,10 @@ export default /*#__PURE__*/ {
           bind: {
             label: '與..相符',
             placeholder: '請選擇欄位',
-            type: 'select-search',
+            type: 'select',
             options: this.columnsExcludeSelf,
+            clearable: true,
+            searchable: true,
           },
         },
       };

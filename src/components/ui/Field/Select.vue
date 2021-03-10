@@ -138,7 +138,7 @@ export default /*#__PURE__*/ {
   },
 };
 </script>
-//
+
 <style lang="scss">
 @import '~vue-select/src/scss/vue-select.scss';
 @import '@/assets/scss/utils.scss';

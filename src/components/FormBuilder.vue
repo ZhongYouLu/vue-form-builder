@@ -48,6 +48,7 @@ export default /*#__PURE__*/ {
   },
 };
 </script>
+
 <style lang="scss">
 @import '@/assets/scss/utils.scss';
 

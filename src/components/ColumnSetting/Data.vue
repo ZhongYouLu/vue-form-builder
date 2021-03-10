@@ -51,11 +51,12 @@
     </template>
   </fieldset>
 </template>
+
 <script>
 import Draggable from 'vuedraggable';
 import InputRow from '@/components/ui/InputRow';
 import Icon from '@/components/ui/Icon';
-import { nanoid, convertOptions } from '@/assets/js/helper.js';
+import { nanoid, isEmpty, convertOptions } from '@/assets/js/helper.js';
 
 export default /*#__PURE__*/ {
   name: 'ColumnSettingItem',
@@ -113,7 +114,7 @@ export default /*#__PURE__*/ {
       },
       set(newData) {
         newData = Object.entries(newData).reduce((p, [k, v]) => {
-          if (v) p[k] = v;
+          if (!isEmpty(v)) p[k] = v;
           return p;
         }, {});
 
@@ -163,6 +164,7 @@ export default /*#__PURE__*/ {
   },
 };
 </script>
+
 <style lang="scss">
 @import '@/assets/scss/utils.scss';
 

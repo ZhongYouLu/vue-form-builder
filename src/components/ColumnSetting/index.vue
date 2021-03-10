@@ -8,7 +8,11 @@
       type="select"
       :options="columnTypeOptions"
       @input="updateColumn('type', $event)"
-    />
+    >
+      <template v-for="(_, slot) in $scopedSlots" #[slot]="props">
+        <slot :name="slot" v-bind="props" />
+      </template>
+    </InputRow>
 
     <nav class="tabs">
       <template v-for="tab in tabOptions">
@@ -25,17 +29,22 @@
       v-bind="currentCmp.props"
       v-if="tabDisplayConditions[currentTab]"
       @update="updateColumn(currentTab, $event)"
-    />
+    >
+      <template v-for="(_, slot) in $scopedSlots" #[slot]="props">
+        <slot :name="slot" v-bind="props" />
+      </template>
+    </component>
   </form>
 </template>
+
 <script>
 import InputRow from '@/components/ui/InputRow';
 import Field from '@/components/ui/Field';
 import Icon from '@/components/ui/Icon';
-import ColumnSettingBase from './Base';
-import ColumnSettingData from './Data';
-import ColumnSettingRule from './Rule';
-import ColumnSettingCondition from './Condition';
+import ColumnSettingBase from '@/components/ColumnSetting/Base';
+import ColumnSettingData from '@/components/ColumnSetting/Data';
+import ColumnSettingRule from '@/components/ColumnSetting/Rule';
+import ColumnSettingCondition from '@/components/ColumnSetting/Condition';
 import { convertOptions, json2ObjByKey } from '@/assets/js/helper.js';
 
 export default /*#__PURE__*/ {
@@ -88,7 +97,7 @@ export default /*#__PURE__*/ {
         };
       },
       set(newColumn) {
-        this.$emit('update', this.idx, newColumn);
+        this.$emit('update', newColumn.id, newColumn);
       },
     },
     tabOptions() {
@@ -141,9 +150,9 @@ export default /*#__PURE__*/ {
       return convertOptions({
         text: '文字框 (text)',
         number: '數字框 (number)',
-        select: '下拉選單 (select)',
         radio: '單選框 (radio)',
         checkbox: '勾選框 (checkbox)',
+        select: '下拉選單 (select)',
       });
     },
     isText() {
@@ -171,6 +180,7 @@ export default /*#__PURE__*/ {
   },
 };
 </script>
+
 <style lang="scss">
 @import '@/assets/scss/utils.scss';
 

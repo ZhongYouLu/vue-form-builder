@@ -4,6 +4,7 @@
     <slot />
   </div>
 </template>
+
 <script>
 export default /*#__PURE__*/ {
   name: 'Block',
@@ -21,6 +22,7 @@ export default /*#__PURE__*/ {
   },
 };
 </script>
+
 <style lang="scss">
 @import '@/assets/scss/utils.scss';
 
