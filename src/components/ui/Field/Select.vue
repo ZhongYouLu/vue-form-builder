@@ -1,19 +1,42 @@
 <template>
-  <VueSelect
-    v-model="mutableValue"
-    v-bind="$attrs"
-    :options="options"
-    :clearable="false"
-    :append-to-body="true"
-    :calculate-position="withPopper"
-    :searchable="false"
-    :reduce="(option) => option.value"
-    :get-option-label="(option) => option.text"
-  />
+  <div>
+    <VueSelect
+      v-model="mutableValue"
+      v-bind="$attrs"
+      :options="options"
+      :clearable="clearable"
+      :searchable="searchable"
+      :append-to-body="true"
+      :calculate-position="withPopper"
+      :reduce="tempReduce"
+      :get-option-label="tempGetOptionLabel"
+      :filter="fuseSearch"
+      :reset-on-options-change="false"
+    >
+      <template v-if="searchable" #option="option">
+        {{ option.name || option.id }}
+        <br />
+        <em>{{ option.label }}</em>
+      </template>
+
+      <template v-if="searchable" #no-options="{ search, searching }">
+        <template v-if="searching">
+          查無
+          <em>{{ search }}</em> 相關.
+        </template>
+        <em v-else style="opacity: 0.5">開始嘗試搜尋欄位</em>
+      </template>
+
+      <template v-for="(_, slot) in $scopedSlots" #[slot]="props">
+        <slot :name="slot" v-bind="props" />
+      </template>
+    </VueSelect>
+  </div>
 </template>
 
 <script>
 import VueSelect from 'vue-select';
+import Fuse from 'fuse.js';
 import { createPopper } from '@popperjs/core';
 
 export default /*#__PURE__*/ {
@@ -25,6 +48,11 @@ export default /*#__PURE__*/ {
   props: {
     value: { type: String, default: null },
     options: { type: Array, default: () => [] },
+    clearable: { type: Boolean, default: false },
+    searchable: { type: Boolean, default: false },
+    reduce: { type: Function, default: null },
+    getOptionLabel: { type: Function, default: null },
+    fuseKeys: { type: Array, default: () => ['name', 'label'] },
   },
   emits: ['input'],
   data() {
@@ -40,6 +68,27 @@ export default /*#__PURE__*/ {
       set(value) {
         this.$emit('input', value);
       },
+    },
+    tempReduce() {
+      if (this.reduce) return this.reduce;
+      // default
+      return !this.searchable ? (option) => option.value : (option) => option.id;
+    },
+    tempGetOptionLabel() {
+      if (this.getOptionLabel) return this.getOptionLabel;
+      // default
+      return !this.searchable ? (option) => option.text : (option) => option.name || option.id;
+    },
+    fuseSearch() {
+      if (!this.searchable) return null;
+
+      return (options, search) => {
+        const fuse = new Fuse(options, {
+          keys: this.fuseKeys,
+          shouldSort: true,
+        });
+        return search.length ? fuse.search(search).map(({ item }) => item) : fuse.list;
+      };
     },
   },
   methods: {
