@@ -1,6 +1,6 @@
 <template>
   <div class="form-setting">
-    <Draggable v-model="localColumns" animation="300" ghost-class="ghost" handle=".card__drag">
+    <Draggable :value="columns" handle=".card__drag" @input="invokeUpdateColumns">
       <Block v-for="(column, idx) in columns" :key="column.id" radius shadow>
         <Card>
           <!-- Card Header -->
@@ -58,7 +58,7 @@
 </template>
 
 <script>
-import Draggable from 'vuedraggable';
+import Draggable from '@/components/ui/Draggable';
 import Block from '@/components/ui/Block';
 import Icon from '@/components/ui/Icon';
 import Card from '@/components/ui/Card';
@@ -86,16 +86,6 @@ export default /*#__PURE__*/ {
     return {
       collect: {},
     };
-  },
-  computed: {
-    localColumns: {
-      get() {
-        return this.columns;
-      },
-      set(val) {
-        this.invokeUpdateColumns(val);
-      },
-    },
   },
   watch: {
     columns(columns) {
