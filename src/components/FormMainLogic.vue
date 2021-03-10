@@ -7,6 +7,9 @@
       :invokeAdd="invokeAdd"
       :invokeUpdate="invokeUpdate"
       :invokeRemove="invokeRemove"
+      :collect="collect"
+      :setCollect="setCollect"
+      :toggleCollect="toggleCollect"
     />
   </div>
 </template>
@@ -16,6 +19,13 @@ import { nanoid, isEmpty, removeProperty } from '@/assets/js/helper.js';
 
 export default /*#__PURE__*/ {
   name: 'FormMainLogic',
+  provide() {
+    return {
+      collect: this.collect,
+      setCollect: this.setCollect,
+      toggleCollect: this.toggleCollect,
+    };
+  },
   inject: [
     // 控制對話框 (可選)
     'handleConfirm',
@@ -25,6 +35,11 @@ export default /*#__PURE__*/ {
     columns: { type: Array, required: true },
   },
   emits: ['update:columns'],
+  data() {
+    return {
+      collect: {},
+    };
+  },
   computed: {
     // 本地的欄位群
     localColumns: {
@@ -82,6 +97,15 @@ export default /*#__PURE__*/ {
       return newColumns;
     },
   },
+  watch: {
+    columns(columns) {
+      columns.map((column) => {
+        if (!this.collect[column.id]) {
+          this.$set(this.collect, column.id, {});
+        }
+      });
+    },
+  },
   methods: {
     // 更新欄位群
     emitUpdate(newColumns, note) {
@@ -100,7 +124,9 @@ export default /*#__PURE__*/ {
       this.emitUpdate(newColumns, 'invokeAdd');
     },
     // 呼叫更新欄位
-    invokeUpdate(idx, newColumn) {
+    invokeUpdate(id, newColumn) {
+      const idx = this.localColumns.findIndex((c) => c.id === id);
+
       const newColumns = [...this.localColumns];
       newColumns[idx] = {
         id: this.localColumns[idx].id,
@@ -110,8 +136,8 @@ export default /*#__PURE__*/ {
       this.emitUpdate(newColumns, 'invokeUpdate');
     },
     // 呼叫刪除欄位
-    invokeRemove(idx) {
-      const { id, name } = this.localColumns[idx];
+    invokeRemove(id) {
+      const idx = this.localColumns.findIndex((c) => c.id === id);
 
       // 確認刪除函式
       const allowFunc = () => {
@@ -141,6 +167,7 @@ export default /*#__PURE__*/ {
         this.emitUpdate(newColumns, 'invokeRemove');
       };
 
+      const { name } = this.localColumns[idx];
       const showMsg = `確定刪除欄位 #${idx + 1} [${name || id}] ?`;
 
       if (this.handleConfirm) {
@@ -148,6 +175,19 @@ export default /*#__PURE__*/ {
       } else {
         if (confirm(showMsg)) allowFunc();
       }
+    },
+    checkCollect(columnId, key) {
+      if (this.collect[columnId][key] === undefined) {
+        this.$set(this.collect[columnId], key, null);
+      }
+    },
+    toggleCollect(columnId, key) {
+      this.checkCollect(columnId, key);
+      this.collect[columnId][key] = !this.collect[columnId][key];
+    },
+    setCollect(columnId, key, val) {
+      this.checkCollect(columnId, key);
+      this.collect[columnId][key] = val;
     },
   },
 };

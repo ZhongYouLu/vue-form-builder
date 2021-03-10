@@ -50,8 +50,6 @@ export default /*#__PURE__*/ {
 </script>
 <style lang="scss">
 @import '@/assets/scss/utils.scss';
-@import '@/assets/scss/base/normalize.scss';
-@import '@/assets/scss/base/base.scss';
 
 .form-builder {
   &__main {

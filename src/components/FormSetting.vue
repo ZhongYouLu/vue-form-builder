@@ -7,9 +7,12 @@
           <template #cardHeader>
             <slot
               name="cardHeader"
-              :columnId="column.id"
-              :toggleIsOpen="toggleIsOpen"
+              :idx="idx"
+              :column="column"
               :isOpen="collect[column.id].isOpen"
+              :toggleIsOpen="toggleIsOpen.bind(null, column.id)"
+              :isEditName="collect[column.id].isEditName"
+              :toggleIsEditName="toggleIsEditName.bind(null, column.id)"
             >
               <div class="card__drag">
                 <Icon icon="mdi:drag" />
@@ -34,7 +37,7 @@
                   is-btn
                   @click="toggleIsOpen(column.id)"
                 />
-                <Icon icon="mdi:close-thick" is-btn @click="invokeRemove(idx)" />
+                <Icon icon="mdi:close-thick" is-btn @click="invokeRemove(column.id)" />
               </div>
             </slot>
           </template>
@@ -80,6 +83,7 @@ export default /*#__PURE__*/ {
     Field,
     ColumnSetting,
   },
+  inject: ['collect', 'toggleCollect'],
   props: {
     columns: { type: Array, required: true },
     invokeUpdateColumns: { type: Function, required: true },
@@ -87,32 +91,12 @@ export default /*#__PURE__*/ {
     invokeUpdate: { type: Function, required: true },
     invokeRemove: { type: Function, required: true },
   },
-  data() {
-    return {
-      collect: {},
-    };
-  },
-  watch: {
-    columns(columns) {
-      columns.map((column) => {
-        if (!this.collect[column.id]) {
-          this.collect = {
-            ...this.collect,
-            [column.id]: {
-              isOpen: false,
-              isEditName: false,
-            },
-          };
-        }
-      });
-    },
-  },
   methods: {
     toggleIsOpen(columnId) {
-      this.collect[columnId].isOpen = !this.collect[columnId].isOpen;
+      this.toggleCollect(columnId, 'isOpen');
     },
     toggleIsEditName(columnId) {
-      this.collect[columnId].isEditName = !this.collect[columnId].isEditName;
+      this.toggleCollect(columnId, 'isEditName');
     },
   },
 };

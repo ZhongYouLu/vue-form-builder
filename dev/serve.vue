@@ -1,11 +1,10 @@
 <template>
   <div id="app">
+    <!-- <FormBuilder :id="formJson.id" :columns.sync="formJson.columns" /> -->
     <div class="form-builder">
-      <FormBuilder :id="formJson.id" :columns.sync="formJson.columns" />
-
       <RecordControls
         v-model="formJson.columns"
-        :record-name="'formBuilder-' + formJson.id"
+        :record-name="`formBuilder-${formJson.id}`"
         :record-limit="5"
         immediate
       />
@@ -14,7 +13,14 @@
         <main class="form-builder__main">
           <FormSetting v-bind="props">
             <!-- <template #cardHeader="test">
-              <button @click="test.toggleIsOpen(test.columnId)">{{ test.isOpen ? 'close' : 'open' }}</button>
+              <button @click="test.toggleIsOpen">
+                {{ test.isOpen ? 'close' : 'open' }}
+              </button>
+              <div class="card__name">
+                <Field v-model="test.column.name" :placeholder="test.column.id" />
+                <Field v-if="test.column.rule && test.column.rule.msg" v-model="test.column.rule.msg.required" />
+              </div>
+              <button @click="props.invokeRemove(test.column.id)">X</button>
             </template> -->
             <!-- <template #option="option"> {{ option }} [test] </template> -->
           </FormSetting>
@@ -27,7 +33,7 @@
     </div>
   </div>
 </template>
-
+0
 <script>
 import Vue from 'vue';
 
@@ -37,6 +43,7 @@ import Vue from 'vue';
 // === library ===
 // import { FormBuilder } from '@/entry/library/entry.esm';
 import { FormMainLogic, FormSetting, FormDemo, RecordControls } from '@/entry/library/entry.esm';
+// import Field from '@/components/ui/Field';
 
 export default Vue.extend({
   name: 'ServeDev',
@@ -46,6 +53,7 @@ export default Vue.extend({
     FormSetting,
     FormDemo,
     RecordControls,
+    // Field,
   },
   provide() {
     return {
@@ -68,18 +76,7 @@ export default Vue.extend({
 });
 </script>
 <style lang="scss">
-@import '@/assets/scss/utils.scss';
 @import '@/assets/scss/base/normalize.scss';
+@import '@/assets/scss/utils.scss';
 @import '@/assets/scss/base/base.scss';
-
-.form-builder {
-  &__main {
-    display: flex;
-
-    & > * {
-      padding: $gap;
-      width: 50%;
-    }
-  }
-}
 </style>
