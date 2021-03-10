@@ -1,6 +1,6 @@
 <template>
   <div class="form-setting">
-    <Draggable :value="columns" handle=".card__drag" @input="invokeUpdateColumns">
+    <Draggable :value="columns" handle-class="card__drag" @input="invokeUpdateColumns">
       <Block v-for="(column, idx) in columns" :key="column.id" radius shadow>
         <Card>
           <!-- Card Header -->

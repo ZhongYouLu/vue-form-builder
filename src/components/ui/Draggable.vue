@@ -1,5 +1,5 @@
 <template>
-  <VueDraggable v-model="localValue" :handle="handle" :animation="animation" :ghost-class="ghostClass">
+  <VueDraggable v-model="localValue" :handle="`.${handleClass}`" :animation="animation" :ghost-class="ghostClass">
     <slot />
   </VueDraggable>
 </template>
@@ -14,7 +14,7 @@ export default /*#__PURE__*/ {
   },
   props: {
     value: { type: Array, required: true },
-    handle: { type: String, required: true },
+    handleClass: { type: String, required: true },
     animation: { type: Number, default: 200 },
     ghostClass: { type: String, default: 'ghost' },
   },
