@@ -1,5 +1,5 @@
 <template>
-  <div class="control-bar">
+  <div class="record-controls">
     <button @click="addToRecord">
       <Icon icon="mdi:content-save" />
     </button>
@@ -15,11 +15,10 @@
     <button :disabled="!hasThis" @click="removeRecord">
       <Icon icon="mdi:trash-can" />
     </button>
-
-    <span v-show="hasThis">
-      {{ recordIdx + 1 }} / {{ recordLimit }} 筆 : {{ record[recordIdx] && record[recordIdx].created }}
-    </span>
-    <div>(localStorage 紀錄最後 {{ recordLimit }} 筆存檔)</div>
+    <!-- Default Slot -->
+    <slot :hasThis="hasThis" :recordIdx="recordIdx" :recordLimit="recordLimit" :createdTime="createdTime">
+      <span v-show="hasThis"> {{ recordIdx + 1 }} / {{ recordLimit }} 筆 : {{ createdTime }} </span>
+    </slot>
   </div>
 </template>
 
@@ -46,14 +45,17 @@ export default /*#__PURE__*/ {
     };
   },
   computed: {
-    hasThis: function () {
+    hasThis() {
       return this.recordIdx > -1 && this.recordIdx < this.record.length;
     },
-    hasPrev: function () {
+    hasPrev() {
       return this.recordIdx > 0;
     },
-    hasNext: function () {
+    hasNext() {
       return this.recordIdx < this.record.length - 1;
+    },
+    createdTime() {
+      return this.record[this.recordIdx] && this.record[this.recordIdx].created;
     },
   },
   created() {
