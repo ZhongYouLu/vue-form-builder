@@ -12,7 +12,7 @@
 </template>
 
 <script>
-import { nanoid, removeProperty, isEmpty } from '@/assets/js/helper.js';
+import { nanoid, isEmpty, removeProperty } from '@/assets/js/helper.js';
 
 export default /*#__PURE__*/ {
   name: 'FormMainLogic',

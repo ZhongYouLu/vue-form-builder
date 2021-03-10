@@ -5,7 +5,12 @@
         <Card>
           <!-- Card Header -->
           <template #cardHeader>
-            <slot name="cardHeader">
+            <slot
+              name="cardHeader"
+              :columnId="column.id"
+              :toggleIsOpen="toggleIsOpen"
+              :isOpen="collect[column.id].isOpen"
+            >
               <div class="card__drag">
                 <Icon icon="mdi:drag" />
                 <span>#{{ idx + 1 }}</span>

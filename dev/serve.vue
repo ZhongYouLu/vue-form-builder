@@ -1,7 +1,14 @@
 <template>
   <div id="app">
     <div class="form-builder">
-      <RecordControls v-model="formJson" :record-name="'formBuilder-' + formJson.id" :record-limit="5" immediate />
+      <FormBuilder :id="formJson.id" :columns.sync="formJson.columns" />
+
+      <RecordControls
+        v-model="formJson.columns"
+        :record-name="'formBuilder-' + formJson.id"
+        :record-limit="5"
+        immediate
+      />
       <h1>Form ID: {{ formJson.id }}</h1>
       <FormMainLogic v-slot="props" :columns.sync="formJson.columns">
         <main class="form-builder__main">
@@ -9,7 +16,7 @@
             <!-- <template #cardHeader="test">
               <button @click="test.toggleIsOpen(test.columnId)">{{ test.isOpen ? 'close' : 'open' }}</button>
             </template> -->
-            <!-- <template #cardMain="xxx"> {{ xxx }} </template> -->
+            <!-- <template #option="option"> {{ option }} [test] </template> -->
           </FormSetting>
           <div>
             <FormDemo :columns="props.columns" />
@@ -28,11 +35,13 @@ import Vue from 'vue';
 // === single ===
 // import FormBuilder from '@/entry/single/entry.esm';
 // === library ===
+// import { FormBuilder } from '@/entry/library/entry.esm';
 import { FormMainLogic, FormSetting, FormDemo, RecordControls } from '@/entry/library/entry.esm';
 
 export default Vue.extend({
   name: 'ServeDev',
   components: {
+    // FormBuilder,
     FormMainLogic,
     FormSetting,
     FormDemo,

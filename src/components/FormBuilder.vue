@@ -1,22 +1,29 @@
 <template>
   <div class="form-builder">
+    <RecordControls v-model="localColumns" :record-name="'formBuilder-' + id" :record-limit="5" immediate />
     <h1>Form ID: {{ id }}</h1>
-    <main class="form-builder__main">
-      <FormSetting :id="id" :columns="columns" :update-colums="updateColums" />
-      <FormDemo :id="id" :columns="columns" />
-    </main>
+    <FormMainLogic v-slot="props" :columns.sync="localColumns">
+      <main class="form-builder__main">
+        <FormSetting v-bind="props" />
+        <FormDemo :columns="props.cleanColumns" />
+      </main>
+    </FormMainLogic>
   </div>
 </template>
 
 <script>
+import FormMainLogic from '@/components/FormMainLogic';
 import FormSetting from '@/components/FormSetting';
 import FormDemo from '@/components/FormDemo';
+import RecordControls from '@/components/RecordControls';
 
 export default /*#__PURE__*/ {
-  name: 'FormBuilder', // vue component name
+  name: 'FormBuilder',
   components: {
+    FormMainLogic,
     FormSetting,
     FormDemo,
+    RecordControls,
   },
   props: {
     id: {
@@ -27,23 +34,32 @@ export default /*#__PURE__*/ {
       type: Array,
       required: true,
     },
-    updateColums: {
-      type: Function,
-      required: true,
+  },
+  emits: ['update:columns'],
+  computed: {
+    localColumns: {
+      get() {
+        return this.columns;
+      },
+      set(val) {
+        this.$emit('update:columns', val);
+      },
     },
   },
 };
 </script>
 <style lang="scss">
 @import '@/assets/scss/utils.scss';
+@import '@/assets/scss/base/normalize.scss';
+@import '@/assets/scss/base/base.scss';
 
 .form-builder {
   &__main {
     display: flex;
 
     & > * {
-      flex: 1;
       padding: $gap;
+      width: 50%;
     }
   }
 }
