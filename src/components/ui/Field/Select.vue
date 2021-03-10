@@ -145,17 +145,44 @@ export default /*#__PURE__*/ {
 
 // vue-select
 .vs {
+  &__selected {
+    margin: 0;
+    padding: 0;
+
+    &-options {
+      padding: 0;
+    }
+
+    // .vs--single.vs--open & {
+    // }
+  }
   &__search {
+    margin: 0;
+    padding: 0;
+
+    &:focus {
+      margin: 0;
+      padding: 0;
+    }
+
     &::placeholder {
       color: $color-gray-dark;
     }
   }
+
+  &__actions {
+    padding: 0;
+  }
+
   &__clear,
   &__open-indicator {
+    @include content-centered($y: false);
     fill: fade-in($border-color, 0.8);
   }
+
   &__dropdown {
     &-toggle {
+      padding: $gap;
       background-color: $color-white;
       border-radius: $border-radius;
       border: $border-width solid $border-color;

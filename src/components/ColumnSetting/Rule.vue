@@ -172,3 +172,13 @@ export default /*#__PURE__*/ {
   },
 };
 </script>
+
+<style lang="scss">
+@import '@/assets/scss/utils.scss';
+
+.input-group {
+  &:not(:last-child) {
+    margin-bottom: $gap-lg;
+  }
+}
+</style>

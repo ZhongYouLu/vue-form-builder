@@ -1,6 +1,6 @@
 /* eslint-disable vue/no-mutating-props */
 <template>
-  <form :id="`form_${id}`">
+  <div class="column-setting">
     <InputRow
       :value="column.type"
       label="欄位屬性"
@@ -34,7 +34,7 @@
         <slot :name="slot" v-bind="props" />
       </template>
     </component>
-  </form>
+  </div>
 </template>
 
 <script>
@@ -207,6 +207,12 @@ export default /*#__PURE__*/ {
         color: $color-black;
       }
     }
+  }
+}
+
+.column-setting {
+  fieldset {
+    padding: $gap-lg;
   }
 }
 </style>
