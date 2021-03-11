@@ -15,7 +15,7 @@
 </template>
 
 <script>
-import { nanoid, isEmpty, removeProperty } from '@/assets/js/helper.js';
+import { nanoid, isEmpty, removeEmpty, removeProperty } from '@/assets/js/helper.js';
 
 export default /*#__PURE__*/ {
   name: 'FormMainLogic',
@@ -63,12 +63,14 @@ export default /*#__PURE__*/ {
             if (k === 'rule') {
               const { msg, ...newRule } = v;
 
-              const newMsg = Object.entries(msg).reduce((p, [k, v]) => {
-                if (v && newRule[k]) p[k] = v;
-                return p;
-              }, {});
+              if (msg) {
+                const newMsg = Object.entries(msg).reduce((p, [k, v]) => {
+                  if (v && newRule[k]) p[k] = v;
+                  return p;
+                }, {});
 
-              if (!isEmpty(newMsg)) newRule['msg'] = newMsg;
+                if (!isEmpty(newMsg)) newRule['msg'] = newMsg;
+              }
 
               v = newRule;
             } else if (k === 'data') {
@@ -79,14 +81,16 @@ export default /*#__PURE__*/ {
                   newItem['api'] = api;
                   break;
                 case 'list':
-                  newItem['items'] = items.map((item) => removeProperty('id', item));
+                  newItem['items'] = items ? items.map((item) => removeProperty('id', item)) : [];
                   break;
               }
 
               v = newItem;
             }
 
-            if (!isEmpty(v)) p[k] = v;
+            if (!isEmpty(v)) {
+              p[k] = v;
+            }
           }
           return p;
         }, {});
@@ -110,7 +114,10 @@ export default /*#__PURE__*/ {
     // 更新欄位群
     emitUpdate(newColumns, note) {
       console.log(`${note && `[${note}] `}update:columns`, newColumns);
-      this.$emit('update:columns', newColumns);
+      this.$emit(
+        'update:columns',
+        newColumns.map((c) => removeEmpty(c))
+      );
     },
     // 呼叫更新欄位群
     invokeUpdateColumns(newColumns) {

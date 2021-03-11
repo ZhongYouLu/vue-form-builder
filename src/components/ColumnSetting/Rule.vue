@@ -2,28 +2,30 @@
   <!-- 規則設定 -->
   <fieldset>
     <!-- <legend>規則設定</legend> -->
-    <template v-for="(v, k) in fields">
-      <div :key="k" class="input-group">
-        <InputRow :value="rule[k]" v-bind="v.bind" @input="updateRule(k, $event)">
-          <template #label-right>
-            <div v-if="rule[k]" @click.prevent="toggle[k] = !toggle[k]">
-              <Icon icon="mdi:ideogram-cjk-variant" is-btn />
-            </div>
-          </template>
-          <template v-for="(_, slot) in $scopedSlots" #[slot]="props">
-            <slot :name="slot" v-bind="props" />
-          </template>
-        </InputRow>
-        <InputRow v-if="rule[k] && toggle[k]" v-model="rule.msg[k]" :placeholder="v.msg" />
-      </div>
-    </template>
+    <div v-for="(v, k) in fields" :key="k" class="input-group">
+      <InputRow :value="rule[k]" v-bind="v.bind" @input="$emit('update', k, $event)">
+        <template #label-right>
+          <div v-if="rule[k]" @click.prevent="collect[id]['toggle'][k] = !collect[id]['toggle'][k]">
+            <Icon icon="mdi:ideogram-cjk-variant" is-btn />
+          </div>
+        </template>
+        <template v-for="(_, slot) in $scopedSlots" #[slot]="props">
+          <slot :name="slot" v-bind="props" />
+        </template>
+      </InputRow>
+      <InputRow
+        v-if="rule[k] && collect[id]['toggle'][k]"
+        :value="rule.msg[k]"
+        :placeholder="v.msg"
+        @input="$emit('updateObj', 'msg', k, $event)"
+      />
+    </div>
   </fieldset>
 </template>
 
 <script>
 import InputRow from '@/components/ui/InputRow';
 import Icon from '@/components/ui/Icon';
-// import { removeProperty } from '@/assets/js/helper.js';
 
 export default /*#__PURE__*/ {
   name: 'ColumnSettingRule',
@@ -31,6 +33,7 @@ export default /*#__PURE__*/ {
     InputRow,
     Icon,
   },
+  inject: ['collect', 'setCollect'],
   props: {
     // 識別碼
     id: { type: String, required: true },
@@ -62,47 +65,25 @@ export default /*#__PURE__*/ {
     // 選擇數量上限 [多選框選項]
     most: { type: Number, default: null },
   },
-  emits: ['update'],
-  data() {
-    return {
-      toggle: {},
-    };
-  },
+  emits: ['update', 'updateObj', 'updateArr', 'addArr', 'removeArr'],
+  // data() {
+  //   return {
+  //     toggle: {},
+  //   };
+  // },
   computed: {
-    rule: {
-      get() {
-        return {
-          msg: this.msg,
-          // --------------------
-          required: this.required,
-          minimum: this.minimum,
-          maximum: this.maximum,
-          regex: this.regex,
-          sameAs: this.sameAs,
-          least: this.least,
-          most: this.most,
-        };
-      },
-      set(val) {
-        let { msg, ...newRule } = val;
-
-        newRule = Object.entries(newRule).reduce((p, [k, v]) => {
-          if (v) {
-            p[k] = v;
-            if (msg[k] === undefined) {
-              msg = { ...msg, [k]: null };
-            }
-          } else {
-            // msg = removeProperty(k, msg);
-          }
-
-          return p;
-        }, {});
-
-        newRule['msg'] = msg;
-
-        this.$emit('update', newRule);
-      },
+    rule() {
+      return {
+        msg: this.msg,
+        // --------------------
+        required: this.required,
+        minimum: this.minimum,
+        maximum: this.maximum,
+        regex: this.regex,
+        sameAs: this.sameAs,
+        least: this.least,
+        most: this.most,
+      };
     },
     fields() {
       const name = this.name || this.id;
@@ -113,7 +94,7 @@ export default /*#__PURE__*/ {
       let temp = {
         required: {
           msg: `[${name}] 為必填。`,
-          bind: { label: '是否必填', type: 'checkbox' },
+          bind: { label: '是否必填', type: 'checkbox', yes: 1, no: null },
         },
         sameAs: {
           msg: `[${name}] 與 [${sameAsName}] 不相符`,
@@ -159,16 +140,10 @@ export default /*#__PURE__*/ {
     },
   },
   created() {
-    const vm = this;
     Object.keys(this.rule).map((key) => {
-      vm.toggle = { ...vm.toggle, [key]: false };
+      const newToggle = { ...this.collect[this.id]['toggle'], [key]: false };
+      this.setCollect(this.id, 'toggle', newToggle);
     });
-  },
-  methods: {
-    updateRule(key, val) {
-      console.log(`updateRule: ${key}`, val);
-      this.rule = { ...this.rule, [key]: val };
-    },
   },
 };
 </script>

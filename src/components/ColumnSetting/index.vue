@@ -28,7 +28,11 @@
       :is="currentCmp.component"
       v-bind="currentCmp.props"
       v-if="tabDisplayConditions[currentTab]"
-      @update="updateColumn(currentTab, $event)"
+      @update="updateColumnTab(currentTab, ...arguments)"
+      @updateObj="updateColumnTabObj(currentTab, ...arguments)"
+      @updateArr="updateColumnTabArr(currentTab, ...arguments)"
+      @addArr="addColumnTabArr(currentTab, ...arguments)"
+      @removeArr="removeColumnTabArr(currentTab, ...arguments)"
     >
       <template v-for="(_, slot) in $scopedSlots" #[slot]="props">
         <slot :name="slot" v-bind="props" />
@@ -84,21 +88,16 @@ export default /*#__PURE__*/ {
     };
   },
   computed: {
-    column: {
-      get() {
-        return {
-          id: this.id,
-          name: this.name,
-          type: this.type,
-          base: this.base,
-          rule: this.rule,
-          data: this.data,
-          condition: this.condition,
-        };
-      },
-      set(newColumn) {
-        this.$emit('update', newColumn.id, newColumn);
-      },
+    column() {
+      return {
+        id: this.id,
+        name: this.name,
+        type: this.type,
+        base: this.base,
+        rule: this.rule,
+        data: this.data,
+        condition: this.condition,
+      };
     },
     tabOptions() {
       return convertOptions({
@@ -138,10 +137,6 @@ export default /*#__PURE__*/ {
             columnsObjByKey: this.columnsObjByKey,
           };
           break;
-        case 'data':
-        case 'base':
-        default:
-          break;
       }
 
       return config;
@@ -174,8 +169,39 @@ export default /*#__PURE__*/ {
   },
   methods: {
     updateColumn(tab, val) {
-      console.log(`updateColumn:${tab}`, val);
-      this.column = { ...this.column, [tab]: val };
+      console.log(`updateColumn[${tab}]`, val);
+      this.$emit('update', this.column.id, { ...this.column, [tab]: val });
+    },
+    updateColumnTab(tab, targetKey, targetVal) {
+      console.log(`updateColumnTab[${tab}][${targetKey}]`, targetVal);
+      const newTab = { ...this.column[tab], [targetKey]: targetVal };
+      this.updateColumn(tab, newTab);
+    },
+    updateColumnTabObj(tab, targetKey, k, v) {
+      console.log(`updateColumnTabObj[${tab}][${targetKey}][${k}]`, v);
+      const target = this.column[tab][targetKey];
+      const newTarget = { ...target, [k]: v };
+      this.updateColumnTab(tab, targetKey, newTarget);
+    },
+    updateColumnTabArr(tab, targetKey, id, k, v) {
+      console.log(`updateColumnTabArr[${tab}][${targetKey}][${id}][${k}]`, v);
+      const target = this.column[tab][targetKey];
+      const idx = target.findIndex((i) => i.id === id);
+      const newTarget = [...target.slice(0, idx), { ...target[idx], [k]: v }, ...target.slice(idx + 1)];
+      this.updateColumnTab(tab, targetKey, newTarget);
+    },
+    addColumnTabArr(tab, targetKey, v) {
+      console.log(`addColumnTabArr[${tab}][${targetKey}]`, v);
+      const target = this.column[tab][targetKey];
+      const newTarget = target ? [...target, v] : [v];
+      this.updateColumnTab(tab, targetKey, newTarget);
+    },
+    removeColumnTabArr(tab, targetKey, id) {
+      console.log(`removeColumnTabArr[${tab}][${targetKey}]`, id);
+      const target = this.column[tab][targetKey];
+      const idx = target.findIndex((i) => i.id === id);
+      const newTarget = [...target.slice(0, idx), ...target.slice(idx + 1)];
+      this.updateColumnTab(tab, targetKey, newTarget);
     },
   },
 };

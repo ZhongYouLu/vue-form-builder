@@ -3,14 +3,14 @@
   <fieldset>
     <!-- <legend>基本設定</legend> -->
     <template v-for="(v, k) in fields">
-      <InputRow :key="k" :value="base[k]" v-bind="v.bind" @input="updateBase(k, $event)" />
+      <InputRow :key="k" :value="$props[k]" v-bind="v.bind" @input="$emit('update', k, $event)" />
     </template>
   </fieldset>
 </template>
 
 <script>
 import InputRow from '@/components/ui/InputRow';
-import { isEmpty, convertOptions } from '@/assets/js/helper.js';
+import { convertOptions } from '@/assets/js/helper.js';
 
 export default /*#__PURE__*/ {
   name: 'ColumnSettingBase',
@@ -34,25 +34,6 @@ export default /*#__PURE__*/ {
   },
   emits: ['update'],
   computed: {
-    base: {
-      get() {
-        return {
-          label: this.label,
-          subLabel: this.subLabel,
-          placeholder: this.placeholder,
-          defaultValue: this.defaultValue,
-          autocomplete: this.autocomplete,
-        };
-      },
-      set(newBase) {
-        newBase = Object.entries(newBase).reduce((p, [k, v]) => {
-          if (!isEmpty(v)) p[k] = v;
-          return p;
-        }, {});
-
-        this.$emit('update', newBase);
-      },
-    },
     fields() {
       let temp = {
         label: { bind: { label: '欄位說明' } },
@@ -70,6 +51,7 @@ export default /*#__PURE__*/ {
               placeholder: '請選擇屬性',
               type: 'select',
               options: this.autocompleteOptions,
+              clearable: true,
             },
           },
         };
@@ -89,12 +71,6 @@ export default /*#__PURE__*/ {
         'current-password': '密碼',
         'new-password': '新密碼',
       });
-    },
-  },
-  methods: {
-    updateBase(key, val) {
-      console.log(`updateBase: ${key}`, val);
-      this.base = { ...this.base, [key]: val };
     },
   },
 };

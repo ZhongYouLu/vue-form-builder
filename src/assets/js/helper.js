@@ -94,6 +94,14 @@ export function isEmpty(obj) {
   return true;
 }
 
+export function removeEmpty(obj) {
+  Object.entries(obj).forEach(
+    ([key, val]) =>
+      (val && typeof val === 'object' && removeEmpty(val)) || ((val === null || val === '') && delete obj[key])
+  );
+  return obj;
+}
+
 // eslint-disable-next-line no-unused-vars
 export const removeProperty = (propKey, { [propKey]: propValue, ...rest }) => rest;
 
