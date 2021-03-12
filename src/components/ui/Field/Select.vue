@@ -1,37 +1,55 @@
 <template>
-  <div>
-    <VueSelect
-      v-model="mutableValue"
-      v-bind="$attrs"
-      :options="options"
-      :clearable="clearable"
-      :searchable="searchable"
-      :append-to-body="true"
-      :calculate-position="withPopper"
-      :reduce="tempReduce"
-      :get-option-label="tempGetOptionLabel"
-      :filter="fuseSearch"
-      :reset-on-options-change="false"
-    >
-      <template v-if="searchable" #option="option">
-        {{ option.name || option.id }}
-        <br />
-        <em>{{ option.label }}</em>
-      </template>
+  <VueSelect
+    v-model="mutableValue"
+    :options="options"
+    :placeholder="placeholder"
+    :autocomplete="autocomplete"
+    :disabled="disabled"
+    :multiple="multiple"
+    :selectable="tempSelectable"
+    :reduce="tempReduce"
+    :get-option-label="tempGetOptionLabel"
+    :reset-on-options-change="resetOnOptionsChange"
+    :clearable="clearable"
+    :searchable="searchable"
+    :filterable="filterable"
+    :filter="fuseSearch"
+    :taggable="taggable"
+    :push-tags="pushTags"
+    :create-option="createOption"
+    :close-on-select="closeOnSelect"
+    :no-drop="noDrop"
+    :append-to-body="true"
+    :calculate-position="withPopper"
+  >
+    <!-- 必填處理 -->
+    <template v-if="required" #search="{ attributes, events }">
+      <input class="vs__search" :required="!mutableValue" v-bind="attributes" v-on="events" />
+    </template>
 
-      <template v-if="searchable" #no-options="{ search, searching }">
-        <template v-if="searching">
-          查無
-          <em>{{ search }}</em> 相關.
-        </template>
-        <em v-else style="opacity: 0.5">開始嘗試搜尋欄位</em>
-      </template>
+    <!-- 已選項目  -->
+    <!-- <template #selected-option="option">
+      {{ option }}
+    </template> -->
 
-      <template v-for="(_, slot) in $scopedSlots" #[slot]="props">
-        <slot :name="slot" v-bind="props" />
+    <!-- 項目  -->
+    <!-- <template #option="option">
+      {{ option }}
+    </template> -->
+
+    <!-- 無項目 -->
+    <template v-if="searchable" #no-options="{ search, searching }">
+      <template v-if="searching">
+        查無
+        <em>{{ search }}</em> 相關.
       </template>
-    </VueSelect>
-  </div>
+      <em v-else style="opacity: 0.5">開始嘗試搜尋欄位</em>
+    </template>
+
+    <template v-for="(_, slot) in $scopedSlots" #[slot]="props">
+      <slot :name="slot" v-bind="props" />
+    </template>
+  </VueSelect>
 </template>
 
 <script>
@@ -45,14 +63,34 @@ export default /*#__PURE__*/ {
     VueSelect,
   },
   inheritAttrs: false,
+
   props: {
-    value: { type: String, default: null },
+    // https://vue-select.org/api/props.html#options
+    value: { type: [String, Array], default: null },
     options: { type: Array, default: () => [] },
-    clearable: { type: Boolean, default: false },
-    searchable: { type: Boolean, default: false },
-    reduce: { type: Function, default: null },
-    getOptionLabel: { type: Function, default: null },
-    fuseKeys: { type: Array, default: () => ['name', 'label'] },
+    placeholder: { type: String, default: '' },
+    autocomplete: { type: String, default: 'off' },
+    disabled: { type: Boolean, default: false },
+    multiple: { type: Boolean, default: false },
+    required: { type: Boolean, default: false },
+    // ---------------------------------------------
+    selectable: { type: Function, default: null }, // 是否可選處理
+    reduce: { type: Function, default: null }, // 轉換對象處理 (傳遞給 v-model binding 或 @input event.)
+    getOptionLabel: { type: Function, default: null }, // 生成項目文字處理
+    resetOnOptionsChange: { type: [Function, Boolean], default: false }, // 項目更新是否重置所選值處理
+    // ---------------------------------------------
+    clearable: { type: Boolean, default: false }, // 是否可清除所選
+    searchable: { type: Boolean, default: false }, // 是否可查詢項目
+    // ---------------------------------------------
+    filterable: { type: Boolean, default: true }, // When true, existing options will be filtered by the search text. Should not be used in conjunction with taggable.
+    fuseKeys: { type: Array, default: () => ['name'] }, // 模糊查詢欄位
+    // ---------------------------------------------
+    taggable: { type: Boolean, default: false }, // Enable/disable creating options from searchInput.
+    pushTags: { type: Boolean, default: false }, // When true, newly created tags will be added to the options list.
+    createOption: { type: Function, default: null }, // User defined function for adding Options
+    // ---------------------------------------------
+    closeOnSelect: { type: Boolean, default: true }, // Close a dropdown when an option is chosen. Set to false to keep the dropdown open
+    noDrop: { type: Boolean, default: false }, // Disable the dropdown entirely.
   },
   emits: ['input'],
   data() {
@@ -69,18 +107,32 @@ export default /*#__PURE__*/ {
         this.$emit('input', value);
       },
     },
-    tempReduce() {
-      if (this.reduce) return this.reduce;
+    tempSelectable() {
+      if (this.selectable !== null) return this.selectable;
+      // multiple
+      if (this.multiple) return (option) => !this.value.includes(option.id);
       // default
-      return !this.searchable ? (option) => option.value : (option) => option.id;
+      return () => true;
+    },
+    tempReduce() {
+      if (this.reduce !== null) return this.reduce;
+      // searchable
+      if (this.searchable) return (option) => option.id;
+      // default
+      return (option) => option.value;
     },
     tempGetOptionLabel() {
-      if (this.getOptionLabel) return this.getOptionLabel;
+      // Label text is used for filtering comparison and displaying.
+      // If you only need to adjust the display, you should use the option and selected-option slots.
+
+      if (this.getOptionLabel !== null) return this.getOptionLabel;
+      // searchable
+      if (this.searchable) return (option) => option.name || option.id;
       // default
-      return !this.searchable ? (option) => option.text : (option) => option.name || option.id;
+      return (option) => option.text;
     },
     fuseSearch() {
-      if (!this.searchable) return null;
+      if (!this.filterable || !this.searchable) return null;
 
       return (options, search) => {
         const fuse = new Fuse(options, {
@@ -140,78 +192,42 @@ export default /*#__PURE__*/ {
 </script>
 
 <style lang="scss">
-@import '~vue-select/src/scss/vue-select.scss';
 @import '@/assets/scss/utils.scss';
 
-// vue-select
+// Vue-select
+$vs-component-placeholder-color: $color-gray-dark;
+$vs-state-active-bg: $selection-bg-color;
+$vs-state-active-color: $selection-text-color;
+
+$vs-border-width: $border-width;
+$vs-border-style: solid;
+$vs-border-radius: $border-radius;
+$vs-border-color: $border-color;
+
+$vs-controls-color: $border-color;
+
+$vs-dropdown-box-shadow: 0px 3px 6px 0px rgba(0, 0, 0, 0.5);
+
+@import '~vue-select/src/scss/vue-select.scss';
+
 .vs {
-  &__selected {
-    margin: 0;
-    padding: 0;
-
-    &-options {
-      padding: 0;
-    }
-
-    // .vs--single.vs--open & {
-    // }
-  }
-  &__search {
-    margin: 0;
-    padding: 0;
-
-    &:focus {
-      margin: 0;
-      padding: 0;
-    }
-
-    &::placeholder {
-      color: $color-gray-dark;
+  &__dropdown-toggle {
+    .v-select.drop-up.vs--open & {
+      border-radius: 0 0 $vs-border-radius $vs-border-radius;
+      border-top-color: transparent;
+      border-bottom-color: $vs-border-color;
     }
   }
 
-  &__actions {
-    padding: 0;
-  }
-
-  &__clear,
-  &__open-indicator {
-    @include content-centered($y: false);
-    fill: fade-in($border-color, 0.8);
-  }
-
-  &__dropdown {
-    &-toggle {
-      padding: $gap;
-      background-color: $color-white;
-      border-radius: $border-radius;
-      border: $border-width solid $border-color;
-
-      .v-select.drop-up.vs--open & {
-        border-radius: 0 0 $border-radius $border-radius;
-        border-top-color: transparent;
-        border-bottom-color: $border-color;
-      }
-    }
-    &-menu {
-      background-color: $color-white;
-      border-radius: 0 0 $border-radius $border-radius;
-      border-width: $border-width;
-      border-color: $border-color;
-    }
-    &-option {
-      &--highlight {
-        color: $selection-text-color;
-        background-color: $selection-bg-color;
-      }
-    }
+  &__dropdown-option--disabled {
+    display: none;
   }
 }
 
 [data-popper-placement='top'] {
-  border-radius: $border-radius $border-radius 0 0;
-  border-top-style: solid;
+  border-radius: $vs-border-radius $vs-border-radius 0 0;
+  border-top-style: $vs-border-style;
   border-bottom-style: none;
-  // box-shadow: 0 -$border-radius 6px rgba(0, 0, 0, 0.15);
+  box-shadow: 0px -3px 6px 0px rgba(0, 0, 0, 0.15);
 }
 </style>

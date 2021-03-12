@@ -2,11 +2,27 @@
   <!-- 條件設定 -->
   <fieldset>
     <!-- <legend>條件設定</legend> -->
-    <div v-for="(d, idx) in sync.display" :key="d.id">
+    <InputRow
+      :value="$props.requiredSync"
+      type="select"
+      label="連動必填"
+      multiple
+      searchable
+      :options="columnsExcludeSelf"
+      @input="$emit('update', 'requiredSync', $event)"
+    />
+    <!-- <div v-for="(d, idx) in $props.display" :key="d.id">
       <div>
         <span>#{{ idx + 1 }}</span>
         <Icon icon="mdi:close-thick" is-btn @click="invokeRemove(idx)" />
-        <Field v-model="d.triggerID" type="select-search" label="監聽欄位" :options="columnsExcludeSelf" />
+        <InputRow
+          v-model="d.triggerID"
+          type="select"
+          label="監聽欄位"
+          clearable
+          searchable
+          :options="columnsExcludeSelf"
+        />
         <template v-if="columnsObjByKey[d.triggerID] && columnsObjByKey[d.triggerID].type === 'select'">
           <Field
             v-if="columnsObjByKey[d.triggerID].data.srcMode === 'list'"
@@ -19,19 +35,21 @@
         {{ d }}
       </div>
     </div>
-    <button class="btn btn--add" @click.prevent="invokeAdd">&#10010;</button>
+    <button class="btn btn--add" @click.prevent="invokeAdd">&#10010;</button> -->
   </fieldset>
 </template>
 <script>
-import Field from '@/components/ui/Field';
-import Icon from '@/components/ui/Icon';
-import { nanoid, isEmpty } from '@/assets/js/helper.js';
+import InputRow from '@/components/ui/InputRow';
+// import Field from '@/components/ui/Field';
+// import Icon from '@/components/ui/Icon';
+import { nanoid } from '@/assets/js/helper.js';
 
 export default /*#__PURE__*/ {
   name: 'ColumnSettingCondition',
   components: {
-    Field,
-    Icon,
+    InputRow,
+    // Field,
+    // Icon,
   },
   inject: ['handleConfirm'],
   props: {
@@ -48,34 +66,19 @@ export default /*#__PURE__*/ {
     // 所有欄位群 (obj by key)
     columnsObjByKey: { type: Object, required: true },
     //-----------
+    // 連動必填元素 (如果自身有值，其元素必填)
+    requiredSync: { type: Array, default: () => [] },
     // 顯示條件
     display: { type: Array, default: () => [] },
+    // 其他檢查設定
+    // requiredSync: [], // 連動必填元素 (如果自身有值，其元素必填)
+    // requiredCheck: [], // 自身必填檢查 (來自其他元素的 requiredSync)
+    // sameAsReverseCheck: [], // 反向相符檢查 元素值是否相符 (來自其他元素的 rule.sameAs)
   },
-  emits: ['update'],
-  data() {
-    return {
-      sync: {
-        display: this.display,
-      },
-    };
-  },
-  computed: {},
-  watch: {
-    sync: {
-      handler: function (newVal) {
-        const temp = Object.entries(newVal).reduce((p, [k, v]) => {
-          if (!isEmpty(v)) p[k] = v;
-          return p;
-        }, {});
-
-        this.$emit('update', temp);
-      },
-      deep: true,
-    },
-  },
+  emits: ['update', 'updateObj', 'updateArr', 'addArr', 'removeArr'],
   methods: {
     invokeAdd() {
-      this.sync.display.push({
+      this.$emit('addArr', 'display', {
         id: nanoid(6),
         triggerID: null,
         findOne: [], // 滿足其一
@@ -83,24 +86,19 @@ export default /*#__PURE__*/ {
       });
     },
     invokeRemove(idx) {
+      const { id, text } = this.$props.display[idx];
+
       const allowFunc = () => {
-        this.sync.display.splice(idx, 1);
+        this.$emit('removeArr', 'display', id);
       };
-      const showMsg = `確定刪除條件 #${idx + 1} ?`;
+
+      const showMsg = `確定刪除顯示條件 #${idx + 1} [${text || id}] ?`;
 
       if (this.handleConfirm) {
         this.handleConfirm(showMsg, allowFunc);
       } else {
         if (confirm(showMsg)) allowFunc();
       }
-    },
-    getColumnTemp: function () {
-      return {
-        // 其他檢查設定
-        requiredSync: [], // 連動必填元素 (如果自身有值，其元素必填)
-        requiredCheck: [], // 自身必填檢查 (來自其他元素的 requiredSync)
-        sameAsReverseCheck: [], // 反向相符檢查 元素值是否相符 (來自其他元素的 rule.sameAs)
-      };
     },
   },
 };
