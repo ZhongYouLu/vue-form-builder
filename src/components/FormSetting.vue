@@ -1,6 +1,6 @@
 <template>
   <div class="form-setting">
-    <Draggable :value="columns" handle-class="card__drag" @input="invokeUpdateColumns">
+    <Draggable :value="columns" @input="invokeUpdateColumns">
       <Block v-for="(column, idx) in columns" :key="column.id" radius shadow>
         <Card>
           <!-- Card Header -->
@@ -14,7 +14,7 @@
               :isEditName="collect[column.id].isEditName"
               :toggleIsEditName="toggleIsEditName.bind(null, column.id)"
             >
-              <div class="card__drag">
+              <div class="drag">
                 <Icon icon="mdi:drag" />
                 <span>#{{ idx + 1 }}</span>
               </div>
@@ -124,16 +124,6 @@ export default /*#__PURE__*/ {
 }
 
 .card {
-  &__drag {
-    @include content-centered();
-    margin-right: $gap * 2;
-    cursor: move;
-
-    &:hover {
-      background-color: lighten($color-gray-dark, 30);
-    }
-  }
-
   &__name {
     @include content-centered();
     min-width: 0; // fix: text-ellipsis

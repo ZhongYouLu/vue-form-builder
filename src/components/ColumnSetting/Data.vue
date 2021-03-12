@@ -3,7 +3,7 @@
   <fieldset>
     <!-- <legend>項目設定</legend> -->
     <InputRow
-      :value="data.srcMode"
+      :value="$props.srcMode"
       :label="'資料來源'"
       :type="'select'"
       :options="sourceModeOptions"
@@ -11,33 +11,22 @@
       is-required
       @input="update('srcMode', $event)"
     />
-    <template v-if="data.srcMode === 'api'">
-      <InputRow :value="data.api.url" :label="'API URL'" @input="updateApi('url', $event)" />
-      <InputRow :value="data.api.textKey" :label="'Value Key'" @input="updateApi('textKey', $event)" />
-      <InputRow :value="data.api.valueKey" :label="'Text Key'" @input="updateApi('valueKey', $event)" />
+    <template v-if="$props.srcMode === 'list'">
+      <div v-if="$props.items.length" class="items">
+        <Draggable :value="$props.items" @input="update('items', $event)">
+          <div v-for="(item, idx) in $props.items" :key="item.id" class="input-row inline">
+            <div class="drag"><Icon icon="mdi:drag" />{{ idx + 1 }}</div>
+            <Field :value="item.text" @input="updateItem(item.id, 'text', $event)" />
+            <Icon icon="mdi:close-thick" is-btn @click="removeItem(idx)" />
+          </div>
+        </Draggable>
+      </div>
+      <button class="btn btn--add" @click.prevent="addItem">&#10010;</button>
     </template>
     <template v-else>
-      <table v-if="data.items.length" class="items">
-        <thead>
-          <tr>
-            <th scope="col"></th>
-            <th scope="col">idx</th>
-            <th scope="col">Text</th>
-            <th scope="col">Value</th>
-            <th scope="col"></th>
-          </tr>
-        </thead>
-        <Draggable :value="data.items" handle-class="item__drag" tag="tbody" @input="update('items', $event)">
-          <tr v-for="(item, idx) in data.items" :key="item.id">
-            <td scope="row"><Icon icon="mdi:drag" class="item__drag" /></td>
-            <td>{{ idx + 1 }}</td>
-            <td><Field :value="item.text" @input="updateItem(item.id, 'text', $event)" /></td>
-            <td><Field :value="item.value" @input="updateItem(item.id, 'value', $event)" /></td>
-            <td><Icon icon="mdi:close-thick" is-btn @click="removeItem(idx)" /></td>
-          </tr>
-        </Draggable>
-      </table>
-      <button class="btn btn--add" @click.prevent="addItem">&#10010;</button>
+      <InputRow :value="$props.api.url" :label="'API URL'" @input="updateApi('url', $event)" />
+      <InputRow :value="$props.api.textKey" :label="'Value Key'" @input="updateApi('textKey', $event)" />
+      <InputRow :value="$props.api.valueKey" :label="'Text Key'" @input="updateApi('valueKey', $event)" />
     </template>
   </fieldset>
 </template>
@@ -64,7 +53,7 @@ export default /*#__PURE__*/ {
       type: String,
       default: 'list',
       validator(value) {
-        return ['api', 'list'].includes(value);
+        return ['list', 'api'].includes(value);
       },
     },
     // 顯示模式
@@ -90,19 +79,6 @@ export default /*#__PURE__*/ {
   },
   emits: ['update', 'updateObj', 'updateArr', 'addArr', 'removeArr'],
   computed: {
-    data() {
-      return {
-        srcMode: this.srcMode,
-        displayMode: this.displayMode,
-        items: this.items.map((item) => {
-          return {
-            id: nanoid(6),
-            ...item,
-          };
-        }),
-        api: this.api,
-      };
-    },
     sourceModeOptions() {
       return convertOptions({
         list: '手動設置',
@@ -131,15 +107,15 @@ export default /*#__PURE__*/ {
       this.$emit('addArr', 'items', {
         id: nanoid(6),
         text: '',
-        value: '',
       });
     },
     removeItem(idx) {
+      const { id, text } = this.$props.items[idx];
+
       const allowFunc = () => {
         this.$emit('removeArr', 'items', id);
       };
 
-      const { id, text } = this.data.items[idx];
       const showMsg = `確定刪除欄位 #${idx + 1} [${text || id}] ?`;
 
       if (this.handleConfirm) {
@@ -159,9 +135,5 @@ export default /*#__PURE__*/ {
   td {
     padding: $gap;
   }
-}
-
-.item__drag {
-  cursor: move;
 }
 </style>

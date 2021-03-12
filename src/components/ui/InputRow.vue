@@ -45,6 +45,10 @@ export default /*#__PURE__*/ {
 
   &.inline {
     flex-wrap: nowrap;
+
+    .field {
+      flex-basis: initial;
+    }
   }
 
   &:hover {
