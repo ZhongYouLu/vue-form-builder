@@ -11,8 +11,9 @@
       is-required
       @input="update('srcMode', $event)"
     />
+    <hr class="dashed" />
     <template v-if="$props.srcMode === 'list'">
-      <div v-if="$props.items.length" class="items">
+      <Block v-if="$props.items.length">
         <Draggable :value="$props.items" @input="update('items', $event)">
           <div v-for="(item, idx) in $props.items" :key="item.id" class="input-row inline">
             <div class="drag"><Icon icon="mdi:drag" />{{ idx + 1 }}</div>
@@ -20,7 +21,7 @@
             <Icon icon="mdi:close-thick" is-btn @click="removeItem(idx)" />
           </div>
         </Draggable>
-      </div>
+      </Block>
       <button class="btn btn--add" @click.prevent="addItem">&#10010;</button>
     </template>
     <template v-else>
@@ -32,6 +33,7 @@
 </template>
 
 <script>
+import Block from '@/components/ui/Block';
 import Draggable from '@/components/ui/Draggable';
 import InputRow from '@/components/ui/InputRow';
 import Field from '@/components/ui/Field';
@@ -39,8 +41,9 @@ import Icon from '@/components/ui/Icon';
 import { nanoid, convertOptions } from '@/assets/js/helper.js';
 
 export default /*#__PURE__*/ {
-  name: 'ColumnSettingItem',
+  name: 'ColumnSettingData',
   components: {
+    Block,
     Draggable,
     InputRow,
     Field,
@@ -116,7 +119,7 @@ export default /*#__PURE__*/ {
         this.$emit('removeArr', 'items', id);
       };
 
-      const showMsg = `確定刪除欄位 #${idx + 1} [${text || id}] ?`;
+      const showMsg = `確定刪除項目 #${idx + 1} [${text || id}] ?`;
 
       if (this.handleConfirm) {
         this.handleConfirm(showMsg, allowFunc);
@@ -131,9 +134,7 @@ export default /*#__PURE__*/ {
 <style lang="scss">
 @import '@/assets/scss/utils.scss';
 
-.items {
-  td {
-    padding: $gap;
-  }
+hr.dashed {
+  border-top: 1px dashed $border-color;
 }
 </style>
