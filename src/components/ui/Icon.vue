@@ -1,5 +1,5 @@
 <template>
-  <span ref="el" class="icon" :class="{ 'icon--btn': isBtn }" @click="$emit('click')" />
+  <span ref="el" class="icon" :class="{ 'icon--btn': isBtn }" @click.prevent="$emit('click')" />
 </template>
 
 <script>

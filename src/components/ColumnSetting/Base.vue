@@ -25,10 +25,10 @@ export default /*#__PURE__*/ {
     label: { type: String, default: null },
     // 欄位子說明
     subLabel: { type: String, default: null },
-    // 提示文字
-    placeholder: { type: String, default: null },
     // 預設值
     defaultValue: { type: String, default: null },
+    // 提示文字
+    placeholder: { type: String, default: null },
     // 自動完成
     autocomplete: { type: String, default: null },
   },

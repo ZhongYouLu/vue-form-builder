@@ -3,19 +3,17 @@
   <fieldset>
     <!-- <legend>規則設定</legend> -->
     <div v-for="(v, k) in fields" :key="k" class="input-group">
-      <InputRow :value="rule[k]" v-bind="v.bind" @input="$emit('update', k, $event)">
+      <InputRow :value="$props[k]" v-bind="v.bind" @input="update(k, $event)">
         <template #label-right>
-          <div v-if="rule[k]" @click.prevent="collect[id]['toggle'][k] = !collect[id]['toggle'][k]">
-            <Icon icon="mdi:ideogram-cjk-variant" is-btn />
-          </div>
+          <Icon v-if="$props[k]" icon="mdi:ideogram-cjk-variant" is-btn @click="setToggleMsg(k)" />
         </template>
         <template v-for="(_, slot) in $scopedSlots" #[slot]="props">
           <slot :name="slot" v-bind="props" />
         </template>
       </InputRow>
       <InputRow
-        v-if="rule[k] && collect[id]['toggle'][k]"
-        :value="rule.msg[k]"
+        v-if="$props[k] && toggleMsg[k]"
+        :value="$props.msg[k]"
         :placeholder="v.msg"
         @input="$emit('updateObj', 'msg', k, $event)"
       />
@@ -52,52 +50,33 @@ export default /*#__PURE__*/ {
     msg: { type: Object, default: () => ({}) },
     // 必填
     required: { type: Number, default: null },
+    // 與..相符
+    sameAs: { type: String, default: null },
     // 字元下限
     minimum: { type: Number, default: null },
     // 字元上限
     maximum: { type: Number, default: null },
     // 驗證格式
     regex: { type: String, default: null },
-    // 與..相符
-    sameAs: { type: String, default: null },
     // 選擇數量下限 [多選框選項]
     least: { type: Number, default: null },
     // 選擇數量上限 [多選框選項]
     most: { type: Number, default: null },
   },
-  emits: ['update', 'updateObj', 'updateArr', 'addArr', 'removeArr'],
-  // data() {
-  //   return {
-  //     toggle: {},
-  //   };
-  // },
+  emits: ['update', 'updateObj'],
   computed: {
-    rule() {
-      return {
-        msg: this.msg,
-        // --------------------
-        required: this.required,
-        minimum: this.minimum,
-        maximum: this.maximum,
-        regex: this.regex,
-        sameAs: this.sameAs,
-        least: this.least,
-        most: this.most,
-      };
-    },
     fields() {
       const name = this.name || this.id;
-      const sameAsName = this.rule.sameAs
-        ? this.columnsObjByKey[this.rule.sameAs].name || this.columnsObjByKey[this.rule.sameAs].id
+      const sameAsName = this.sameAs
+        ? this.columnsObjByKey[this.sameAs].name || this.columnsObjByKey[this.sameAs].id
         : '';
 
       let temp = {
         required: {
-          msg: `[${name}] 為必填。`,
           bind: { label: '是否必填', type: 'checkbox', yes: 1, no: null },
+          msg: `[${name}] 為必填。`,
         },
         sameAs: {
-          msg: `[${name}] 與 [${sameAsName}] 不相符`,
           bind: {
             label: '與..相符',
             placeholder: '請選擇欄位',
@@ -106,44 +85,48 @@ export default /*#__PURE__*/ {
             clearable: true,
             searchable: true,
           },
+          msg: `[${name}] 與 [${sameAsName}] 不相符`,
         },
       };
 
       if (this.isText) {
         temp = {
           ...temp,
-          minimum: {
-            msg: `[${name}] 最少 [:min] 個字。`,
-            bind: { label: '字元下限', type: 'number' },
-          },
-          maximum: {
-            msg: `[${name}] 最多 [:max] 個字。`,
-            bind: { label: '字元上限', type: 'number' },
-          },
-          regex: { if: this.isText, msg: `[${name}] 格式驗證失敗。`, bind: { label: '驗證格式' } },
+          minimum: { bind: { label: '字元下限', type: 'number' }, msg: `[${name}] 最少 [:min] 個字。` },
+          maximum: { bind: { label: '字元上限', type: 'number' }, msg: `[${name}] 最多 [:max] 個字。` },
+          regex: { bind: { label: '驗證格式' }, msg: `[${name}] 格式驗證失敗。` },
         };
       } else if (this.isCheckBox) {
         temp = {
           ...temp,
-          least: {
-            msg: `[${name}] 最少選 [:least] 個。`,
-            bind: { label: '選擇數量下限', type: 'number' },
-          },
-          most: {
-            msg: `[${name}] 最多選 [:most] 個。`,
-            bind: { label: '選擇數量上限', type: 'number' },
-          },
+          least: { bind: { label: '選擇數量下限', type: 'number' }, msg: `[${name}] 最少選 [:least] 個。` },
+          most: { bind: { label: '選擇數量上限', type: 'number' }, msg: `[${name}] 最多選 [:most] 個。` },
         };
       }
 
       return temp;
     },
+    toggleMsg() {
+      return this.collect[this.id]['toggleMsg'];
+    },
   },
   created() {
-    Object.keys(this.rule).map((key) => {
-      const newToggle = { ...this.collect[this.id]['toggle'], [key]: false };
-      this.setCollect(this.id, 'toggle', newToggle);
-    });
+    this.setCollect(this.id, 'toggleMsg', {});
+  },
+  methods: {
+    update(k, v) {
+      this.$emit('update', k, v);
+
+      if (this.toggleMsg[k] === undefined) {
+        this.setToggleMsg(k, false);
+      }
+    },
+    setToggleMsg(k, v) {
+      this.setCollect(this.id, 'toggleMsg', {
+        ...this.toggleMsg,
+        [k]: v !== undefined ? v : !this.toggleMsg[k],
+      });
+    },
   },
 };
 </script>
