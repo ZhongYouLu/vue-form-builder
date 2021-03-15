@@ -224,6 +224,12 @@ $vs-dropdown-box-shadow: 0px 3px 6px 0px rgba(0, 0, 0, 0.5);
   }
 }
 
+.vs__selected {
+  button:disabled {
+    display: none;
+  }
+}
+
 [data-popper-placement='top'] {
   border-radius: $vs-border-radius $vs-border-radius 0 0;
   border-top-style: $vs-border-style;

@@ -11,6 +11,17 @@
       :options="columnsExcludeSelf"
       @input="$emit('update', 'requiredSync', $event)"
     />
+    <InputRow
+      v-if="requiredCheck.length"
+      :value="requiredCheck"
+      type="select"
+      label="被連動必填"
+      multiple
+      searchable
+      disabled
+      no-drop
+      :options="columnsExcludeSelf"
+    />
     <!-- <div v-for="(d, idx) in $props.display" :key="d.id">
       <div>
         <span>#{{ idx + 1 }}</span>
@@ -76,6 +87,20 @@ export default /*#__PURE__*/ {
     // sameAsReverseCheck: [], // 反向相符檢查 元素值是否相符 (來自其他元素的 rule.sameAs)
   },
   emits: ['update', 'updateObj', 'updateArr', 'addArr', 'removeArr'],
+  computed: {
+    // 自身必填檢查 (來自其他元素的 requiredSync)
+    requiredCheck() {
+      const requiredCheck = [];
+
+      this.columnsExcludeSelf.forEach((c) => {
+        if (c.condition?.requiredSync && c.condition.requiredSync?.includes(this.id)) {
+          requiredCheck.push(c.id);
+        }
+      });
+
+      return requiredCheck;
+    },
+  },
   methods: {
     invokeAdd() {
       this.$emit('addArr', 'display', {
