@@ -8,7 +8,7 @@
       :type="'select'"
       :options="sourceModeOptions"
       placeholder="請選擇來源"
-      is-required
+      required
       @input="update('srcMode', $event)"
     />
     <hr class="dashed" />
