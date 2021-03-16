@@ -58,15 +58,15 @@ export default /*#__PURE__*/ {
         const entries = Object.entries(column);
         // const entries = Object.entries(removeProperty('id', column));
 
-        let newColumn = entries.reduce((p, [k, v]) => {
+        let newColumn = entries.reduce((acc, [k, v]) => {
           if (!isEmpty(v)) {
             if (k === 'rule') {
               const { msg, ...newRule } = v;
 
               if (msg) {
-                const newMsg = Object.entries(msg).reduce((p, [k, v]) => {
-                  if (v && newRule[k]) p[k] = v;
-                  return p;
+                const newMsg = Object.entries(msg).reduce((acc, [k, v]) => {
+                  if (v && newRule[k]) acc[k] = v;
+                  return acc;
                 }, {});
 
                 if (!isEmpty(newMsg)) newRule['msg'] = newMsg;
@@ -89,10 +89,10 @@ export default /*#__PURE__*/ {
             }
 
             if (!isEmpty(v)) {
-              p[k] = v;
+              acc[k] = v;
             }
           }
-          return p;
+          return acc;
         }, {});
 
         return newColumn;
@@ -151,21 +151,35 @@ export default /*#__PURE__*/ {
         const newColumns = [...this.localColumns];
         // 消除其他欄位相關連動
         newColumns.forEach((c) => {
-          // 如果有規則 - [與...相符]
-          if (!isEmpty(c.rule && c.rule.sameAs) && c.rule.sameAs === id) {
-            // 取消設置
-            c.rule.sameAs = null;
+          // 如果有規則
+          if (!isEmpty(c.rule)) {
+            // 與...相符
+            if (!isEmpty(c.rule.sameAs) && c.rule.sameAs === id) {
+              // 取消設置
+              c.rule.sameAs = null;
+            }
           }
 
-          // 如果有條件 - 顯示
-          if (!isEmpty(c.condition && c.condition.display)) {
-            c.condition.display = c.condition.display.reduce((p, obj) => {
-              // 排除該項
-              if (obj.triggerID !== id) return p;
-              // else
-              p = [...p, obj];
-              return p;
-            }, []);
+          // 如果有條件
+          if (!isEmpty(c.condition)) {
+            // 顯示
+            if (!isEmpty(c.condition.display)) {
+              c.condition.display = c.condition.display.reduce((acc, obj) => {
+                // 排除該項
+                if (obj.triggerID === id) return acc;
+                // else
+                acc = [...acc, obj];
+                return acc;
+              }, []);
+            }
+
+            // 連動必填元素
+            if (!isEmpty(c.condition.requiredSync)) {
+              c.condition.requiredSync = c.condition.requiredSync.reduce((acc, targetID) => {
+                if (targetID !== id) acc.push(targetID);
+                return acc;
+              }, []);
+            }
           }
         });
         // 刪除該索引之欄位

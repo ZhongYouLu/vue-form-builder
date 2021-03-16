@@ -62,8 +62,8 @@ export function json2ObjByKey(json, key) {
   }, {});
 }
 
-export function convertOptions(obj) {
-  return Object.entries(obj).reduce((p, [k, v]) => [...p, { value: k, text: v }], []);
+export function convertOptions(obj, kKey = 'value', vKey = 'text') {
+  return Object.entries(obj).reduce((acc, [k, v]) => [...acc, { [kKey]: k, [vKey]: v }], []);
 }
 
 export function isEmptyObject(value) {
