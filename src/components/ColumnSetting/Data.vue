@@ -51,6 +51,11 @@ export default /*#__PURE__*/ {
   },
   inject: ['handleConfirm'],
   props: {
+    // 排除自己的所有欄位群
+    columnsExcludeSelf: { type: Array, required: true },
+    // 所有欄位群 (obj by key)
+    columnsObjByKey: { type: Object, required: true },
+    //-----------
     // 資料來源模式
     srcMode: {
       type: String,
@@ -96,6 +101,9 @@ export default /*#__PURE__*/ {
       });
     },
   },
+  created() {
+    this.update('srcMode', 'list');
+  },
   methods: {
     update(key, val) {
       this.$emit('update', key, val);
@@ -116,6 +124,16 @@ export default /*#__PURE__*/ {
       const { id, text } = this.$props.items[idx];
 
       const allowFunc = () => {
+        this.columnsExcludeSelf.map((c) => {
+          if (c.condition?.display?.length) {
+            c.condition.display.map((d) => {
+              if (d.values?.length && d.values.includes(id)) {
+                const tempIdx = d.values.findIndex((v) => v === id);
+                d.values.splice(tempIdx, 1);
+              }
+            });
+          }
+        });
         this.$emit('removeArr', 'items', id);
       };
 

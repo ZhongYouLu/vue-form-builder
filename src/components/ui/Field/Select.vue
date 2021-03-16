@@ -66,7 +66,7 @@ export default /*#__PURE__*/ {
 
   props: {
     // https://vue-select.org/api/props.html#options
-    value: { type: [String, Array], default: null },
+    value: { type: [String, Boolean, Array], default: null },
     options: { type: Array, default: () => [] },
     placeholder: { type: String, default: '' },
     autocomplete: { type: String, default: 'off' },
@@ -127,7 +127,7 @@ export default /*#__PURE__*/ {
 
       if (this.getOptionLabel !== null) return this.getOptionLabel;
       // searchable
-      if (this.searchable) return (option) => option.name || option.id;
+      if (this.searchable) return (option) => option.name || `(${option.id})`;
       // default
       return (option) => option.text;
     },

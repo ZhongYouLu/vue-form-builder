@@ -22,45 +22,31 @@
       no-drop
       :options="columnsExcludeSelf"
     />
-    <!-- <div v-for="(d, idx) in $props.display" :key="d.id">
-      <div>
-        <span>#{{ idx + 1 }}</span>
-        <Icon icon="mdi:close-thick" is-btn @click="invokeRemove(idx)" />
-        <InputRow
-          v-model="d.triggerID"
-          type="select"
-          label="監聽欄位"
-          clearable
-          searchable
-          :options="columnsExcludeSelf"
-        />
-        <template v-if="columnsObjByKey[d.triggerID] && columnsObjByKey[d.triggerID].type === 'select'">
-          <Field
-            v-if="columnsObjByKey[d.triggerID].data.srcMode === 'list'"
-            v-model="d.findOne"
-            type="select"
-            label="相等"
-            :options="columnsObjByKey[d.triggerID].data.items"
-          />
-        </template>
-        {{ d }}
-      </div>
-    </div>
-    <button class="btn btn--add" @click.prevent="invokeAdd">&#10010;</button> -->
+    <hr class="dashed" />
+    <p>顯示條件</p>
+    <ConditionDisplay
+      v-for="(d, idx) in $props.display"
+      :key="d.id"
+      :idx="idx"
+      v-bind="d"
+      :columns-exclude-self="columnsExcludeSelf"
+      :columns-obj-by-key="columnsObjByKey"
+      @update="updateDisplay(d.id, ...arguments)"
+      @remove="removeDisplay(d.id)"
+    />
+    <button class="btn btn--add" @click.prevent="addDsiplay">&#10010;</button>
   </fieldset>
 </template>
 <script>
 import InputRow from '@/components/ui/InputRow';
-// import Field from '@/components/ui/Field';
-// import Icon from '@/components/ui/Icon';
+import ConditionDisplay from '@/components/ColumnSetting/ConditionDisplay';
 import { nanoid } from '@/assets/js/helper.js';
 
 export default /*#__PURE__*/ {
   name: 'ColumnSettingCondition',
   components: {
     InputRow,
-    // Field,
-    // Icon,
+    ConditionDisplay,
   },
   inject: ['handleConfirm'],
   props: {
@@ -93,7 +79,7 @@ export default /*#__PURE__*/ {
       const requiredCheck = [];
 
       this.columnsExcludeSelf.forEach((c) => {
-        if (c.condition?.requiredSync && c.condition.requiredSync?.includes(this.id)) {
+        if (c.condition?.requiredSync?.includes(this.id)) {
           requiredCheck.push(c.id);
         }
       });
@@ -102,22 +88,20 @@ export default /*#__PURE__*/ {
     },
   },
   methods: {
-    invokeAdd() {
-      this.$emit('addArr', 'display', {
-        id: nanoid(6),
-        triggerID: null,
-        findOne: [], // 滿足其一
-        findAll: [], // 滿足全部
-      });
+    addDsiplay() {
+      this.$emit('addArr', 'display', { id: nanoid(6) });
     },
-    invokeRemove(idx) {
-      const { id, text } = this.$props.display[idx];
+    updateDisplay(id, k, v) {
+      this.$emit('updateArr', 'display', id, k, v);
+    },
+    removeDisplay(id) {
+      const idx = this.$props.display.findIndex((d) => d.id === id);
 
       const allowFunc = () => {
         this.$emit('removeArr', 'display', id);
       };
 
-      const showMsg = `確定刪除顯示條件 #${idx + 1} [${text || id}] ?`;
+      const showMsg = `確定刪除顯示條件 #${idx + 1}?`;
 
       if (this.handleConfirm) {
         this.handleConfirm(showMsg, allowFunc);

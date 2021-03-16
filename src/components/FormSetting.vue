@@ -23,7 +23,7 @@
                   <Field v-model="column.name" :placeholder="column.id" />
                 </template>
                 <template v-else>
-                  <div class="text-ellipsis">{{ column.name || column.id }}</div>
+                  <div class="text-ellipsis">{{ column.name || `(${column.id})` }}</div>
                 </template>
                 <Icon
                   :icon="collect[column.id].isEditName ? 'ic:baseline-done-outline' : 'mi:edit-alt'"

@@ -130,6 +130,7 @@ export default /*#__PURE__*/ {
 
       switch (this.currentTab) {
         case 'rule':
+        case 'data':
         case 'condition':
           config.props = {
             ...config.props,
