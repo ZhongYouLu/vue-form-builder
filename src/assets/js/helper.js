@@ -52,6 +52,10 @@ export function json2ObjByKey(json, key) {
   }, {});
 }
 
+export function convertPairs(obj, key) {
+  return Object.entries(obj).reduce((acc, [k, v]) => ({ ...acc, [k]: v[key] }), {});
+}
+
 export function convertOptions(obj, kKey = 'value', vKey = 'text') {
   return Object.entries(obj).reduce((acc, [k, v]) => [...acc, { [kKey]: k, [vKey]: v }], []);
 }
@@ -87,9 +91,9 @@ export function isEmpty(obj) {
   return true;
 }
 
-export function removeEmpty(obj) {
+export function clearEmpties(obj) {
   Object.entries(obj).forEach(
-    ([key, val]) => (val && typeof val === 'object' && removeEmpty(val)) || (isEmpty(val) && delete obj[key])
+    ([key, val]) => (val && typeof val === 'object' && clearEmpties(val)) || (isEmpty(val) && delete obj[key])
   );
 
   return isEmpty(obj) ? null : obj;

@@ -15,8 +15,12 @@
         <Icon icon="mdi:close-thick" is-btn @click="$emit('remove')" />
         <span>{{ idx + 1 }}. </span>
       </template>
-      <template #selected-option="option">
-        {{ (option.name || `(${option.id})`) + ` | ${option.type}` }}
+      <!-- Select -->
+      <template #selected-option="o">
+        <IconRow :icon="typeIcons[o.type]">{{ o.name || `(${o.id})` }}</IconRow>
+      </template>
+      <template #option="o">
+        <IconRow :icon="typeIcons[o.type]">{{ o.name || `(${o.id})` }}</IconRow>
       </template>
     </InputRow>
     <div v-if="triggerColumn">
@@ -81,6 +85,7 @@
 </template>
 <script>
 import Block from '@/components/ui/Block';
+import IconRow from '@/components/ui/IconRow';
 import InputRow from '@/components/ui/InputRow';
 import Field from '@/components/ui/Field';
 import Icon from '@/components/ui/Icon';
@@ -90,12 +95,12 @@ export default /*#__PURE__*/ {
   name: 'ColumnSettingConditionDisplay',
   components: {
     Block,
+    IconRow,
     InputRow,
     Field,
     Icon,
   },
-
-  InputRowinject: ['handleConfirm'],
+  inject: ['handleConfirm', 'typeIcons'],
   props: {
     // 排除自己的所有欄位群
     columnsExcludeSelf: { type: Array, required: true },
@@ -119,19 +124,7 @@ export default /*#__PURE__*/ {
       return this.triggerID ? this.columnsObjByKey[this.triggerID] : null;
     },
     thousandSeparatorFunc() {
-      const qq = thousandSeparator;
-      return (option) => qq(option);
-    },
-  },
-  watch: {
-    'triggerColumn.type': function (newType, oldType) {
-      if (
-        (['select', 'radio', 'checkbox'].includes(newType) && !['select', 'radio', 'checkbox'].includes(oldType)) ||
-        ('text' === newType && 'text' !== oldType) ||
-        ('number' === newType && 'number' !== oldType)
-      ) {
-        this.$emit('update', 'values', []);
-      }
+      return (option) => thousandSeparator(option);
     },
   },
 };

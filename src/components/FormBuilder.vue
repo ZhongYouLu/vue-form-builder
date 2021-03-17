@@ -5,7 +5,7 @@
     <FormMainLogic v-slot="props" :columns.sync="localColumns">
       <main class="form-builder__main">
         <FormSetting v-bind="props" />
-        <FormDemo :columns="props.cleanColumns" />
+        <FormDemo :columns="props.finalColumns" />
       </main>
     </FormMainLogic>
   </div>

@@ -6,12 +6,16 @@
       label="欄位屬性"
       placeholder="請選擇屬性"
       type="select"
-      :options="TypeOptions"
+      :options="typeOptions"
       required
       @input="updateColumn('type', $event)"
     >
-      <template v-for="(_, slot) in $scopedSlots" #[slot]="props">
-        <slot :name="slot" v-bind="props" />
+      <!-- Select -->
+      <template #selected-option="o">
+        <IconRow :icon="typeIcons[o.value]">{{ o.text }}</IconRow>
+      </template>
+      <template #option="o">
+        <IconRow :icon="typeIcons[o.value]">{{ o.text }}</IconRow>
       </template>
     </InputRow>
 
@@ -41,6 +45,7 @@
 </template>
 
 <script>
+import IconRow from '@/components/ui/IconRow';
 import InputRow from '@/components/ui/InputRow';
 import Field from '@/components/ui/Field';
 import Icon from '@/components/ui/Icon';
@@ -53,6 +58,7 @@ import { convertOptions, json2ObjByKey, updateObjInArrByKey, removeObjInArrByKey
 export default /*#__PURE__*/ {
   name: 'ColumnSetting',
   components: {
+    IconRow,
     InputRow,
     Field,
     Icon,
@@ -61,6 +67,7 @@ export default /*#__PURE__*/ {
     SettingRule,
     SettingCondition,
   },
+  inject: ['typeOptions', 'typeIcons'],
   props: {
     idx: { type: Number, required: true },
     columns: { type: Array, required: true },
@@ -140,15 +147,6 @@ export default /*#__PURE__*/ {
       }
 
       return config;
-    },
-    TypeOptions() {
-      return convertOptions({
-        text: '文字框 (text)',
-        number: '數字框 (number)',
-        radio: '單選框 (radio)',
-        checkbox: '勾選框 (checkbox)',
-        select: '下拉選單 (select)',
-      });
     },
     isText() {
       return this.column.type === 'text';

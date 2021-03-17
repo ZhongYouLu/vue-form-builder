@@ -2,7 +2,7 @@
   <div>
     <slot
       :columns="localColumns"
-      :cleanColumns="cleanColumns"
+      :finalColumns="finalColumns"
       :invokeUpdateColumns="invokeUpdateColumns"
       :invokeAdd="invokeAdd"
       :invokeUpdate="invokeUpdate"
@@ -15,7 +15,7 @@
 </template>
 
 <script>
-import { nanoid, isEmpty, removeEmpty } from '@/assets/js/helper.js';
+import { nanoid, isEmpty, clearEmpties, convertPairs, convertOptions } from '@/assets/js/helper.js';
 
 export default /*#__PURE__*/ {
   name: 'FormMainLogic',
@@ -24,6 +24,8 @@ export default /*#__PURE__*/ {
       collect: this.collect,
       setCollect: this.setCollect,
       toggleCollect: this.toggleCollect,
+      typeOptions: this.typeOptions,
+      typeIcons: this.typeIcons,
     };
   },
   inject: [
@@ -50,8 +52,8 @@ export default /*#__PURE__*/ {
         this.invokeUpdateColumns(val);
       },
     },
-    // 乾淨欄位群 (清除不必要屬性的)
-    cleanColumns() {
+    // 最終欄位群 (去除不必要的屬性)
+    finalColumns() {
       return this.columns.map((column) =>
         Object.entries(column).reduce((acc, [k, v]) => {
           if (isEmpty(v)) return acc;
@@ -93,6 +95,32 @@ export default /*#__PURE__*/ {
         }, {})
       );
     },
+    typeConfig() {
+      // https://www.w3schools.com/tags/tag_input.asp
+      return {
+        text: { text: '文字框', icon: 'carbon:string-text' },
+        number: { text: '數字框', icon: 'carbon:string-integer' },
+        radio: { text: '單選框', icon: 'carbon:radio-button-checked' },
+        checkbox: { text: '複選框', icon: 'carbon:checkbox-checked' },
+        select: { text: '下拉選單', icon: 'carbon:list' },
+        // ------------------
+        // password: { text: '密碼框', icon: 'carbon:password' },
+        // email: { text: '電子郵件輸入欄位', icon: '' },
+        // date: { text: '日期輸入欄位', icon: '' },
+        // tel: { text: '電話號碼輸入欄位', icon: '' },
+        // url: { text: '網址輸入欄位', icon: '' },
+        // file: { text: '檔案上傳', icon: '' },
+      };
+    },
+    typeOptions() {
+      return convertOptions(convertPairs(this.typeConfig, 'text'));
+    },
+    typeIcons() {
+      return {
+        ...convertPairs(this.typeConfig, 'icon'),
+        undefined: 'carbon:unknown',
+      };
+    },
   },
   watch: {
     columns(columns) {
@@ -107,10 +135,8 @@ export default /*#__PURE__*/ {
     // 更新欄位群
     emitUpdate(newColumns, note) {
       console.log(`${note && `[${note}] `}update:columns`, newColumns);
-      this.$emit(
-        'update:columns',
-        newColumns.map((c) => removeEmpty(c))
-      );
+      const cleanColumns = newColumns.map((c) => clearEmpties(c));
+      this.$emit('update:columns', cleanColumns);
     },
     // 呼叫更新欄位群
     invokeUpdateColumns(newColumns) {

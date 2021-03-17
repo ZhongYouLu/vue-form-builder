@@ -26,7 +26,7 @@
           </FormSetting>
           <div>
             <FormDemo :columns="props.columns" />
-            <FormDemo :columns="props.cleanColumns" />
+            <FormDemo :columns="props.finalColumns" />
           </div>
         </main>
       </FormMainLogic>

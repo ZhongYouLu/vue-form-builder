@@ -83,6 +83,8 @@ export default /*#__PURE__*/ {
             placeholder: '請選擇欄位',
             type: 'select',
             options: this.columnsExcludeSelf,
+            valueKey: 'id',
+            textKey: 'name',
             clearable: true,
             searchable: true,
           },
