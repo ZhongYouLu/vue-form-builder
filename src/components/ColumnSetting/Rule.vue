@@ -3,16 +3,17 @@
   <fieldset>
     <!-- <legend>規則設定</legend> -->
     <div v-for="(v, k) in fields" :key="k" class="input-group">
-      <InputRow :value="$props[k]" v-bind="v.bind" @input="update(k, $event)">
+      <InputRow :value="$props[k]" v-bind="v.props" @input="update(k, $event)">
         <template #label-right>
-          <Icon v-if="$props[k]" icon="mdi:ideogram-cjk-variant" is-btn @click="setToggleMsg(k)" />
+          <Icon v-show="$props[k]" icon="mdi:ideogram-cjk-variant" is-btn @click="setToggleMsg(k)" />
         </template>
         <template v-for="(_, slot) in $scopedSlots" #[slot]="props">
           <slot :name="slot" v-bind="props" />
         </template>
       </InputRow>
+      <!-- Msg -->
       <InputRow
-        v-if="$props[k] && toggleMsg[k]"
+        v-show="$props[k] && toggleMsg[k]"
         :value="$props.msg[k]"
         :placeholder="v.msg"
         @input="$emit('updateObj', 'msg', k, $event)"
@@ -73,11 +74,11 @@ export default /*#__PURE__*/ {
 
       let temp = {
         required: {
-          bind: { label: '是否必填', type: 'checkbox', yes: 1, no: null },
+          props: { label: '是否必填', text: '必填', type: 'checkbox', yes: 1, no: null },
           msg: `[${name}] 為必填。`,
         },
         sameAs: {
-          bind: {
+          props: {
             label: '與..相符',
             placeholder: '請選擇欄位',
             type: 'select',
@@ -92,15 +93,15 @@ export default /*#__PURE__*/ {
       if (this.isText) {
         temp = {
           ...temp,
-          minimum: { bind: { label: '字元下限', type: 'number' }, msg: `[${name}] 最少 [:min] 個字。` },
-          maximum: { bind: { label: '字元上限', type: 'number' }, msg: `[${name}] 最多 [:max] 個字。` },
-          regex: { bind: { label: '驗證格式' }, msg: `[${name}] 格式驗證失敗。` },
+          minimum: { props: { label: '字元下限', type: 'number' }, msg: `[${name}] 最少 [:min] 個字。` },
+          maximum: { props: { label: '字元上限', type: 'number' }, msg: `[${name}] 最多 [:max] 個字。` },
+          regex: { props: { label: '驗證格式' }, msg: `[${name}] 格式驗證失敗。` },
         };
       } else if (this.isCheckBox) {
         temp = {
           ...temp,
-          least: { bind: { label: '選擇數量下限', type: 'number' }, msg: `[${name}] 最少選 [:least] 個。` },
-          most: { bind: { label: '選擇數量上限', type: 'number' }, msg: `[${name}] 最多選 [:most] 個。` },
+          least: { props: { label: '選擇數量下限', type: 'number' }, msg: `[${name}] 最少選 [:least] 個。` },
+          most: { props: { label: '選擇數量上限', type: 'number' }, msg: `[${name}] 最多選 [:most] 個。` },
         };
       }
 

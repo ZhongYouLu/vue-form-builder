@@ -1,8 +1,14 @@
 <template>
   <RadioRow>
     <label v-for="option in options" :key="option[valueKey]">
-      <input v-model="mutableValue" type="radio" :value="option[valueKey]" />
-      <span>{{ option[textKey] }}</span>
+      <input
+        v-model="mutableValue"
+        type="checkbox"
+        :value="option[valueKey]"
+        :disabled="disabled || (limit > -1 && value.length === limit && !value.includes(option[valueKey]))"
+        :readonly="readonly"
+      />
+      <span>{{ option[textKey] || `(${option[valueKey]})` }}</span>
     </label>
   </RadioRow>
 </template>
@@ -11,16 +17,18 @@
 import RadioRow from '@/components/ui/RadioRow';
 
 export default /*#__PURE__*/ {
-  name: 'FieldRadio',
+  name: 'FieldCheckboxMulti',
   components: {
     RadioRow,
   },
   inheritAttrs: false,
   props: {
-    value: { type: [String, Number, Boolean], default: null },
+    value: { type: Array, default: () => [] },
     options: { type: Array, default: () => [] },
     textKey: { type: String, default: 'text' },
     valueKey: { type: String, default: 'value' },
+    limit: { type: Number, default: -1 },
+    disabled: { type: Boolean, default: false },
   },
   emits: ['input'],
   computed: {
@@ -28,26 +36,10 @@ export default /*#__PURE__*/ {
       get() {
         return this.value;
       },
-      set(value) {
-        this.$emit('input', value);
+      set(val) {
+        this.$emit('input', val);
       },
     },
   },
 };
 </script>
-
-<style lang="scss">
-@import '@/assets/scss/utils.scss';
-
-.radio-row {
-  & > label {
-    display: inline-block;
-    margin-right: $input-gap * 4;
-    white-space: nowrap; /* 強迫不換行 */
-
-    &:last-of-type {
-      margin-right: initial;
-    }
-  }
-}
-</style>

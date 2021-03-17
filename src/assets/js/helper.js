@@ -10,16 +10,6 @@ export function uuid() {
   });
 }
 
-export function generateUID() {
-  // I generate the UID from two parts here
-  // to ensure the random number provide enough bits.
-  var firstPart = (Math.random() * 46656) | 0;
-  var secondPart = (Math.random() * 46656) | 0;
-  firstPart = ('000' + firstPart.toString(36)).slice(-3);
-  secondPart = ('000' + secondPart.toString(36)).slice(-3);
-  return firstPart + secondPart;
-}
-
 // https://github.com/ai/nanoid
 export let nanoid = (t = 21) => {
   let e = '',
@@ -74,6 +64,9 @@ export function isEmpty(obj) {
   // null and undefined are "empty"
   if (obj == null) return true;
 
+  // it's a number
+  if (typeof obj === 'number') return false;
+
   // Assume if it has a length property with a non-zero value
   // that that property is correct.
   if (obj.length > 0) return false;
@@ -96,10 +89,10 @@ export function isEmpty(obj) {
 
 export function removeEmpty(obj) {
   Object.entries(obj).forEach(
-    ([key, val]) =>
-      (val && typeof val === 'object' && removeEmpty(val)) || ((val === null || val === '') && delete obj[key])
+    ([key, val]) => (val && typeof val === 'object' && removeEmpty(val)) || (isEmpty(val) && delete obj[key])
   );
-  return obj;
+
+  return isEmpty(obj) ? null : obj;
 }
 
 // eslint-disable-next-line no-unused-vars
@@ -109,10 +102,15 @@ export function removeObjInArrByKey(array, key, value) {
   const index = array.findIndex((obj) => obj[key] === value);
   return index >= 0 ? [...array.slice(0, index), ...array.slice(index + 1)] : array;
 }
+export function updateObjInArrByKey(array, key, value, newObj) {
+  const index = array.findIndex((obj) => obj[key] === value);
+  return index >= 0 ? [...array.slice(0, index), { ...array[index], ...newObj }, ...array.slice(index + 1)] : array;
+}
 
-// export function arrPropRemove() {
-//   Array.prototype.remove = function (key, value) {
-//     const index = this.findIndex((obj) => obj[key] === value);
-//     return index >= 0 ? [...this.slice(0, index), ...this.slice(index + 1)] : this;
-//   };
-// }
+export function thousandSeparator(val) {
+  if (!val) return val;
+  const parts = val.toString().split('.');
+  parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  return parts.join('.');
+  // return Number(val).toLocaleString();
+}

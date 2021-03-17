@@ -6,8 +6,8 @@
       label="欄位屬性"
       placeholder="請選擇屬性"
       type="select"
+      :options="TypeOptions"
       required
-      :options="columnTypeOptions"
       @input="updateColumn('type', $event)"
     >
       <template v-for="(_, slot) in $scopedSlots" #[slot]="props">
@@ -17,10 +17,8 @@
 
     <nav class="tabs">
       <template v-for="tab in tabOptions">
-        <div v-if="tabDisplayConditions[tab.value]" :key="tab.value">
-          <div :class="['tab', { active: currentTab === tab.value }]" @click="currentTab = tab.value">
-            {{ tab.text }}
-          </div>
+        <div v-show="tabShow[tab.value]" :key="tab.value" :class="['tabs__item', { active: currentTab === tab.value }]">
+          <span @click="currentTab = tab.value"> {{ tab.text }}</span>
         </div>
       </template>
     </nav>
@@ -28,11 +26,11 @@
     <component
       :is="currentCmp.component"
       v-bind="currentCmp.props"
-      v-if="tabDisplayConditions[currentTab]"
+      v-show="tabShow[currentTab]"
       @update="updateColumnTab(currentTab, ...arguments)"
       @updateObj="updateColumnTabObj(currentTab, ...arguments)"
-      @updateArr="updateColumnTabArr(currentTab, ...arguments)"
       @addArr="addColumnTabArr(currentTab, ...arguments)"
+      @updateArr="updateColumnTabArr(currentTab, ...arguments)"
       @removeArr="removeColumnTabArr(currentTab, ...arguments)"
     >
       <template v-for="(_, slot) in $scopedSlots" #[slot]="props">
@@ -46,11 +44,11 @@
 import InputRow from '@/components/ui/InputRow';
 import Field from '@/components/ui/Field';
 import Icon from '@/components/ui/Icon';
-import ColumnSettingBase from '@/components/ColumnSetting/Base';
-import ColumnSettingData from '@/components/ColumnSetting/Data';
-import ColumnSettingRule from '@/components/ColumnSetting/Rule';
-import ColumnSettingCondition from '@/components/ColumnSetting/Condition';
-import { convertOptions, json2ObjByKey } from '@/assets/js/helper.js';
+import SettingBase from '@/components/ColumnSetting/Base';
+import SettingData from '@/components/ColumnSetting/Data';
+import SettingRule from '@/components/ColumnSetting/Rule';
+import SettingCondition from '@/components/ColumnSetting/Condition';
+import { convertOptions, json2ObjByKey, updateObjInArrByKey, removeObjInArrByKey } from '@/assets/js/helper.js';
 
 export default /*#__PURE__*/ {
   name: 'ColumnSetting',
@@ -58,10 +56,10 @@ export default /*#__PURE__*/ {
     InputRow,
     Field,
     Icon,
-    'setting-base': ColumnSettingBase,
-    'setting-data': ColumnSettingData,
-    'setting-rule': ColumnSettingRule,
-    'setting-condition': ColumnSettingCondition,
+    SettingBase,
+    SettingData,
+    SettingRule,
+    SettingCondition,
   },
   props: {
     idx: { type: Number, required: true },
@@ -108,7 +106,7 @@ export default /*#__PURE__*/ {
         condition: '條件',
       });
     },
-    tabDisplayConditions() {
+    tabShow() {
       return {
         base: true,
         rule: true,
@@ -143,7 +141,7 @@ export default /*#__PURE__*/ {
 
       return config;
     },
-    columnTypeOptions() {
+    TypeOptions() {
       return convertOptions({
         text: '文字框 (text)',
         number: '數字框 (number)',
@@ -162,8 +160,7 @@ export default /*#__PURE__*/ {
       return ['select', 'radio', 'checkbox'].includes(this.column.type);
     },
     columnsExcludeSelf() {
-      const selfID = this.id;
-      return this.columns.filter((column) => column.id !== selfID);
+      return this.columns.filter((column) => column.id !== this.id);
     },
     columnsObjByKey() {
       return json2ObjByKey(this.columns, 'id');
@@ -181,15 +178,7 @@ export default /*#__PURE__*/ {
     },
     updateColumnTabObj(tab, targetKey, k, v) {
       console.log(`updateColumnTabObj[${tab}][${targetKey}][${k}]`, v);
-      const target = this.column[tab][targetKey];
-      const newTarget = { ...target, [k]: v };
-      this.updateColumnTab(tab, targetKey, newTarget);
-    },
-    updateColumnTabArr(tab, targetKey, id, k, v) {
-      console.log(`updateColumnTabArr[${tab}][${targetKey}][${id}][${k}]`, v);
-      const target = this.column[tab][targetKey];
-      const idx = target.findIndex((i) => i.id === id);
-      const newTarget = [...target.slice(0, idx), { ...target[idx], [k]: v }, ...target.slice(idx + 1)];
+      const newTarget = { ...this.column[tab][targetKey], [k]: v };
       this.updateColumnTab(tab, targetKey, newTarget);
     },
     addColumnTabArr(tab, targetKey, v) {
@@ -198,11 +187,14 @@ export default /*#__PURE__*/ {
       const newTarget = target ? [...target, v] : [v];
       this.updateColumnTab(tab, targetKey, newTarget);
     },
+    updateColumnTabArr(tab, targetKey, id, k, v) {
+      console.log(`updateColumnTabArr[${tab}][${targetKey}][${id}][${k}]`, v);
+      const newTarget = updateObjInArrByKey(this.column[tab][targetKey], 'id', id, { [k]: v });
+      this.updateColumnTab(tab, targetKey, newTarget);
+    },
     removeColumnTabArr(tab, targetKey, id) {
       console.log(`removeColumnTabArr[${tab}][${targetKey}]`, id);
-      const target = this.column[tab][targetKey];
-      const idx = target.findIndex((i) => i.id === id);
-      const newTarget = [...target.slice(0, idx), ...target.slice(idx + 1)];
+      const newTarget = removeObjInArrByKey(this.column[tab][targetKey], 'id', id);
       this.updateColumnTab(tab, targetKey, newTarget);
     },
   },
@@ -216,7 +208,7 @@ export default /*#__PURE__*/ {
   display: flex;
   margin: $gap-lg 0;
 
-  & > div {
+  &__item {
     display: flex;
     margin-right: $gap;
 
@@ -226,14 +218,16 @@ export default /*#__PURE__*/ {
       color: $color-gray-dark;
     }
 
-    .tab {
-      color: $color-gray-dark;
-      cursor: pointer;
-
-      &.active {
+    &.active {
+      span {
         font-weight: bolder;
         color: $color-black;
       }
+    }
+
+    span {
+      color: $color-gray-dark;
+      cursor: pointer;
     }
   }
 }

@@ -2,9 +2,11 @@
   <!-- 基本設定 -->
   <fieldset>
     <!-- <legend>基本設定</legend> -->
-    <template v-for="(v, k) in fields">
-      <InputRow :key="k" :value="$props[k]" v-bind="v.bind" @input="$emit('update', k, $event)" />
-    </template>
+    <InputRow v-for="(v, k) in fields" :key="k" :value="$props[k]" v-bind="v.props" @input="$emit('update', k, $event)">
+      <template v-for="(_, slot) in $scopedSlots" #[slot]="props">
+        <slot :name="slot" v-bind="props" />
+      </template>
+    </InputRow>
   </fieldset>
 </template>
 
@@ -21,6 +23,8 @@ export default /*#__PURE__*/ {
     // 屬於文字輸入框
     isText: { type: Boolean, required: true },
     //-----------
+    // 加密
+    encrypt: { type: Number, default: null },
     // 欄位說明
     label: { type: String, default: null },
     // 欄位子說明
@@ -36,17 +40,18 @@ export default /*#__PURE__*/ {
   computed: {
     fields() {
       let temp = {
-        label: { bind: { label: '欄位說明' } },
-        subLabel: { bind: { label: '欄位子說明' } },
-        defaultValue: { bind: { label: '預設值' } },
+        label: { props: { label: '欄位說明' } },
+        subLabel: { props: { label: '欄位子說明' } },
+        defaultValue: { props: { label: '預設值' } },
+        encrypt: { props: { label: '是否加密', text: '加密', type: 'checkbox', yes: 1, no: null } },
       };
 
       if (this.isText) {
         temp = {
           ...temp,
-          placeholder: { bind: { label: '提示文字' } },
+          placeholder: { props: { label: '提示文字' } },
           autocomplete: {
-            bind: {
+            props: {
               label: '自動完成',
               placeholder: '請選擇屬性',
               type: 'select',

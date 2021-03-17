@@ -66,7 +66,7 @@ export default /*#__PURE__*/ {
 
   props: {
     // https://vue-select.org/api/props.html#options
-    value: { type: [String, Boolean, Array], default: null },
+    value: { type: [String, Number, Boolean, Array], default: null },
     options: { type: Array, default: () => [] },
     placeholder: { type: String, default: '' },
     autocomplete: { type: String, default: 'off' },
@@ -74,6 +74,8 @@ export default /*#__PURE__*/ {
     multiple: { type: Boolean, default: false },
     required: { type: Boolean, default: false },
     // ---------------------------------------------
+    textKey: { type: String, default: 'text' },
+    valueKey: { type: String, default: 'value' },
     selectable: { type: Function, default: null }, // 是否可選處理
     reduce: { type: Function, default: null }, // 轉換對象處理 (傳遞給 v-model binding 或 @input event.)
     getOptionLabel: { type: Function, default: null }, // 生成項目文字處理
@@ -110,26 +112,21 @@ export default /*#__PURE__*/ {
     tempSelectable() {
       if (this.selectable !== null) return this.selectable;
       // multiple
-      if (this.multiple) return (option) => !this.value.includes(option.id);
+      if (this.multiple) return (option) => !this.value.includes(option[this.valueKey]);
       // default
       return () => true;
     },
     tempReduce() {
       if (this.reduce !== null) return this.reduce;
-      // searchable
-      if (this.searchable) return (option) => option.id;
       // default
-      return (option) => option.value;
+      return (option) => option[this.valueKey];
     },
     tempGetOptionLabel() {
       // Label text is used for filtering comparison and displaying.
       // If you only need to adjust the display, you should use the option and selected-option slots.
-
       if (this.getOptionLabel !== null) return this.getOptionLabel;
-      // searchable
-      if (this.searchable) return (option) => option.name || `(${option.id})`;
       // default
-      return (option) => option.text;
+      return (option) => option[this.textKey] || `(${option[this.valueKey]})`;
     },
     fuseSearch() {
       if (!this.filterable || !this.searchable) return null;

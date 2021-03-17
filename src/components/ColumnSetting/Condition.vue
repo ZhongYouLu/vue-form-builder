@@ -4,26 +4,30 @@
     <!-- <legend>條件設定</legend> -->
     <InputRow
       :value="$props.requiredSync"
-      type="select"
       label="連動必填"
+      type="select"
+      :options="columnsExcludeSelf"
+      value-key="id"
+      text-key="name"
       multiple
       searchable
-      :options="columnsExcludeSelf"
       @input="$emit('update', 'requiredSync', $event)"
     />
     <InputRow
       v-if="requiredCheck.length"
       :value="requiredCheck"
-      type="select"
       label="被連動必填"
+      type="select"
+      :options="columnsExcludeSelf"
+      value-key="id"
+      text-key="name"
       multiple
       searchable
-      disabled
       no-drop
-      :options="columnsExcludeSelf"
+      disabled
     />
     <hr class="dashed" />
-    <p>顯示條件</p>
+    <p>顯示條件 <em style="opacity: 0.5">(預設符合其一)</em></p>
     <ConditionDisplay
       v-for="(d, idx) in $props.display"
       :key="d.id"
@@ -67,10 +71,6 @@ export default /*#__PURE__*/ {
     requiredSync: { type: Array, default: () => [] },
     // 顯示條件
     display: { type: Array, default: () => [] },
-    // 其他檢查設定
-    // requiredSync: [], // 連動必填元素 (如果自身有值，其元素必填)
-    // requiredCheck: [], // 自身必填檢查 (來自其他元素的 requiredSync)
-    // sameAsReverseCheck: [], // 反向相符檢查 元素值是否相符 (來自其他元素的 rule.sameAs)
   },
   emits: ['update', 'updateObj', 'updateArr', 'addArr', 'removeArr'],
   computed: {

@@ -37,19 +37,11 @@ export default /*#__PURE__*/ {
 // 輸入列
 .input-row {
   @include content-centered($x: false);
-  flex-wrap: wrap;
+  // flex-wrap: wrap;
   width: 100%;
 
   &:not(:last-child) {
     margin-bottom: $gap;
-  }
-
-  &.inline {
-    flex-wrap: nowrap;
-
-    .field {
-      flex-basis: initial;
-    }
   }
 
   &:hover {
@@ -67,8 +59,10 @@ export default /*#__PURE__*/ {
   }
 
   .for {
+    flex: 0 1 30%;
+    max-width: 15rem;
     @include content-centered($x: false);
-    flex: 0 1 25%;
+    padding-right: $gap;
     white-space: nowrap; /* 強迫不換行 */
   }
 
@@ -94,7 +88,7 @@ export default /*#__PURE__*/ {
   }
 
   .field {
-    flex: 1 0 75%;
+    flex-grow: 1;
     text-align: left;
 
     .input,

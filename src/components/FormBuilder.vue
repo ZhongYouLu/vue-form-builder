@@ -1,6 +1,6 @@
 <template>
   <div class="form-builder">
-    <RecordControls v-model="localColumns" :record-name="'formBuilder-' + id" :record-limit="5" immediate />
+    <RecordControls v-model="localColumns" :record-name="`formBuilder-${id}`" :record-limit="5" immediate />
     <h1>Form ID: {{ id }}</h1>
     <FormMainLogic v-slot="props" :columns.sync="localColumns">
       <main class="form-builder__main">

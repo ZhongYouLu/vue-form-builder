@@ -13,16 +13,18 @@ import FieldText from '@/components/ui/Field/Text';
 import FieldNumber from '@/components/ui/Field/Number';
 import FieldRadio from '@/components/ui/Field/Radio';
 import FieldCheckbox from '@/components/ui/Field/Checkbox';
+import FieldCheckboxMulti from '@/components/ui/Field/CheckboxMulti';
 import FieldSelect from '@/components/ui/Field/Select';
 
 export default /*#__PURE__*/ {
   name: 'Field',
   components: {
-    'field-text': FieldText,
-    'field-number': FieldNumber,
-    'field-radio': FieldRadio,
-    'field-checkbox': FieldCheckbox,
-    'field-select': FieldSelect,
+    FieldText,
+    FieldNumber,
+    FieldRadio,
+    FieldCheckbox,
+    FieldCheckboxMulti,
+    FieldSelect,
   },
   inheritAttrs: false,
   props: {
@@ -31,7 +33,7 @@ export default /*#__PURE__*/ {
       type: String,
       default: 'text',
       validator(value) {
-        return ['text', 'number', 'radio', 'checkbox', 'select'].includes(value);
+        return ['text', 'number', 'radio', 'checkbox', 'checkbox-multi', 'select'].includes(value);
       },
     },
   },

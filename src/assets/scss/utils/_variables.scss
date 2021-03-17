@@ -134,6 +134,10 @@ $btn-bg-color: $color-white;
 $btn-bg-color-hover: darken($color-white, 10);
 $btn-text-color: $color-black;
 
+$input-border-color: $border-color;
+$input-checked-color: darken($input-border-color, 30);
+$input-disabled-color: lighten($input-border-color, 30);
+
 // ========================================================
 // === Variables - 陰影 ===
 // ========================================================

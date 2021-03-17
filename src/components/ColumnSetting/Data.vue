@@ -4,18 +4,18 @@
     <!-- <legend>項目設定</legend> -->
     <InputRow
       :value="$props.srcMode"
-      :label="'資料來源'"
-      :type="'select'"
-      :options="sourceModeOptions"
+      label="資料來源"
       placeholder="請選擇來源"
+      type="select"
+      :options="sourceModeOptions"
       required
       @input="update('srcMode', $event)"
     />
     <hr class="dashed" />
     <template v-if="$props.srcMode === 'list'">
-      <Block v-if="$props.items.length">
+      <Block v-show="$props.items.length">
         <Draggable :value="$props.items" @input="update('items', $event)">
-          <div v-for="(item, idx) in $props.items" :key="item.id" class="input-row inline">
+          <div v-for="(item, idx) in $props.items" :key="item.id" class="input-row">
             <div class="drag"><Icon icon="mdi:drag" />{{ idx + 1 }}</div>
             <Field :value="item.text" @input="updateItem(item.id, 'text', $event)" />
             <Icon icon="mdi:close-thick" is-btn @click="removeItem(idx)" />
@@ -25,9 +25,9 @@
       <button class="btn btn--add" @click.prevent="addItem">&#10010;</button>
     </template>
     <template v-else>
-      <InputRow :value="$props.api.url" :label="'API URL'" @input="updateApi('url', $event)" />
-      <InputRow :value="$props.api.textKey" :label="'Value Key'" @input="updateApi('textKey', $event)" />
-      <InputRow :value="$props.api.valueKey" :label="'Text Key'" @input="updateApi('valueKey', $event)" />
+      <InputRow :value="$props.api.url" label="API URL" required @input="updateApi('url', $event)" />
+      <InputRow :value="$props.api.textKey" label="Value Key" required @input="updateApi('textKey', $event)" />
+      <InputRow :value="$props.api.valueKey" label="Text Key" required @input="updateApi('valueKey', $event)" />
     </template>
   </fieldset>
 </template>
@@ -57,33 +57,13 @@ export default /*#__PURE__*/ {
     columnsObjByKey: { type: Object, required: true },
     //-----------
     // 資料來源模式
-    srcMode: {
-      type: String,
-      default: 'list',
-      validator(value) {
-        return ['list', 'api'].includes(value);
-      },
-    },
+    srcMode: { type: String, default: 'list', validator: (value) => ['list', 'api'].includes(value) },
     // 顯示模式
-    displayMode: {
-      type: String,
-      default: 'line',
-      validator(value) {
-        return ['line', 'next', 'bothSide'].includes(value);
-      },
-    },
+    displayMode: { type: String, default: 'line', validator: (value) => ['line', 'next', 'bothSide'].includes(value) },
     // 項目
     items: { type: Array, default: () => [] },
     // API設定
-    api: {
-      type: Object,
-      // default: null,
-      default: () => ({
-        url: '',
-        textKey: '',
-        valueKey: '',
-      }),
-    },
+    api: { type: Object, default: () => ({ url: '', textKey: '', valueKey: '' }) },
   },
   emits: ['update', 'updateObj', 'updateArr', 'addArr', 'removeArr'],
   computed: {
@@ -115,10 +95,7 @@ export default /*#__PURE__*/ {
       this.$emit('updateArr', 'items', id, key, val);
     },
     addItem() {
-      this.$emit('addArr', 'items', {
-        id: nanoid(6),
-        text: '',
-      });
+      this.$emit('addArr', 'items', { id: nanoid(6), text: '' });
     },
     removeItem(idx) {
       const { id, text } = this.$props.items[idx];
@@ -127,9 +104,10 @@ export default /*#__PURE__*/ {
         this.columnsExcludeSelf.map((c) => {
           if (c.condition?.display?.length) {
             c.condition.display.map((d) => {
-              if (d.values?.length && d.values.includes(id)) {
+              if (d.values?.length) {
                 const tempIdx = d.values.findIndex((v) => v === id);
-                d.values.splice(tempIdx, 1);
+                console.log(tempIdx);
+                if (tempIdx > -1) d.values.splice(tempIdx, 1);
               }
             });
           }

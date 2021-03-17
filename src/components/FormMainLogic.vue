@@ -15,7 +15,7 @@
 </template>
 
 <script>
-import { nanoid, isEmpty, removeEmpty, removeProperty } from '@/assets/js/helper.js';
+import { nanoid, isEmpty, removeEmpty } from '@/assets/js/helper.js';
 
 export default /*#__PURE__*/ {
   name: 'FormMainLogic',
@@ -52,53 +52,46 @@ export default /*#__PURE__*/ {
     },
     // 乾淨欄位群 (清除不必要屬性的)
     cleanColumns() {
-      const newColumns = this.localColumns.map((column) => {
-        // TODO: 待清除完整
+      return this.columns.map((column) =>
+        Object.entries(column).reduce((acc, [k, v]) => {
+          if (isEmpty(v)) return acc;
 
-        const entries = Object.entries(column);
-        // const entries = Object.entries(removeProperty('id', column));
+          if (k === 'rule') {
+            const { msg, ...newRule } = v;
 
-        let newColumn = entries.reduce((acc, [k, v]) => {
-          if (!isEmpty(v)) {
-            if (k === 'rule') {
-              const { msg, ...newRule } = v;
+            if (msg) {
+              const newMsg = Object.entries(msg).reduce((acc, [k, v]) => {
+                if (v && newRule[k]) acc[k] = v;
+                return acc;
+              }, {});
 
-              if (msg) {
-                const newMsg = Object.entries(msg).reduce((acc, [k, v]) => {
-                  if (v && newRule[k]) acc[k] = v;
-                  return acc;
-                }, {});
-
-                if (!isEmpty(newMsg)) newRule['msg'] = newMsg;
-              }
-
-              v = newRule;
-            } else if (k === 'data') {
-              const { items, api, ...newItem } = v;
-
-              switch (newItem.srcMode) {
-                case 'api':
-                  newItem['api'] = api;
-                  break;
-                case 'list':
-                  newItem['items'] = items ? items.map((item) => removeProperty('id', item)) : [];
-                  break;
-              }
-
-              v = newItem;
+              if (!isEmpty(newMsg)) newRule['msg'] = newMsg;
             }
 
-            if (!isEmpty(v)) {
-              acc[k] = v;
+            v = newRule;
+          } else if (k === 'data') {
+            const { items, api, ...newItem } = v;
+
+            switch (newItem.srcMode) {
+              case 'api':
+                newItem['api'] = api;
+                break;
+              case 'list':
+                newItem['items'] = items;
+                break;
             }
+
+            v = newItem;
+          } else if (k === 'condition') {
+            // TODO:
+            console.log(k, v);
           }
+
+          if (!isEmpty(v)) acc[k] = v;
+
           return acc;
-        }, {});
-
-        return newColumn;
-      });
-
-      return newColumns;
+        }, {})
+      );
     },
   },
   watch: {
