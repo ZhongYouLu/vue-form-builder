@@ -66,7 +66,7 @@
 </template>
 
 <script>
-import Draggable from '@/components/ui/Draggable';
+import Draggable from '@/components/ui/CustomDraggable';
 import Block from '@/components/ui/Block';
 import Icon from '@/components/ui/Icon';
 import Card from '@/components/ui/Card';

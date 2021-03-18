@@ -34,7 +34,7 @@
 
 <script>
 import Block from '@/components/ui/Block';
-import Draggable from '@/components/ui/Draggable';
+import Draggable from '@/components/ui/CustomDraggable';
 import InputRow from '@/components/ui/InputRow';
 import Field from '@/components/ui/Field';
 import Icon from '@/components/ui/Icon';

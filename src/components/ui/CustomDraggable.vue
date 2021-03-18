@@ -1,5 +1,5 @@
 <template>
-  <VueDraggable
+  <Draggable
     v-model="localValue"
     :tag="tag"
     :handle="`.${handleClass}`"
@@ -7,16 +7,16 @@
     :ghost-class="ghostClass"
   >
     <slot />
-  </VueDraggable>
+  </Draggable>
 </template>
 
 <script>
-import VueDraggable from 'vuedraggable';
+import Draggable from 'vuedraggable';
 
 export default /*#__PURE__*/ {
-  name: 'Draggable',
+  name: 'CustomDraggable',
   components: {
-    VueDraggable,
+    Draggable,
   },
   props: {
     value: { type: Array, required: true },
