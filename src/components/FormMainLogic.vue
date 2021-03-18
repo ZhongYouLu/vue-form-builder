@@ -7,9 +7,6 @@
       :invokeAdd="invokeAdd"
       :invokeUpdate="invokeUpdate"
       :invokeRemove="invokeRemove"
-      :collect="collect"
-      :setCollect="setCollect"
-      :toggleCollect="toggleCollect"
     />
   </div>
 </template>

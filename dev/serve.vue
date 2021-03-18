@@ -9,7 +9,7 @@
         immediate
       />
       <h1>Form ID: {{ formJson.id }}</h1>
-      <FormMainLogic v-slot="props" :columns.sync="formJson.columns">
+      <FormMainLogic v-slot="{ finalColumns, ...props }" :columns.sync="formJson.columns">
         <main class="form-builder__main">
           <FormSetting v-bind="props">
             <!-- <template #cardHeader="test">
@@ -26,7 +26,7 @@
           </FormSetting>
           <div>
             <FormDemo :columns="props.columns" />
-            <FormDemo :columns="props.finalColumns" />
+            <FormDemo :columns="finalColumns" />
           </div>
         </main>
       </FormMainLogic>
