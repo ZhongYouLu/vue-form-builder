@@ -112,6 +112,7 @@ export default /*#__PURE__*/ {
     text-align: center;
     color: $btn-text-color;
     background-color: $btn-bg-color;
+    border: $border-width solid $border-color;
     border-radius: $border-radius;
     outline: none;
     user-select: none;
@@ -119,6 +120,9 @@ export default /*#__PURE__*/ {
 
     &:hover {
       background-color: $btn-bg-color-hover;
+    }
+    &:active {
+      background-color: darken($btn-bg-color-hover, 10);
     }
   }
 }
