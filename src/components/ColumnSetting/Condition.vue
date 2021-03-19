@@ -58,10 +58,8 @@ export default /*#__PURE__*/ {
     id: { type: String, required: true },
     // 欄位名稱
     name: { type: String, default: '(no name)' },
-    // 屬於文字輸入框
-    isText: { type: Boolean, default: false },
-    // 屬於多選框
-    isCheckBox: { type: Boolean, default: false },
+    // 欄位屬性約束
+    typeConstraint: { type: Object, required: true },
     // 排除自己的所有欄位群
     columnsExcludeSelf: { type: Array, required: true },
     // 所有欄位群 (obj by key)

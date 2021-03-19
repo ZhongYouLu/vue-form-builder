@@ -20,19 +20,21 @@ export default /*#__PURE__*/ {
     InputRow,
   },
   props: {
-    // 屬於文字輸入框
-    isText: { type: Boolean, required: true },
+    // 欄位屬性約束
+    typeConstraint: { type: Object, required: true },
     //-----------
-    // 加密
-    encrypt: { type: Number, default: null },
     // 欄位說明
     label: { type: String, default: null },
     // 欄位子說明
     subLabel: { type: String, default: null },
     // 預設值
-    defaultValue: { type: String, default: null },
+    defaultValue: { type: [String, Number, Boolean, Array], default: null },
     // 提示文字
     placeholder: { type: String, default: null },
+    // 加密
+    encrypt: { type: Number, default: null },
+    // 欄位性質
+    subType: { type: String, default: null },
     // 自動完成
     autocomplete: { type: String, default: null },
   },
@@ -43,13 +45,27 @@ export default /*#__PURE__*/ {
         label: { props: { label: '欄位說明' } },
         subLabel: { props: { label: '欄位子說明' } },
         defaultValue: { props: { label: '預設值' } },
-        encrypt: { props: { label: '是否加密', text: '加密', type: 'checkbox', yes: 1, no: null } },
       };
 
-      if (this.isText) {
+      if (this.typeConstraint.isInput) {
+        temp['placeholder'] = { props: { label: '提示文字' } };
+      }
+
+      temp['encrypt'] = { props: { label: '資料庫加密', text: '加密', type: 'checkbox', yes: 1, no: null } };
+
+      if (this.typeConstraint.isText) {
         temp = {
           ...temp,
-          placeholder: { props: { label: '提示文字' } },
+          subType: {
+            props: {
+              label: '欄位性質',
+              placeholder: '請選擇屬性',
+              type: 'select',
+              options: this.subTypeOptions,
+              clearable: true,
+              required: true,
+            },
+          },
           autocomplete: {
             props: {
               label: '自動完成',
@@ -60,9 +76,31 @@ export default /*#__PURE__*/ {
             },
           },
         };
+      } else if (this.typeConstraint.isNumber) {
+        temp = {
+          ...temp,
+          defaultValue: {
+            props: {
+              ...temp.defaultValue.props,
+              type: 'number',
+            },
+          },
+        };
       }
 
       return temp;
+    },
+    subTypeOptions() {
+      return convertOptions({
+        text: '關zxczxc閉',
+        tel: '開zxcxzc啟',
+        name: '全名',
+        email: '信箱',
+        username: '帳號',
+        // 其他基礎資訊
+        // 'current-password': '密碼',
+        // 'new-password': '新密碼',
+      });
     },
     autocompleteOptions() {
       // https://developer.mozilla.org/zh-TW/docs/Web/HTML/Element/input
@@ -73,8 +111,9 @@ export default /*#__PURE__*/ {
         name: '全名',
         email: '信箱',
         username: '帳號',
-        'current-password': '密碼',
-        'new-password': '新密碼',
+        // 其他基礎資訊
+        // 'current-password': '密碼',
+        // 'new-password': '新密碼',
       });
     },
   },

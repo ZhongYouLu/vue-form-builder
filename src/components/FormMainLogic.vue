@@ -23,6 +23,7 @@ export default /*#__PURE__*/ {
       toggleCollect: this.toggleCollect,
       typeOptions: this.typeOptions,
       typeIcons: this.typeIcons,
+      getTypeConstraint: this.getTypeConstraint,
     };
   },
   inject: [
@@ -129,6 +130,16 @@ export default /*#__PURE__*/ {
     },
   },
   methods: {
+    getTypeConstraint(type) {
+      return {
+        isText: type === 'text',
+        isNumber: type === 'number',
+        isCheckBox: type === 'checkbox',
+        isInput: ['text', 'number'].includes(type),
+        needItems: ['select', 'radio', 'checkbox'].includes(type),
+        filterSame: (columns) => columns.filter((c) => c.type === type),
+      };
+    },
     // 更新欄位群
     emitUpdate(newColumns, note) {
       console.log(`${note && `[${note}] `}update:columns`, newColumns);

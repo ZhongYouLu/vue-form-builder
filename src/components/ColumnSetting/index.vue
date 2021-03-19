@@ -45,29 +45,30 @@
 </template>
 
 <script>
-import IconRow from '@/components/ui/IconRow';
-import InputRow from '@/components/ui/InputRow';
-import Field from '@/components/ui/Field';
-import Icon from '@/components/ui/Icon';
+import { InputRow, IconRow } from '@/components/ui';
 import SettingBase from '@/components/ColumnSetting/Base';
 import SettingData from '@/components/ColumnSetting/Data';
 import SettingRule from '@/components/ColumnSetting/Rule';
 import SettingCondition from '@/components/ColumnSetting/Condition';
-import { convertOptions, json2ObjByKey, updateObjInArrByKey, removeObjInArrByKey } from '@/assets/js/helper.js';
+import {
+  convertOptions,
+  json2ObjByKey,
+  updateObjInArrByKey,
+  removeObjInArrByKey,
+  difference,
+} from '@/assets/js/helper.js';
 
 export default /*#__PURE__*/ {
   name: 'ColumnSetting',
   components: {
-    IconRow,
     InputRow,
-    Field,
-    Icon,
+    IconRow,
     SettingBase,
     SettingData,
     SettingRule,
     SettingCondition,
   },
-  inject: ['typeOptions', 'typeIcons'],
+  inject: ['typeOptions', 'typeIcons', 'getTypeConstraint'],
   props: {
     idx: { type: Number, required: true },
     columns: { type: Array, required: true },
@@ -117,7 +118,7 @@ export default /*#__PURE__*/ {
       return {
         base: true,
         rule: true,
-        data: this.needItems,
+        data: this.typeConstraint.needItems,
         condition: true,
       };
     },
@@ -127,8 +128,7 @@ export default /*#__PURE__*/ {
         props: {
           id: this.column.id,
           name: this.column.name,
-          isText: this.isText,
-          isCheckBox: this.isCheckBox,
+          typeConstraint: this.typeConstraint,
           // -------------------------------------
           ...this.column[this.currentTab],
         },
@@ -148,20 +148,35 @@ export default /*#__PURE__*/ {
 
       return config;
     },
-    isText() {
-      return this.column.type === 'text';
-    },
-    isCheckBox() {
-      return this.column.type === 'checkbox';
-    },
-    needItems() {
-      return ['select', 'radio', 'checkbox'].includes(this.column.type);
+    typeConstraint() {
+      return this.getTypeConstraint(this.type);
     },
     columnsExcludeSelf() {
       return this.columns.filter((column) => column.id !== this.id);
     },
     columnsObjByKey() {
       return json2ObjByKey(this.columns, 'id');
+    },
+  },
+  watch: {
+    type: function (a, b) {
+      console.log(a, b);
+      this.updateColumnTab('base', 'defaultValue', null);
+    },
+    'data.items': function (a, b) {
+      if (a && b && a.length < b.length) {
+        const diff = difference(b, a)[0];
+        this.columnsExcludeSelf.map((c) => {
+          if (c.condition?.display?.length) {
+            c.condition.display.map((d) => {
+              if (d.values?.length) {
+                const tempIdx = d.values.findIndex((v) => v === diff.id);
+                if (tempIdx > -1) d.values.splice(tempIdx, 1);
+              }
+            });
+          }
+        });
+      }
     },
   },
   methods: {

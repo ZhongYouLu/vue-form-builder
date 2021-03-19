@@ -37,10 +37,8 @@ export default /*#__PURE__*/ {
     id: { type: String, required: true },
     // 欄位名稱
     name: { type: String, required: true },
-    // 屬於文字輸入框
-    isText: { type: Boolean, required: true },
-    // 屬於多選框
-    isCheckBox: { type: Boolean, required: true },
+    // 欄位屬性約束
+    typeConstraint: { type: Object, required: true },
     // 排除自己的所有欄位群
     columnsExcludeSelf: { type: Array, required: true },
     // 所有欄位群 (obj by key)
@@ -81,7 +79,7 @@ export default /*#__PURE__*/ {
             label: '與..相符',
             placeholder: '請選擇欄位',
             type: 'select',
-            options: this.columnsExcludeSelf,
+            options: this.typeConstraint.filterSame(this.columnsExcludeSelf),
             valueKey: 'id',
             textKey: 'name',
             clearable: true,
@@ -91,14 +89,20 @@ export default /*#__PURE__*/ {
         },
       };
 
-      if (this.isText) {
+      if (this.typeConstraint.isText) {
         temp = {
           ...temp,
           minimum: { props: { label: '字元下限', type: 'number' }, msg: `[${name}] 最少 [:min] 個字。` },
           maximum: { props: { label: '字元上限', type: 'number' }, msg: `[${name}] 最多 [:max] 個字。` },
           regex: { props: { label: '驗證格式' }, msg: `[${name}] 格式驗證失敗。` },
         };
-      } else if (this.isCheckBox) {
+      } else if (this.typeConstraint.isNumber) {
+        temp = {
+          ...temp,
+          minimum: { props: { label: '數字下限', type: 'number' }, msg: `[${name}] 最少 [:min]。` },
+          maximum: { props: { label: '數字上限', type: 'number' }, msg: `[${name}] 最多 [:max]。` },
+        };
+      } else if (this.typeConstraint.isCheckBox) {
         temp = {
           ...temp,
           least: { props: { label: '選擇數量下限', type: 'number' }, msg: `[${name}] 最少選 [:least] 個。` },

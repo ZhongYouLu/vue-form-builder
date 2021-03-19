@@ -97,17 +97,6 @@ export default /*#__PURE__*/ {
       const { id, text } = this.$props.items[idx];
 
       const allowFunc = () => {
-        this.columnsExcludeSelf.map((c) => {
-          if (c.condition?.display?.length) {
-            c.condition.display.map((d) => {
-              if (d.values?.length) {
-                const tempIdx = d.values.findIndex((v) => v === id);
-                console.log(tempIdx);
-                if (tempIdx > -1) d.values.splice(tempIdx, 1);
-              }
-            });
-          }
-        });
         this.$emit('removeArr', 'items', id);
       };
 

@@ -21,6 +21,14 @@ export let nanoid = (t = 21) => {
   return e;
 };
 
+export function thousandSeparator(val) {
+  if (!val) return val;
+  const parts = val.toString().split('.');
+  parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  return parts.join('.');
+  // return Number(val).toLocaleString();
+}
+
 export function deepCopy(obj) {
   if (!obj || typeof obj !== 'object') {
     return obj;
@@ -111,10 +119,6 @@ export function updateObjInArrByKey(array, key, value, newObj) {
   return index >= 0 ? [...array.slice(0, index), { ...array[index], ...newObj }, ...array.slice(index + 1)] : array;
 }
 
-export function thousandSeparator(val) {
-  if (!val) return val;
-  const parts = val.toString().split('.');
-  parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-  return parts.join('.');
-  // return Number(val).toLocaleString();
-}
+export const intersection = (arr1, arr2) => arr1.filter((x) => arr2.includes(x));
+export const difference = (arr1, arr2) => arr1.filter((x) => !arr2.includes(x));
+export const symmetricDifference = (arr1, arr2) => difference(arr1, arr2).concat(difference(arr2, arr1));
