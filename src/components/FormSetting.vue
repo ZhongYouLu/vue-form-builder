@@ -66,11 +66,7 @@
 </template>
 
 <script>
-import Draggable from '@/components/ui/CustomDraggable';
-import Block from '@/components/ui/Block';
-import Icon from '@/components/ui/Icon';
-import Card from '@/components/ui/Card';
-import Field from '@/components/ui/Field';
+import { Draggable, Block, Card, Icon, Field } from '@/components/ui';
 import ColumnSetting from '@/components/ColumnSetting';
 
 export default /*#__PURE__*/ {

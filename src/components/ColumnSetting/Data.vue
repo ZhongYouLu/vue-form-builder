@@ -33,21 +33,17 @@
 </template>
 
 <script>
-import Block from '@/components/ui/Block';
-import Draggable from '@/components/ui/CustomDraggable';
-import InputRow from '@/components/ui/InputRow';
-import Field from '@/components/ui/Field';
-import Icon from '@/components/ui/Icon';
+import { InputRow, Icon, Field, Block, Draggable } from '@/components/ui';
 import { nanoid, convertOptions } from '@/assets/js/helper.js';
 
 export default /*#__PURE__*/ {
   name: 'ColumnSettingData',
   components: {
+    InputRow,
+    Icon,
+    Field,
     Block,
     Draggable,
-    InputRow,
-    Field,
-    Icon,
   },
   inject: ['handleConfirm'],
   props: {

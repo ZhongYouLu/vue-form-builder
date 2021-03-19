@@ -84,21 +84,17 @@
   </Block>
 </template>
 <script>
-import Block from '@/components/ui/Block';
-import IconRow from '@/components/ui/IconRow';
-import InputRow from '@/components/ui/InputRow';
-import Field from '@/components/ui/Field';
-import Icon from '@/components/ui/Icon';
+import { InputRow, Icon, Field, Block, IconRow } from '@/components/ui';
 import { thousandSeparator } from '@/assets/js/helper.js';
 
 export default /*#__PURE__*/ {
   name: 'ColumnSettingConditionDisplay',
   components: {
-    Block,
-    IconRow,
     InputRow,
-    Field,
     Icon,
+    Field,
+    IconRow,
+    Block,
   },
   inject: ['handleConfirm', 'typeIcons'],
   props: {

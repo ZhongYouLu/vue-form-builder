@@ -1,5 +1,5 @@
-export { default as FormBuilder } from './FormBuilder.vue';
-export { default as FormMainLogic } from './FormMainLogic.vue';
-export { default as FormSetting } from './FormSetting.vue';
-export { default as FormDemo } from './FormDemo.vue';
-export { default as RecordControls } from './RecordControls.vue';
+export { default as FormBuilder } from './FormBuilder';
+export { default as FormMainLogic } from './FormMainLogic';
+export { default as FormSetting } from './FormSetting';
+export { default as FormDemo } from './FormDemo';
+export { default as RecordControls } from './RecordControls';

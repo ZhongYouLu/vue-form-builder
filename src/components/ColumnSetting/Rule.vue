@@ -23,8 +23,7 @@
 </template>
 
 <script>
-import InputRow from '@/components/ui/InputRow';
-import Icon from '@/components/ui/Icon';
+import { InputRow, Icon } from '@/components/ui';
 
 export default /*#__PURE__*/ {
   name: 'ColumnSettingRule',
