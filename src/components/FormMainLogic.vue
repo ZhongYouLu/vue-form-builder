@@ -12,7 +12,7 @@
 </template>
 
 <script>
-import { nanoid, isEmpty, clearEmpties, convertPairs, convertOptions } from '@/assets/js/helper.js';
+import { nanoid, isEmpty, clearEmpties, nested2Pairs, pairs2Arr } from '@/assets/js/helper.js';
 
 export default /*#__PURE__*/ {
   name: 'FormMainLogic',
@@ -24,6 +24,7 @@ export default /*#__PURE__*/ {
       typeOptions: this.typeOptions,
       typeIcons: this.typeIcons,
       getTypeConstraint: this.getTypeConstraint,
+      convertOptions: this.convertOptions,
     };
   },
   inject: [
@@ -98,9 +99,11 @@ export default /*#__PURE__*/ {
       return {
         text: { text: '文字框', icon: 'carbon:string-text' },
         number: { text: '數字框', icon: 'carbon:string-integer' },
+        date: { text: '日期框', icon: 'carbon:calendar' },
         radio: { text: '單選框', icon: 'carbon:radio-button-checked' },
         checkbox: { text: '複選框', icon: 'carbon:checkbox-checked' },
         select: { text: '下拉選單', icon: 'carbon:list' },
+        file: { text: '檔案', icon: 'ic:baseline-attach-file' },
         // ------------------
         // password: { text: '密碼框', icon: 'carbon:password' },
         // email: { text: '電子郵件輸入欄位', icon: '' },
@@ -111,11 +114,11 @@ export default /*#__PURE__*/ {
       };
     },
     typeOptions() {
-      return convertOptions(convertPairs(this.typeConfig, 'text'));
+      return this.convertOptions(nested2Pairs(this.typeConfig, 'text'));
     },
     typeIcons() {
       return {
-        ...convertPairs(this.typeConfig, 'icon'),
+        ...nested2Pairs(this.typeConfig, 'icon'),
         undefined: 'carbon:unknown',
       };
     },
@@ -130,12 +133,17 @@ export default /*#__PURE__*/ {
     },
   },
   methods: {
+    convertOptions(obj) {
+      return pairs2Arr(obj, 'text', 'value');
+    },
     getTypeConstraint(type) {
       return {
         isText: type === 'text',
         isNumber: type === 'number',
+        isDate: type === 'date',
         isCheckBox: type === 'checkbox',
-        isInput: ['text', 'number'].includes(type),
+        isFile: type === 'file',
+        isInput: ['text', 'number', 'date'].includes(type),
         needItems: ['select', 'radio', 'checkbox'].includes(type),
         filterSame: (columns) => columns.filter((c) => c.type === type),
       };
@@ -189,21 +197,18 @@ export default /*#__PURE__*/ {
 
           // 如果有條件
           if (!isEmpty(c.condition)) {
-            // 顯示
-            if (!isEmpty(c.condition.display)) {
-              c.condition.display = c.condition.display.reduce((acc, obj) => {
-                // 排除該項
-                if (obj.triggerID === id) return acc;
-                // else
-                acc = [...acc, obj];
-                return acc;
-              }, []);
-            }
-
             // 連動必填元素
             if (!isEmpty(c.condition.requiredSync)) {
               c.condition.requiredSync = c.condition.requiredSync.reduce((acc, targetID) => {
                 if (targetID !== id) acc.push(targetID);
+                return acc;
+              }, []);
+            }
+
+            // 顯示
+            if (!isEmpty(c.condition.display)) {
+              c.condition.display = c.condition.display.reduce((acc, obj) => {
+                if (obj.triggerID !== id) acc.push(obj);
                 return acc;
               }, []);
             }

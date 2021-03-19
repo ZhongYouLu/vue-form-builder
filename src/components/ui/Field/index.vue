@@ -11,29 +11,33 @@
 <script>
 import FieldText from '@/components/ui/Field/Text';
 import FieldNumber from '@/components/ui/Field/Number';
+import FieldDate from '@/components/ui/Field/Date';
 import FieldRadio from '@/components/ui/Field/Radio';
 import FieldCheckbox from '@/components/ui/Field/Checkbox';
 import FieldCheckboxMulti from '@/components/ui/Field/CheckboxMulti';
 import FieldSelect from '@/components/ui/Field/Select';
+import FieldFile from '@/components/ui/Field/File';
 
 export default /*#__PURE__*/ {
   name: 'Field',
   components: {
     FieldText,
     FieldNumber,
+    FieldDate,
     FieldRadio,
     FieldCheckbox,
     FieldCheckboxMulti,
     FieldSelect,
+    FieldFile,
   },
   inheritAttrs: false,
   props: {
-    value: { type: [String, Number, Boolean, Array], default: null },
+    value: { type: [String, Number, Boolean, Array, Object, FileList], default: null },
     type: {
       type: String,
       default: 'text',
       validator(value) {
-        return ['text', 'number', 'radio', 'checkbox', 'checkbox-multi', 'select'].includes(value);
+        return ['text', 'number', 'date', 'radio', 'checkbox', 'checkbox-multi', 'select', 'file'].includes(value);
       },
     },
   },

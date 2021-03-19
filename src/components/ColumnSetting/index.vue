@@ -26,21 +26,22 @@
         </div>
       </template>
     </nav>
-
-    <component
-      :is="currentCmp.component"
-      v-bind="currentCmp.props"
-      v-show="tabShow[currentTab]"
-      @update="updateColumnTab(currentTab, ...arguments)"
-      @updateObj="updateColumnTabObj(currentTab, ...arguments)"
-      @addArr="addColumnTabArr(currentTab, ...arguments)"
-      @updateArr="updateColumnTabArr(currentTab, ...arguments)"
-      @removeArr="removeColumnTabArr(currentTab, ...arguments)"
-    >
-      <template v-for="(_, slot) in $scopedSlots" #[slot]="props">
-        <slot :name="slot" v-bind="props" />
-      </template>
-    </component>
+    <keep-alive>
+      <component
+        :is="currentCmp.component"
+        v-bind="currentCmp.props"
+        v-show="tabShow[currentTab]"
+        @update="updateColumnTab(currentTab, ...arguments)"
+        @updateObj="updateColumnTabObj(currentTab, ...arguments)"
+        @addArr="addColumnTabArr(currentTab, ...arguments)"
+        @updateArr="updateColumnTabArr(currentTab, ...arguments)"
+        @removeArr="removeColumnTabArr(currentTab, ...arguments)"
+      >
+        <template v-for="(_, slot) in $scopedSlots" #[slot]="props">
+          <slot :name="slot" v-bind="props" />
+        </template>
+      </component>
+    </keep-alive>
   </div>
 </template>
 
@@ -50,13 +51,7 @@ import SettingBase from '@/components/ColumnSetting/Base';
 import SettingData from '@/components/ColumnSetting/Data';
 import SettingRule from '@/components/ColumnSetting/Rule';
 import SettingCondition from '@/components/ColumnSetting/Condition';
-import {
-  convertOptions,
-  json2ObjByKey,
-  updateObjInArrByKey,
-  removeObjInArrByKey,
-  difference,
-} from '@/assets/js/helper.js';
+import { arr2ObjByKey, arrUpdateItemByKey, arrRemoveItemByKey, difference } from '@/assets/js/helper.js';
 
 export default /*#__PURE__*/ {
   name: 'ColumnSetting',
@@ -68,7 +63,7 @@ export default /*#__PURE__*/ {
     SettingRule,
     SettingCondition,
   },
-  inject: ['typeOptions', 'typeIcons', 'getTypeConstraint'],
+  inject: ['typeOptions', 'typeIcons', 'getTypeConstraint', 'convertOptions'],
   props: {
     idx: { type: Number, required: true },
     columns: { type: Array, required: true },
@@ -107,7 +102,7 @@ export default /*#__PURE__*/ {
       };
     },
     tabOptions() {
-      return convertOptions({
+      return this.convertOptions({
         base: '基本',
         rule: '規則',
         data: '項目',
@@ -129,22 +124,12 @@ export default /*#__PURE__*/ {
           id: this.column.id,
           name: this.column.name,
           typeConstraint: this.typeConstraint,
+          columnsExcludeSelf: this.columnsExcludeSelf,
+          columnsObjByKey: this.columnsObjByKey,
           // -------------------------------------
           ...this.column[this.currentTab],
         },
       };
-
-      switch (this.currentTab) {
-        case 'rule':
-        case 'data':
-        case 'condition':
-          config.props = {
-            ...config.props,
-            columnsExcludeSelf: this.columnsExcludeSelf,
-            columnsObjByKey: this.columnsObjByKey,
-          };
-          break;
-      }
 
       return config;
     },
@@ -155,17 +140,20 @@ export default /*#__PURE__*/ {
       return this.columns.filter((column) => column.id !== this.id);
     },
     columnsObjByKey() {
-      return json2ObjByKey(this.columns, 'id');
+      return arr2ObjByKey(this.columns, 'id');
     },
   },
   watch: {
-    type: function (a, b) {
-      console.log(a, b);
-      this.updateColumnTab('base', 'defaultValue', null);
+    type: function () {
+      this.columnsObjByKey[this.id].base.subType = null;
+      this.columnsObjByKey[this.id].base.defaultValue = null;
+      // this.updateColumn('base', { ...this.column['base'], subType: null, defaultValue: null });
     },
     'data.items': function (a, b) {
-      if (a && b && a.length < b.length) {
-        const diff = difference(b, a)[0];
+      if ((a && b && a.length < b.length) || (!a && b)) {
+        const diff = difference(b, a || [])[0];
+        this.columnsObjByKey[this.id].base.defaultValue = null;
+
         this.columnsExcludeSelf.map((c) => {
           if (c.condition?.display?.length) {
             c.condition.display.map((d) => {
@@ -202,12 +190,12 @@ export default /*#__PURE__*/ {
     },
     updateColumnTabArr(tab, targetKey, id, k, v) {
       console.log(`updateColumnTabArr[${tab}][${targetKey}][${id}][${k}]`, v);
-      const newTarget = updateObjInArrByKey(this.column[tab][targetKey], 'id', id, { [k]: v });
+      const newTarget = arrUpdateItemByKey(this.column[tab][targetKey], 'id', id, { [k]: v });
       this.updateColumnTab(tab, targetKey, newTarget);
     },
     removeColumnTabArr(tab, targetKey, id) {
       console.log(`removeColumnTabArr[${tab}][${targetKey}]`, id);
-      const newTarget = removeObjInArrByKey(this.column[tab][targetKey], 'id', id);
+      const newTarget = arrRemoveItemByKey(this.column[tab][targetKey], 'id', id);
       this.updateColumnTab(tab, targetKey, newTarget);
     },
   },

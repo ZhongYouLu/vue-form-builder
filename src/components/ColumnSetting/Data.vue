@@ -34,7 +34,7 @@
 
 <script>
 import { InputRow, Icon, Field, Block, Draggable } from '@/components/ui';
-import { nanoid, convertOptions } from '@/assets/js/helper.js';
+import { nanoid } from '@/assets/js/helper.js';
 
 export default /*#__PURE__*/ {
   name: 'ColumnSettingData',
@@ -45,7 +45,7 @@ export default /*#__PURE__*/ {
     Block,
     Draggable,
   },
-  inject: ['handleConfirm'],
+  inject: ['handleConfirm', 'convertOptions'],
   props: {
     // 排除自己的所有欄位群
     columnsExcludeSelf: { type: Array, required: true },
@@ -64,13 +64,13 @@ export default /*#__PURE__*/ {
   emits: ['update', 'updateObj', 'updateArr', 'addArr', 'removeArr'],
   computed: {
     sourceModeOptions() {
-      return convertOptions({
+      return this.convertOptions({
         list: '手動設置',
         api: 'API',
       });
     },
     displayModeOptions() {
-      return convertOptions({
+      return this.convertOptions({
         line: 'Line by Line',
         next: 'Next to each others',
         bothSide: 'Stay on each sides in a row (Left - Right)',

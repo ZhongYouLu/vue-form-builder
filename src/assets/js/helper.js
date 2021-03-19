@@ -1,17 +1,5 @@
-export function uuid() {
-  var d = Date.now();
-  if (typeof performance !== 'undefined' && typeof performance.now === 'function') {
-    d += performance.now(); //use high-precision timer if available
-  }
-  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
-    var r = (d + Math.random() * 16) % 16 | 0;
-    d = Math.floor(d / 16);
-    return (c === 'x' ? r : (r & 0x3) | 0x8).toString(16);
-  });
-}
-
 // https://github.com/ai/nanoid
-export let nanoid = (t = 21) => {
+export const nanoid = (t = 21) => {
   let e = '',
     r = crypto.getRandomValues(new Uint8Array(t));
   for (; t--; ) {
@@ -21,15 +9,26 @@ export let nanoid = (t = 21) => {
   return e;
 };
 
-export function thousandSeparator(val) {
+// 千位符
+export const thousandSeparator = (val) => {
   if (!val) return val;
   const parts = val.toString().split('.');
   parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
   return parts.join('.');
   // return Number(val).toLocaleString();
-}
+};
 
-export function deepCopy(obj) {
+// If you use JavaScript according to ECMAScript 2020 or later, see optional chaining.
+export const getSafe = (fn, defaultVal) => {
+  try {
+    return fn ? fn() : defaultVal;
+  } catch (e) {
+    return defaultVal;
+  }
+};
+
+// 深拷貝
+export const deepCopy = (obj) => {
   if (!obj || typeof obj !== 'object') {
     return obj;
   }
@@ -37,40 +36,45 @@ export function deepCopy(obj) {
     return new Date(obj.getTime());
   }
   if (obj instanceof Array) {
-    return obj.reduce(function (arr, item, i) {
+    return obj.reduce((arr, item, i) => {
       arr[i] = deepCopy(item);
       return arr;
     }, []);
   }
   if (obj instanceof Object) {
-    return Object.keys(obj).reduce(function (newObj, key) {
+    return Object.keys(obj).reduce((newObj, key) => {
       newObj[key] = deepCopy(obj[key]);
       return newObj;
     }, {});
   }
-}
+};
 
-export function json2ObjByKey(json, key) {
-  if (!json) return {};
-  key = key || 'id';
-  return json.reduce(function (acc, obj) {
+// obj Array 轉 obj
+export const arr2ObjByKey = (arr, key = 'id') => {
+  return arr.reduce((acc, obj) => {
     const v = obj[key];
-    if (v) acc[v] = Object.assign({}, acc[v], deepCopy(obj));
+    if (!v) return acc;
+    acc[v] = acc[v] ? { ...acc[v], ...obj } : obj;
     return acc;
   }, {});
-}
+};
 
-export function convertPairs(obj, key) {
-  return Object.entries(obj).reduce((acc, [k, v]) => ({ ...acc, [k]: v[key] }), {});
-}
+// nested obj 轉 key-value pairs
+export const nested2Pairs = (obj, propKey) => {
+  return Object.entries(obj).reduce((acc, [k, v]) => ({ ...acc, [k]: v[propKey] }), {});
+};
 
-export function convertOptions(obj, kKey = 'value', vKey = 'text') {
-  return Object.entries(obj).reduce((acc, [k, v]) => [...acc, { [kKey]: k, [vKey]: v }], []);
-}
+// key-value pairs 轉 obj Array
+export const pairs2Arr = (obj, vKey, kKey = 'id') => {
+  return Object.entries(obj).reduce((acc, [k, v]) => acc.concat({ [kKey]: k, [vKey]: v }), []);
+};
 
-export function isEmptyObject(value) {
-  return value && Object.keys(value).length === 0 && value.constructor === Object;
-}
+// obj 轉 obj Array
+export const obj2Arr = (obj, vKeys = [], kKey = 'id') => {
+  return Object.entries(obj).reduce((acc, [k, v]) => {
+    return acc.concat(vKeys.reduce((tempObj, key) => ({ ...tempObj, [key]: v[key] }), { [kKey]: k }));
+  }, []);
+};
 
 export function isEmpty(obj) {
   // null and undefined are "empty"
@@ -101,7 +105,10 @@ export function isEmpty(obj) {
 
 export function clearEmpties(obj) {
   Object.entries(obj).forEach(
-    ([key, val]) => (val && typeof val === 'object' && clearEmpties(val)) || (isEmpty(val) && delete obj[key])
+    ([key, val]) =>
+      (val && typeof val === 'object' && clearEmpties(val)) ||
+      (val && val instanceof File) ||
+      (isEmpty(val) && delete obj[key])
   );
 
   return isEmpty(obj) ? null : obj;
@@ -110,13 +117,39 @@ export function clearEmpties(obj) {
 // eslint-disable-next-line no-unused-vars
 export const removeProperty = (propKey, { [propKey]: propValue, ...rest }) => rest;
 
-export function removeObjInArrByKey(array, key, value) {
-  const index = array.findIndex((obj) => obj[key] === value);
-  return index >= 0 ? [...array.slice(0, index), ...array.slice(index + 1)] : array;
+export function arrRemoveValue(arr, val) {
+  return arr.filter((item) => item !== val);
 }
-export function updateObjInArrByKey(array, key, value, newObj) {
-  const index = array.findIndex((obj) => obj[key] === value);
-  return index >= 0 ? [...array.slice(0, index), { ...array[index], ...newObj }, ...array.slice(index + 1)] : array;
+
+export function arrRemoveValueByKey(arr, key, val) {
+  return arr.filter((obj) => obj[key] !== val);
+}
+
+export function arrRemoveByIdx(arr, idx) {
+  const length = arr.length;
+  if (idx === 0) {
+    arr = arr.slice(1);
+  } else if (idx === length - 1) {
+    arr = arr.slice(0, length - 1);
+  } else {
+    arr = [...arr.slice(0, idx), ...arr.slice(idx + 1)];
+  }
+  return arr;
+}
+
+export function arrRemoveItem(arr, val) {
+  const idx = arr.findIndex((item) => item === val);
+  return arrRemoveByIdx(arr, idx);
+}
+
+export function arrRemoveItemByKey(arr, key, val) {
+  const idx = arr.findIndex((obj) => obj[key] === val);
+  return arrRemoveByIdx(arr, idx);
+}
+
+export function arrUpdateItemByKey(array, key, val, newObj) {
+  const idx = array.findIndex((obj) => obj[key] === val);
+  return idx >= 0 ? [...array.slice(0, idx), { ...array[idx], ...newObj }, ...array.slice(idx + 1)] : array;
 }
 
 export const intersection = (arr1, arr2) => arr1.filter((x) => arr2.includes(x));
