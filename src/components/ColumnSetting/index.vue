@@ -145,8 +145,11 @@ export default /*#__PURE__*/ {
   },
   watch: {
     type: function () {
-      this.columnsObjByKey[this.id].base.subType = null;
-      this.columnsObjByKey[this.id].base.defaultValue = null;
+      this.columnsObjByKey[this.id].base = {
+        ...this.columnsObjByKey[this.id].base,
+        subType: null,
+        defaultValue: null,
+      };
       // this.updateColumn('base', { ...this.column['base'], subType: null, defaultValue: null });
     },
     'data.items': function (a, b) {
