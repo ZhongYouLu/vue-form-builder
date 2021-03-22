@@ -1,7 +1,7 @@
 <template>
   <div>
     <slot
-      :columns="localColumns"
+      :columns="columns"
       :finalColumns="finalColumns"
       :invokeUpdateColumns="invokeUpdateColumns"
       :invokeAdd="invokeAdd"
@@ -12,7 +12,18 @@
 </template>
 
 <script>
-import { nanoid, isEmpty, clearEmpties, nested2Pairs, pairs2Arr } from '@/assets/js/helper.js';
+import {
+  nanoid,
+  isEmpty,
+  clearEmpties,
+  nested2Pairs,
+  pairs2Arr,
+  arrUpdateItemByKey,
+  arrRemoveValueByKey,
+  arrRemoveValues,
+  arrRemoveValuesByKey,
+  difference,
+} from '@/assets/js/helper.js';
 
 export default /*#__PURE__*/ {
   name: 'FormMainLogic',
@@ -42,15 +53,6 @@ export default /*#__PURE__*/ {
     };
   },
   computed: {
-    // 本地的欄位群
-    localColumns: {
-      get() {
-        return this.columns;
-      },
-      set(val) {
-        this.invokeUpdateColumns(val);
-      },
-    },
     // 最終欄位群 (去除不必要的屬性)
     finalColumns() {
       return this.columns.map((column) =>
@@ -123,13 +125,41 @@ export default /*#__PURE__*/ {
       };
     },
   },
+  // 監聽連動 [Side Effect]
   watch: {
-    columns(columns) {
-      columns.map((column) => {
-        if (!this.collect[column.id]) {
-          this.$set(this.collect, column.id, {});
-        }
-      });
+    columns(a, b) {
+      const diffIds = difference(
+        a.map((c) => c.id),
+        Object.keys(this.collect)
+      );
+      if (diffIds.length) {
+        diffIds.map((id) => {
+          this.$set(this.collect, id, {});
+        });
+      }
+
+      // 減少
+      const deductIds = difference(
+        b.map((c) => c.id),
+        a.map((c) => c.id)
+      );
+      if (deductIds.length) {
+        a.forEach((c) => {
+          // 如果有規則
+          if (c.rule) {
+            // 與...相符
+            if (deductIds.includes(c.rule.sameAs)) c.rule.sameAs = null;
+          }
+
+          // 如果有條件
+          if (c.condition) {
+            // 連動必填
+            c.condition.requiredSync = arrRemoveValues(c.condition.requiredSync, deductIds);
+            // 顯示
+            c.condition.display = arrRemoveValuesByKey(c.condition.display, 'triggerID', deductIds);
+          }
+        });
+      }
     },
   },
   methods: {
@@ -161,66 +191,24 @@ export default /*#__PURE__*/ {
     // 呼叫新增欄位
     invokeAdd() {
       const emptyColumn = { id: nanoid(6) };
-      const newColumns = [...this.localColumns, emptyColumn];
-
+      const newColumns = this.columns.concat(emptyColumn);
       this.emitUpdate(newColumns, 'invokeAdd');
     },
     // 呼叫更新欄位
     invokeUpdate(id, newColumn) {
-      const idx = this.localColumns.findIndex((c) => c.id === id);
-
-      const newColumns = [...this.localColumns];
-      newColumns[idx] = {
-        id: this.localColumns[idx].id,
-        ...newColumn,
-      };
-
+      const newColumns = arrUpdateItemByKey(this.columns, 'id', id, newColumn);
       this.emitUpdate(newColumns, 'invokeUpdate');
     },
     // 呼叫刪除欄位
     invokeRemove(id) {
-      const idx = this.localColumns.findIndex((c) => c.id === id);
-
       // 確認刪除函式
       const allowFunc = () => {
-        const newColumns = [...this.localColumns];
-        // 消除其他欄位相關連動
-        newColumns.forEach((c) => {
-          // 如果有規則
-          if (!isEmpty(c.rule)) {
-            // 與...相符
-            if (!isEmpty(c.rule.sameAs) && c.rule.sameAs === id) {
-              // 取消設置
-              c.rule.sameAs = null;
-            }
-          }
-
-          // 如果有條件
-          if (!isEmpty(c.condition)) {
-            // 連動必填元素
-            if (!isEmpty(c.condition.requiredSync)) {
-              c.condition.requiredSync = c.condition.requiredSync.reduce((acc, targetID) => {
-                if (targetID !== id) acc.push(targetID);
-                return acc;
-              }, []);
-            }
-
-            // 顯示
-            if (!isEmpty(c.condition.display)) {
-              c.condition.display = c.condition.display.reduce((acc, obj) => {
-                if (obj.triggerID !== id) acc.push(obj);
-                return acc;
-              }, []);
-            }
-          }
-        });
-        // 刪除該索引之欄位
-        newColumns.splice(idx, 1);
-
+        const newColumns = arrRemoveValueByKey(this.columns, 'id', id);
         this.emitUpdate(newColumns, 'invokeRemove');
       };
 
-      const { name } = this.localColumns[idx];
+      const idx = this.columns.findIndex((c) => c.id === id);
+      const { name } = this.columns[idx];
       const showMsg = `確定刪除欄位 #${idx + 1} [${name || id}] ?`;
 
       if (this.handleConfirm) {

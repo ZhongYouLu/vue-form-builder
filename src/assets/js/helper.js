@@ -118,11 +118,21 @@ export function clearEmpties(obj) {
 export const removeProperty = (propKey, { [propKey]: propValue, ...rest }) => rest;
 
 export function arrRemoveValue(arr, val) {
+  if (!Array.isArray(arr)) return arr;
   return arr.filter((item) => item !== val);
+}
+export function arrRemoveValues(arr, valArr) {
+  if (!Array.isArray(arr)) return arr;
+  return arr.filter((item) => !valArr.includes(item));
 }
 
 export function arrRemoveValueByKey(arr, key, val) {
+  if (!Array.isArray(arr)) return arr;
   return arr.filter((obj) => obj[key] !== val);
+}
+export function arrRemoveValuesByKey(arr, key, valArr) {
+  if (!Array.isArray(arr)) return arr;
+  return arr.filter((obj) => !valArr.includes(obj[key]));
 }
 
 export function arrRemoveByIdx(arr, idx) {
@@ -140,18 +150,21 @@ export function arrRemoveByIdx(arr, idx) {
 }
 
 export function arrRemoveItem(arr, val) {
+  if (!Array.isArray(arr)) return arr;
   const idx = arr.findIndex((item) => item === val);
   return arrRemoveByIdx(arr, idx);
 }
 
 export function arrRemoveItemByKey(arr, key, val) {
+  if (!Array.isArray(arr)) return arr;
   const idx = arr.findIndex((obj) => obj[key] === val);
   return arrRemoveByIdx(arr, idx);
 }
 
-export function arrUpdateItemByKey(array, key, val, newObj) {
-  const idx = array.findIndex((obj) => obj[key] === val);
-  return idx >= 0 ? [...array.slice(0, idx), { ...array[idx], ...newObj }, ...array.slice(idx + 1)] : array;
+export function arrUpdateItemByKey(arr, key, val, newObj) {
+  if (!Array.isArray(arr)) return arr;
+  const idx = arr.findIndex((obj) => obj[key] === val);
+  return idx >= 0 ? [...arr.slice(0, idx), { ...arr[idx], ...newObj }, ...arr.slice(idx + 1)] : arr;
 }
 
 export const intersection = (arr1, arr2) => arr1.filter((x) => arr2.includes(x));
