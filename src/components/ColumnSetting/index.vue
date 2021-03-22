@@ -51,7 +51,13 @@ import SettingBase from '@/components/ColumnSetting/Base';
 import SettingData from '@/components/ColumnSetting/Data';
 import SettingRule from '@/components/ColumnSetting/Rule';
 import SettingCondition from '@/components/ColumnSetting/Condition';
-import { arr2ObjByKey, arrUpdateItemByKey, arrRemoveItemByKey, difference } from '@/assets/js/helper.js';
+import {
+  arr2ObjByKey,
+  arrUpdateItemByKey,
+  arrRemoveItemByKey,
+  arrRemoveValue,
+  difference,
+} from '@/assets/js/helper.js';
 
 export default /*#__PURE__*/ {
   name: 'ColumnSetting',
@@ -143,29 +149,23 @@ export default /*#__PURE__*/ {
       return arr2ObjByKey(this.columns, 'id');
     },
   },
+  // 監聽連動 [Side Effect]
   watch: {
     type: function () {
-      this.columnsObjByKey[this.id].base = {
-        ...this.columnsObjByKey[this.id].base,
+      this.column.base = {
+        ...this.column.base,
         subType: null,
         defaultValue: null,
       };
-      // this.updateColumn('base', { ...this.column['base'], subType: null, defaultValue: null });
     },
     'data.items': function (a, b) {
-      if ((a && b && a.length < b.length) || (!a && b)) {
+      if (a?.length < b?.length || (!a && b)) {
         const diff = difference(b, a || [])[0];
-        this.columnsObjByKey[this.id].base.defaultValue = null;
-
+        this.column.base.defaultValue = null;
         this.columnsExcludeSelf.map((c) => {
-          if (c.condition?.display?.length) {
-            c.condition.display.map((d) => {
-              if (d.values?.length) {
-                const tempIdx = d.values.findIndex((v) => v === diff.id);
-                if (tempIdx > -1) d.values.splice(tempIdx, 1);
-              }
-            });
-          }
+          c.condition?.display?.map((d) => {
+            d.values = arrRemoveValue(d.values, diff.id);
+          });
         });
       }
     },

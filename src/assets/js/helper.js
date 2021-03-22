@@ -126,6 +126,8 @@ export function arrRemoveValueByKey(arr, key, val) {
 }
 
 export function arrRemoveByIdx(arr, idx) {
+  if (idx === -1) return arr;
+
   const length = arr.length;
   if (idx === 0) {
     arr = arr.slice(1);
