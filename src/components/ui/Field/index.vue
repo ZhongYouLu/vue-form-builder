@@ -1,6 +1,6 @@
 <template>
   <div class="field">
-    <component :is="typeCmp" v-bind="$attrs" v-model="mutableValue">
+    <component :is="`field-${type}`" v-bind="$attrs" v-model="mutableValue">
       <template v-for="(_, slot) in $scopedSlots" #[slot]="props">
         <slot :name="slot" v-bind="props" />
       </template>
@@ -32,7 +32,8 @@ export default /*#__PURE__*/ {
   },
   inheritAttrs: false,
   props: {
-    value: { type: [String, Number, Boolean, Array, Object, FileList], default: null },
+    value: { type: [String, Number, Boolean, Array], default: null },
+    default: { type: [String, Number, Boolean, Array], default: null },
     type: {
       type: String,
       default: 'text',
@@ -52,9 +53,11 @@ export default /*#__PURE__*/ {
         this.$emit('input', value);
       },
     },
-    typeCmp() {
-      return `field-${this.type}`;
-    },
+  },
+  created() {
+    if (this.default != null && this.mutableValue == null) {
+      this.mutableValue = this.default;
+    }
   },
 };
 </script>

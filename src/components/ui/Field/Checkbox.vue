@@ -1,14 +1,7 @@
 <template>
   <RadioRow>
     <label>
-      <input
-        v-model="mutableValue"
-        type="checkbox"
-        :true-value="yes"
-        :false-value="no"
-        :disabled="disabled"
-        :required="required"
-      />
+      <input v-model="mutableValue" v-bind="$attrs" type="checkbox" :true-value="yes" :false-value="no" />
       <span>{{ text }}</span>
     </label>
   </RadioRow>
@@ -25,11 +18,9 @@ export default /*#__PURE__*/ {
   inheritAttrs: false,
   props: {
     value: { type: [String, Number, Boolean], default: null },
-    text: { type: String, default: 'Yes' },
     yes: { type: [String, Number, Boolean], default: 1 },
     no: { type: [String, Number, Boolean], default: 0 },
-    disabled: { type: Boolean, default: false },
-    required: { type: Boolean, default: false },
+    text: { type: String, default: 'Yes' },
   },
   emits: ['input'],
   computed: {

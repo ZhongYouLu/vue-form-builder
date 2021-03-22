@@ -63,7 +63,6 @@ export default /*#__PURE__*/ {
           props: {
             label: '欄位性質',
             placeholder: '預設: 文字',
-            default: 'tel',
             type: 'select',
             options: this.subTypeOptions,
             clearable: true,

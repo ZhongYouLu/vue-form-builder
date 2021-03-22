@@ -6,7 +6,7 @@
 
 <script>
 export default /*#__PURE__*/ {
-  name: 'FieldData',
+  name: 'FieldDate',
   inheritAttrs: false,
   props: {
     value: { type: String, default: null },

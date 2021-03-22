@@ -1,7 +1,7 @@
 <template>
   <RadioRow>
     <label v-for="option in options" :key="option[valueKey]">
-      <input v-model="mutableValue" type="radio" :value="option[valueKey]" />
+      <input v-model="mutableValue" v-bind="$attrs" type="radio" :value="option[valueKey]" />
       <span>{{ option[textKey] }}</span>
     </label>
   </RadioRow>
