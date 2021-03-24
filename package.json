@@ -24,6 +24,7 @@
   "private": false,
   "sideEffects": false,
   "scripts": {
+    "prepare": "npm run build",
     "serve": "vue-cli-service serve dev/serve.js",
     "build": "cross-env NODE_ENV=production rollup --config build/rollup.config.js",
     "build:umd": "cross-env NODE_ENV=production rollup --config build/rollup.config.js --format umd",
@@ -47,7 +48,7 @@
     "fuse.js": "^6.4.6",
     "sortablejs": "^1.13.0",
     "vue-fragment": "^1.5.2",
-    "vue-select": "^3.11.2",
+    "vue-select": "git+https://git@github.com/ZhongYouLu/vue-select.git",
     "vuedraggable": "^2.24.3"
   },
   "devDependencies": {

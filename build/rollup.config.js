@@ -62,6 +62,7 @@ const baseConfig = {
       }),
     ],
     replace: {
+      preventAssignment: true,
       'process.env.NODE_ENV': JSON.stringify(PRODUCTION ? 'production' : 'development'),
     },
     vue: {
