@@ -93,12 +93,11 @@ export default /*#__PURE__*/ {
       this.$emit('updateArr', 'display', id, k, v);
     },
     removeDisplay(id) {
-      const idx = this.$props.display.findIndex((d) => d.id === id);
-
       const allowFunc = () => {
         this.$emit('removeArr', 'display', id);
       };
 
+      const idx = this.$props.display.findIndex((d) => d.id === id);
       const showMsg = `確定刪除顯示條件 #${idx + 1}?`;
 
       if (this.handleConfirm) {

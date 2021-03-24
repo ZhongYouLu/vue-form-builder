@@ -3,7 +3,7 @@
 </template>
 
 <script>
-import Iconify from '@purge-icons/generated';
+import Iconify from '@iconify/iconify';
 
 export default /*#__PURE__*/ {
   name: 'Icon',

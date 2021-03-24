@@ -1,11 +1,12 @@
 <template>
   <VueSelect
-    v-model="mutableValue"
-    :options="options"
+    :value="mutableValue"
+    :options="mutableOptions"
     :placeholder="placeholder"
     :autocomplete="autocomplete"
     :disabled="disabled"
     :multiple="multiple"
+    :label="textKey"
     :selectable="tempSelectable"
     :reduce="tempReduce"
     :get-option-label="tempGetOptionLabel"
@@ -16,21 +17,31 @@
     :filter="fuseSearch"
     :taggable="taggable"
     :push-tags="pushTags"
-    :create-option="createOption"
+    :create-option="tempCreatedOption"
     :close-on-select="closeOnSelect"
     :no-drop="noDrop"
     :append-to-body="true"
     :calculate-position="withPopper"
+    @input="handleInput"
+    @option:selected="optionSelected"
+    @option:created="optionCreated"
   >
     <!-- 必填處理 -->
     <template v-if="required" #search="{ attributes, events }">
       <input class="vs__search" :required="!mutableValue" v-bind="attributes" v-on="events" />
     </template>
 
-    <!-- 已選項目  -->
-    <!-- <template #selected-option="option">
-      {{ option }}
+    <!-- <template #selected-option-container="{ option }">
+      <span :key="option.valueKey" class="vs__selected">
+        {{ option }}
+      </span>
     </template> -->
+
+    <!-- 已選項目  -->
+    <template #selected-option="option">
+      <h6>{{ option }}</h6>
+      {{ option[textKey] || `(${option[valueKey]})` }}
+    </template>
 
     <!-- 項目  -->
     <!-- <template #option="option">
@@ -53,9 +64,11 @@
 </template>
 
 <script>
+// import VueSelect from '@/assets/js/vue-select';
 import VueSelect from 'vue-select';
 import Fuse from 'fuse.js';
 import { createPopper } from '@popperjs/core';
+import { nanoid } from '@/assets/js/helper.js';
 
 export default /*#__PURE__*/ {
   name: 'FieldSelect',
@@ -90,6 +103,7 @@ export default /*#__PURE__*/ {
     taggable: { type: Boolean, default: false }, // Enable/disable creating options from searchInput.
     pushTags: { type: Boolean, default: false }, // When true, newly created tags will be added to the options list.
     createOption: { type: Function, default: null }, // User defined function for adding Options
+    optionCreatedFlag: { type: Boolean, default: false },
     // ---------------------------------------------
     closeOnSelect: { type: Boolean, default: true }, // Close a dropdown when an option is chosen. Set to false to keep the dropdown open
     noDrop: { type: Boolean, default: false }, // Disable the dropdown entirely.
@@ -109,10 +123,13 @@ export default /*#__PURE__*/ {
         this.$emit('input', value);
       },
     },
+    mutableOptions() {
+      return this.options;
+    },
     tempSelectable() {
       if (this.selectable !== null) return this.selectable;
       // multiple
-      if (this.multiple) return (option) => !this.value.includes(option[this.valueKey]);
+      if (this.multiple) return (option) => !(this.value || []).includes(option[this.valueKey]);
       // default
       return () => true;
     },
@@ -128,6 +145,16 @@ export default /*#__PURE__*/ {
       // default
       return (option) => option[this.textKey] || `(${option[this.valueKey]})`;
     },
+    tempCreatedOption() {
+      if (this.createOption !== null) return this.createOption;
+
+      return (option) => {
+        const newOption = { [this.valueKey]: nanoid(6), [this.textKey]: option };
+        console.log('tempCreatedOption', newOption);
+        return newOption;
+        // return option;
+      };
+    },
     fuseSearch() {
       if (!this.filterable || !this.searchable) return null;
 
@@ -141,6 +168,25 @@ export default /*#__PURE__*/ {
     },
   },
   methods: {
+    handleInput(v) {
+      console.log('handleInput', v);
+      this.mutableValue = v;
+    },
+    optionSelected(option) {
+      console.log('optionSelected', option);
+      // this.mutableValue = option[this.valueKey];
+    },
+    optionCreated(option) {
+      console.log('optionCreated', option);
+      if (this.optionCreatedFlag) {
+        // const newOption = { [this.valueKey]: nanoid(6), ...option };
+        this.mutableOptions.push(option);
+        // console.log(this.mutableOptions.length);
+        // this.$nextTick(function () {
+        //   this.mutableValue = newOption[this.valueKey];
+        // });
+      }
+    },
     withPopper(dropdownList, component, { width }) {
       /**
        * We need to explicitly define the dropdown width since

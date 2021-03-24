@@ -14,7 +14,7 @@
   },
   "bugs": "https://github.com/zhongyoulu/vue-sfc-rollup-demo/issues",
   "main": "dist/form-builder.js",
-  "module": "dist/form-builder.mjs",
+  "module": "dist/form-builder.esm.js",
   "unpkg": "dist/form-builder.min.js",
   "files": [
     "dist/*",
@@ -42,14 +42,6 @@
       "git add"
     ]
   },
-  "dependencies": {
-    "@popperjs/core": "^2.7.1",
-    "fuse.js": "^6.4.6",
-    "sortablejs": "^1.13.0",
-    "vue-fragment": "^1.5.2",
-    "vue-select": "git+https://git@github.com/ZhongYouLu/vue-select.git",
-    "vuedraggable": "^2.24.3"
-  },
   "devDependencies": {
     "@babel/core": "^7.12.10",
     "@babel/preset-env": "^7.12.11",
@@ -76,16 +68,22 @@
     "rollup-plugin-terser": "^7.0.2",
     "rollup-plugin-vue": "^5.1.9",
     "sass-loader": "^10.1.1",
+    "vue-template-compiler": "^2.6.12",
     "vue": "^2.6.12",
-    "vue-template-compiler": "^2.6.12"
+    "vue-select": "git+https://git@github.com/ZhongYouLu/vue-select.git",
+    "sortablejs": "^1.13.0",
+    "vuedraggable": "^2.24.3",
+    "@popperjs/core": "^2.7.1",
+    "fuse.js": "^6.4.6",
+    "@iconify/iconify": "^2.0.0-rc.6"
   },
   "peerDependencies": {
     "vue": "^2.6.12",
+    "vue-select": "git+https://git@github.com/ZhongYouLu/vue-select.git",
     "sortablejs": "^1.13.0",
     "vuedraggable": "^2.24.3",
-    "vue-select": "^3.11.2",
-    "fuse.js": "^6.4.6",
     "@popperjs/core": "^2.7.1",
+    "fuse.js": "^6.4.6",
     "@iconify/iconify": "^2.0.0-rc.6"
   },
   "engines": {

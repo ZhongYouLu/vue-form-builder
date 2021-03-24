@@ -108,7 +108,7 @@ export function clearEmpties(obj) {
     ([key, val]) =>
       (val && typeof val === 'object' && clearEmpties(val)) ||
       (val && val instanceof File) ||
-      (isEmpty(val) && delete obj[key])
+      ((val == null || val === '') && delete obj[key])
   );
 
   return isEmpty(obj) ? null : obj;

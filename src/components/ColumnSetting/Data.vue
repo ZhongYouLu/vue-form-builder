@@ -17,8 +17,8 @@
         <Draggable :value="$props.items" @input="update('items', $event)">
           <div v-for="(item, idx) in $props.items" :key="item.id" class="input-row">
             <div class="drag"><Icon icon="mdi:drag" />{{ idx + 1 }}</div>
-            <Field :value="item.text" @input="updateItem(item.id, 'text', $event)" />
-            <Icon icon="mdi:close-thick" is-btn @click="removeItem(idx)" />
+            <Field :value="item.text" :placeholder="`(${item.id})`" @input="updateItem(item.id, 'text', $event)" />
+            <Icon icon="mdi:close-thick" is-btn @click="removeItem(item.id)" />
           </div>
         </Draggable>
       </Block>
@@ -77,9 +77,6 @@ export default /*#__PURE__*/ {
       });
     },
   },
-  created() {
-    this.update('srcMode', 'list');
-  },
   methods: {
     update(key, val) {
       this.$emit('update', key, val);
@@ -93,13 +90,14 @@ export default /*#__PURE__*/ {
     addItem() {
       this.$emit('addArr', 'items', { id: nanoid(6), text: '' });
     },
-    removeItem(idx) {
-      const { id, text } = this.$props.items[idx];
-
+    removeItem(id) {
+      // 確認刪除函式
       const allowFunc = () => {
         this.$emit('removeArr', 'items', id);
       };
 
+      const idx = this.$props.items.findIndex((item) => item.id === id);
+      const { text } = this.$props.items[idx];
       const showMsg = `確定刪除項目 #${idx + 1} [${text || id}] ?`;
 
       if (this.handleConfirm) {

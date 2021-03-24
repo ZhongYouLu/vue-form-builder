@@ -32,7 +32,7 @@ export default /*#__PURE__*/ {
     // 欄位子說明
     subLabel: { type: String, default: null },
     // 預設值
-    defaultValue: { type: [String, Number, Boolean], default: null },
+    defaultValue: { type: [String, Number, Boolean, Array], default: null },
     // 提示文字
     placeholder: { type: String, default: null },
     // 加密
@@ -103,6 +103,16 @@ export default /*#__PURE__*/ {
               valueKey: 'id',
               textKey: 'text',
               fuseKeys: ['text'],
+              // reduce: (option) => option,
+              // multiple: this.typeConstraint.isCheckbox,
+              // multiple: true,
+              taggable: true,
+              pushTags: true,
+              optionCreatedFlag: true,
+              getOptionLabel: (option) => option,
+
+              // reduce: (name) => name.value,
+              // createOption: (label) => ({ label, value: -1 }),
             },
           },
         };

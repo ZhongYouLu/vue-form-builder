@@ -1,6 +1,6 @@
 /*!
- * @mk816017/form-builder v1.1.0 | MIT License | git+https://github.com/zhongyoulu/vue-sfc-rollup-demo.git
- * https://unpkg.com/@mk816017/form-builder@1.1.0/dist/form-builder.js
+ * @mk816017/form-builder v1.1.1 | MIT License | git+https://github.com/zhongyoulu/vue-sfc-rollup-demo.git
+ * https://unpkg.com/@mk816017/form-builder@1.1.1/dist/form-builder.js
  */
 (function(g,f){typeof exports==='object'&&typeof module!=='undefined'?module.exports=f(require('vue-select'),require('fuse.js'),require('@popperjs/core'),require('@iconify/iconify'),require('vuedraggable')):typeof define==='function'&&define.amd?define(['vue-select','fuse.js','@popperjs/core','@iconify/iconify','vuedraggable'],f):(g=typeof globalThis!=='undefined'?globalThis:g||self,g.FormXXXBuilder=f(g.VueSelect,g.Fuse,g.Popper,g.Iconify,g.vuedraggable));}(this,(function(VueSelect, Fuse, core, Iconify, Draggable){'use strict';function _interopDefaultLegacy(e){return e&&typeof e==='object'&&'default'in e?e:{'default':e}}var VueSelect__default=/*#__PURE__*/_interopDefaultLegacy(VueSelect);var Fuse__default=/*#__PURE__*/_interopDefaultLegacy(Fuse);var Iconify__default=/*#__PURE__*/_interopDefaultLegacy(Iconify);var Draggable__default=/*#__PURE__*/_interopDefaultLegacy(Draggable);function _typeof(obj) {
   "@babel/helpers - typeof";
@@ -1861,11 +1861,6 @@ var __vue_render__$h = function __vue_render__() {
       key: "selected-option",
       fn: function fn(option) {
         return [_c('h6', [_vm._v(_vm._s(option))]), _vm._v("\n    " + _vm._s(option[_vm.textKey] || "(" + option[_vm.valueKey] + ")") + "\n  ")];
-      }
-    }, {
-      key: "option",
-      fn: function fn(option) {
-        return [_vm._v("\n    " + _vm._s(option) + "\n  ")];
       }
     }, _vm.searchable ? {
       key: "no-options",

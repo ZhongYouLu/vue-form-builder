@@ -1,6 +1,6 @@
 /*!
- * @mk816017/form-builder v1.1.0 | MIT License | git+https://github.com/zhongyoulu/vue-sfc-rollup-demo.git
- * https://unpkg.com/@mk816017/form-builder@1.1.0/dist/form-builder.mjs
+ * @mk816017/form-builder v1.1.1 | MIT License | git+https://github.com/zhongyoulu/vue-sfc-rollup-demo.git
+ * https://unpkg.com/@mk816017/form-builder@1.1.1/dist/form-builder.esm.js
  */
 import VueSelect from 'vue-select';
 import Fuse from 'fuse.js';
@@ -1653,11 +1653,6 @@ var __vue_render__$h = function () {
       key: "selected-option",
       fn: function (option) {
         return [_c('h6', [_vm._v(_vm._s(option))]), _vm._v("\n    " + _vm._s(option[_vm.textKey] || "(" + option[_vm.valueKey] + ")") + "\n  ")];
-      }
-    }, {
-      key: "option",
-      fn: function (option) {
-        return [_vm._v("\n    " + _vm._s(option) + "\n  ")];
       }
     }, _vm.searchable ? {
       key: "no-options",

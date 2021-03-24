@@ -102,7 +102,7 @@ export default /*#__PURE__*/ {
           minimum: { props: { label: '數字下限', type: 'number' }, msg: `[${name}] 最少 [:min]。` },
           maximum: { props: { label: '數字上限', type: 'number' }, msg: `[${name}] 最多 [:max]。` },
         };
-      } else if (this.typeConstraint.isCheckBox) {
+      } else if (this.typeConstraint.isCheckbox) {
         temp = {
           ...temp,
           least: { props: { label: '選擇數量下限', type: 'number' }, msg: `[${name}] 最少選 [:least] 個。` },

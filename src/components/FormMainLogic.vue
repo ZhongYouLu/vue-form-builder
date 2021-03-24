@@ -171,7 +171,7 @@ export default /*#__PURE__*/ {
         isText: type === 'text',
         isNumber: type === 'number',
         isDate: type === 'date',
-        isCheckBox: type === 'checkbox',
+        isCheckbox: type === 'checkbox',
         isFile: type === 'file',
         isInput: ['text', 'number', 'date'].includes(type),
         needItems: ['select', 'radio', 'checkbox'].includes(type),

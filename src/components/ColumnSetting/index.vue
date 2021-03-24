@@ -152,16 +152,16 @@ export default /*#__PURE__*/ {
   // 監聽連動 [Side Effect]
   watch: {
     type: function () {
-      this.column.base = {
-        ...this.column.base,
-        subType: null,
-        defaultValue: null,
-      };
+      this.resetBaseDefalutValue();
+
+      if (this.typeConstraint.needItems) {
+        this.initSettingData();
+      }
     },
     'data.items': function (a, b) {
       if (a?.length < b?.length || (!a && b)) {
         const diff = difference(b, a || [])[0];
-        this.column.base.defaultValue = null;
+        this.resetBaseDefalutValue();
         this.columnsExcludeSelf.map((c) => {
           c.condition?.display?.map((d) => {
             d.values = arrRemoveValue(d.values, diff.id);
@@ -173,7 +173,8 @@ export default /*#__PURE__*/ {
   methods: {
     updateColumn(tab, val) {
       console.log(`updateColumn[${tab}]`, val);
-      this.$emit('update', this.column.id, { ...this.column, [tab]: val });
+      this.column[tab] = val;
+      this.$emit('update', this.column.id, this.column);
     },
     updateColumnTab(tab, targetKey, targetVal) {
       console.log(`updateColumnTab[${tab}][${targetKey}]`, targetVal);
@@ -200,6 +201,20 @@ export default /*#__PURE__*/ {
       console.log(`removeColumnTabArr[${tab}][${targetKey}]`, id);
       const newTarget = arrRemoveItemByKey(this.column[tab][targetKey], 'id', id);
       this.updateColumnTab(tab, targetKey, newTarget);
+    },
+    //-------------
+    initSettingData() {
+      if (!this.column.data.srcMode) {
+        console.log('initSettingData()');
+        this.updateColumn('data', {
+          ...this.column.data,
+          srcMode: 'list',
+          items: [],
+        });
+      }
+    },
+    resetBaseDefalutValue() {
+      this.updateColumnTab('base', 'defaultValue', this.typeConstraint.isCheckbox ? [] : null);
     },
   },
 };
