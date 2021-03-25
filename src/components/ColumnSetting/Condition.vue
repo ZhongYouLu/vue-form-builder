@@ -38,7 +38,7 @@
       @update="updateDisplay(d.id, ...arguments)"
       @remove="removeDisplay(d.id)"
     />
-    <button class="btn btn--add" @click.prevent="addDsiplay">&#10010;</button>
+    <button class="btn btn--add" @click.prevent="addDisplay">&#10010;</button>
   </fieldset>
 </template>
 <script>
@@ -86,7 +86,7 @@ export default /*#__PURE__*/ {
     },
   },
   methods: {
-    addDsiplay() {
+    addDisplay() {
       this.$emit('addArr', 'display', { id: nanoid(6) });
     },
     updateDisplay(id, k, v) {

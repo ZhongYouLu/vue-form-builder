@@ -3523,7 +3523,7 @@ var script$5 = /*#__PURE__*/{
     }
   },
   methods: {
-    addDsiplay: function addDsiplay() {
+    addDisplay: function addDisplay() {
       this.$emit('addArr', 'display', {
         id: nanoid(6)
       });
@@ -3621,7 +3621,7 @@ var __vue_render__$5 = function __vue_render__() {
     on: {
       "click": function click($event) {
         $event.preventDefault();
-        return _vm.addDsiplay($event);
+        return _vm.addDisplay($event);
       }
     }
   }, [_vm._v("✚")])], 2);
@@ -3790,7 +3790,7 @@ var __vue_component__$5 = /*#__PURE__*/normalizeComponent({
   // 監聽連動 [Side Effect]
   watch: {
     type: function type() {
-      this.resetBaseDefalutValue();
+      this.resetBaseDefaultValue();
 
       if (this.typeConstraint.needItems) {
         this.initSettingData();
@@ -3799,7 +3799,7 @@ var __vue_component__$5 = /*#__PURE__*/normalizeComponent({
     'data.items': function dataItems(a, b) {
       if ((a === null || a === void 0 ? void 0 : a.length) < (b === null || b === void 0 ? void 0 : b.length) || !a && b) {
         var diff = difference(b, a || [])[0];
-        this.resetBaseDefalutValue();
+        this.resetBaseDefaultValue();
         this.columnsExcludeSelf.map(function (c) {
           var _c$condition, _c$condition$display;
 
@@ -3856,7 +3856,7 @@ var __vue_component__$5 = /*#__PURE__*/normalizeComponent({
         }));
       }
     },
-    resetBaseDefalutValue: function resetBaseDefalutValue() {
+    resetBaseDefaultValue: function resetBaseDefaultValue() {
       this.updateColumnTab('base', 'defaultValue', this.typeConstraint.isCheckbox ? [] : null);
     }
   }

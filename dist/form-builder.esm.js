@@ -3373,7 +3373,7 @@ var script$5 = /*#__PURE__*/{
 
   },
   methods: {
-    addDsiplay() {
+    addDisplay() {
       this.$emit('addArr', 'display', {
         id: nanoid(6)
       });
@@ -3470,7 +3470,7 @@ var __vue_render__$5 = function () {
     on: {
       "click": function ($event) {
         $event.preventDefault();
-        return _vm.addDsiplay($event);
+        return _vm.addDisplay($event);
       }
     }
   }, [_vm._v("✚")])], 2);
@@ -3641,7 +3641,7 @@ var script$4 = /*#__PURE__*/{
   // 監聽連動 [Side Effect]
   watch: {
     type: function () {
-      this.resetBaseDefalutValue();
+      this.resetBaseDefaultValue();
 
       if (this.typeConstraint.needItems) {
         this.initSettingData();
@@ -3650,7 +3650,7 @@ var script$4 = /*#__PURE__*/{
     'data.items': function (a, b) {
       if ((a === null || a === void 0 ? void 0 : a.length) < (b === null || b === void 0 ? void 0 : b.length) || !a && b) {
         const diff = difference(b, a || [])[0];
-        this.resetBaseDefalutValue();
+        this.resetBaseDefaultValue();
         this.columnsExcludeSelf.map(c => {
           var _c$condition, _c$condition$display;
 
@@ -3716,7 +3716,7 @@ var script$4 = /*#__PURE__*/{
       }
     },
 
-    resetBaseDefalutValue() {
+    resetBaseDefaultValue() {
       this.updateColumnTab('base', 'defaultValue', this.typeConstraint.isCheckbox ? [] : null);
     }
 

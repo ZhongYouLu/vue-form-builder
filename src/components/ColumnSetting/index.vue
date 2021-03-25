@@ -152,7 +152,7 @@ export default /*#__PURE__*/ {
   // 監聽連動 [Side Effect]
   watch: {
     type: function () {
-      this.resetBaseDefalutValue();
+      this.resetBaseDefaultValue();
 
       if (this.typeConstraint.needItems) {
         this.initSettingData();
@@ -161,7 +161,7 @@ export default /*#__PURE__*/ {
     'data.items': function (a, b) {
       if (a?.length < b?.length || (!a && b)) {
         const diff = difference(b, a || [])[0];
-        this.resetBaseDefalutValue();
+        this.resetBaseDefaultValue();
         this.columnsExcludeSelf.map((c) => {
           c.condition?.display?.map((d) => {
             d.values = arrRemoveValue(d.values, diff.id);
@@ -213,7 +213,7 @@ export default /*#__PURE__*/ {
         });
       }
     },
-    resetBaseDefalutValue() {
+    resetBaseDefaultValue() {
       this.updateColumnTab('base', 'defaultValue', this.typeConstraint.isCheckbox ? [] : null);
     },
   },
