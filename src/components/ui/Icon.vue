@@ -1,5 +1,5 @@
 <template>
-  <span ref="el" class="icon" :class="{ 'icon--btn': isBtn }" @click.prevent="$emit('click')" />
+  <span ref="el" class="icon" :class="classes" @click.prevent="$emit('click')" />
 </template>
 
 <script>
@@ -8,13 +8,14 @@ import Iconify from '@iconify/iconify';
 export default /*#__PURE__*/ {
   name: 'Icon',
   props: {
-    icon: {
-      type: String,
-      required: true,
-    },
-    isBtn: {
-      type: Boolean,
-      default: false,
+    icon: { type: String, required: true },
+    isBtn: { type: Boolean, default: false },
+  },
+  computed: {
+    classes() {
+      return {
+        'icon--btn': this.isBtn,
+      };
     },
   },
   watch: {
@@ -34,9 +35,7 @@ export default /*#__PURE__*/ {
       } else {
         const span = document.createElement('span');
         span.className = 'iconify';
-        if (icon) {
-          span.dataset.icon = icon;
-        }
+        if (icon) span.dataset.icon = icon;
         this.$refs.el.appendChild(span);
       }
     },

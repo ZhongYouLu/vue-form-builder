@@ -48,7 +48,7 @@
 <script>
 import { InputRow, IconRow } from '@/components/ui';
 import SettingBase from '@/components/ColumnSetting/Base';
-import SettingData from '@/components/ColumnSetting/Data';
+import SettingItem from '@/components/ColumnSetting/Item';
 import SettingRule from '@/components/ColumnSetting/Rule';
 import SettingCondition from '@/components/ColumnSetting/Condition';
 import {
@@ -65,7 +65,7 @@ export default /*#__PURE__*/ {
     InputRow,
     IconRow,
     SettingBase,
-    SettingData,
+    SettingItem,
     SettingRule,
     SettingCondition,
   },
@@ -85,7 +85,7 @@ export default /*#__PURE__*/ {
     // 欄位 - 規則設定
     rule: { type: Object, default: () => ({}) },
     // 欄位 - 項目設定
-    data: { type: Object, default: () => ({}) },
+    item: { type: Object, default: () => ({}) },
     // 欄位 - 顯示條件
     condition: { type: Object, default: () => ({}) },
   },
@@ -103,7 +103,7 @@ export default /*#__PURE__*/ {
         type: this.type,
         base: this.base,
         rule: this.rule,
-        data: this.data,
+        item: this.item,
         condition: this.condition,
       };
     },
@@ -111,7 +111,7 @@ export default /*#__PURE__*/ {
       return this.convertOptions({
         base: '基本',
         rule: '規則',
-        data: '項目',
+        item: '項目',
         condition: '條件',
       });
     },
@@ -119,7 +119,7 @@ export default /*#__PURE__*/ {
       return {
         base: true,
         rule: true,
-        data: this.typeConstraint.needItems,
+        item: this.typeConstraint.needItems,
         condition: true,
       };
     },
@@ -143,7 +143,7 @@ export default /*#__PURE__*/ {
       return this.getTypeConstraint(this.type);
     },
     columnsExcludeSelf() {
-      return this.columns.filter((column) => column.id !== this.id);
+      return arrRemoveItemByKey(this.columns, 'id', this.id);
     },
     columnsObjByKey() {
       return arr2ObjByKey(this.columns, 'id');
@@ -152,16 +152,16 @@ export default /*#__PURE__*/ {
   // 監聽連動 [Side Effect]
   watch: {
     type: function () {
-      this.resetBaseDefaultValue();
+      this.initBaseDefaultValue();
 
       if (this.typeConstraint.needItems) {
-        this.initSettingData();
+        this.initItem();
       }
     },
-    'data.items': function (a, b) {
+    'item.items': function (a, b) {
       if (a?.length < b?.length || (!a && b)) {
         const diff = difference(b, a || [])[0];
-        this.resetBaseDefaultValue();
+        this.initBaseDefaultValue();
         this.columnsExcludeSelf.map((c) => {
           c.condition?.display?.map((d) => {
             d.values = arrRemoveValue(d.values, diff.id);
@@ -203,18 +203,17 @@ export default /*#__PURE__*/ {
       this.updateColumnTab(tab, targetKey, newTarget);
     },
     //-------------
-    initSettingData() {
-      if (!this.column.data.srcMode) {
-        console.log('initSettingData()');
-        this.updateColumn('data', {
-          ...this.column.data,
+    initBaseDefaultValue() {
+      this.updateColumnTab('base', 'defaultValue', this.typeConstraint.isCheckbox ? [] : null);
+    },
+    initItem() {
+      if (!this.column.item.srcMode) {
+        this.updateColumn('item', {
+          ...this.column.item,
           srcMode: 'list',
           items: [],
         });
       }
-    },
-    resetBaseDefaultValue() {
-      this.updateColumnTab('base', 'defaultValue', this.typeConstraint.isCheckbox ? [] : null);
     },
   },
 };

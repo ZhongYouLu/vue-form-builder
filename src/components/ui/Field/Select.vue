@@ -7,9 +7,9 @@
     :disabled="disabled"
     :multiple="multiple"
     :label="textKey"
-    :selectable="tempSelectable"
-    :reduce="tempReduce"
-    :get-option-label="tempGetOptionLabel"
+    :selectable="invokeSelectable"
+    :reduce="invokeReduce"
+    :get-option-label="invokeGetOptionLabel"
     :reset-on-options-change="resetOnOptionsChange"
     :clearable="clearable"
     :searchable="searchable"
@@ -17,31 +17,24 @@
     :filter="fuseSearch"
     :taggable="taggable"
     :push-tags="pushTags"
-    :create-option="tempCreatedOption"
+    :create-option="invokeCreatedOption"
     :close-on-select="closeOnSelect"
     :no-drop="noDrop"
     :append-to-body="true"
     :calculate-position="withPopper"
     @input="handleInput"
-    @option:selected="optionSelected"
-    @option:created="optionCreated"
+    @option:selected="handleSelected"
+    @option:created="handleCreated"
   >
     <!-- 必填處理 -->
     <template v-if="required" #search="{ attributes, events }">
       <input class="vs__search" :required="!mutableValue" v-bind="attributes" v-on="events" />
     </template>
 
-    <!-- <template #selected-option-container="{ option }">
-      <span :key="option.valueKey" class="vs__selected">
-        {{ option }}
-      </span>
-    </template> -->
-
     <!-- 已選項目  -->
-    <template #selected-option="option">
-      <h6>{{ option }}</h6>
+    <!-- <template #selected-option="option">
       {{ option[textKey] || `(${option[valueKey]})` }}
-    </template>
+    </template> -->
 
     <!-- 項目  -->
     <!-- <template #option="option">
@@ -64,7 +57,6 @@
 </template>
 
 <script>
-// import VueSelect from '@/assets/js/vue-select';
 import VueSelect from 'vue-select';
 import Fuse from 'fuse.js';
 import { createPopper } from '@popperjs/core';
@@ -103,7 +95,7 @@ export default /*#__PURE__*/ {
     taggable: { type: Boolean, default: false }, // Enable/disable creating options from searchInput.
     pushTags: { type: Boolean, default: false }, // When true, newly created tags will be added to the options list.
     createOption: { type: Function, default: null }, // User defined function for adding Options
-    optionCreatedFlag: { type: Boolean, default: false },
+    reactable: { type: Boolean, default: false },
     // ---------------------------------------------
     closeOnSelect: { type: Boolean, default: true }, // Close a dropdown when an option is chosen. Set to false to keep the dropdown open
     noDrop: { type: Boolean, default: false }, // Disable the dropdown entirely.
@@ -126,34 +118,29 @@ export default /*#__PURE__*/ {
     mutableOptions() {
       return this.options;
     },
-    tempSelectable() {
+    invokeSelectable() {
       if (this.selectable !== null) return this.selectable;
       // multiple
       if (this.multiple) return (option) => !(this.value || []).includes(option[this.valueKey]);
       // default
       return () => true;
     },
-    tempReduce() {
+    invokeReduce() {
       if (this.reduce !== null) return this.reduce;
       // default
       return (option) => option[this.valueKey];
     },
-    tempGetOptionLabel() {
+    invokeGetOptionLabel() {
       // Label text is used for filtering comparison and displaying.
       // If you only need to adjust the display, you should use the option and selected-option slots.
       if (this.getOptionLabel !== null) return this.getOptionLabel;
       // default
       return (option) => option[this.textKey] || `(${option[this.valueKey]})`;
     },
-    tempCreatedOption() {
+    invokeCreatedOption() {
       if (this.createOption !== null) return this.createOption;
-
-      return (option) => {
-        const newOption = { [this.valueKey]: nanoid(6), [this.textKey]: option };
-        console.log('tempCreatedOption', newOption);
-        return newOption;
-        // return option;
-      };
+      // default
+      return (option) => ({ [this.valueKey]: nanoid(6), [this.textKey]: option });
     },
     fuseSearch() {
       if (!this.filterable || !this.searchable) return null;
@@ -168,23 +155,17 @@ export default /*#__PURE__*/ {
     },
   },
   methods: {
-    handleInput(v) {
-      console.log('handleInput', v);
-      this.mutableValue = v;
+    handleInput(value) {
+      // console.log('handleInput', value);
+      this.mutableValue = value;
     },
-    optionSelected(option) {
-      console.log('optionSelected', option);
-      // this.mutableValue = option[this.valueKey];
+    handleSelected(/*option*/) {
+      // console.log('handleSelected', option);
     },
-    optionCreated(option) {
-      console.log('optionCreated', option);
-      if (this.optionCreatedFlag) {
-        // const newOption = { [this.valueKey]: nanoid(6), ...option };
+    handleCreated(option) {
+      // console.log('handleCreated', option);
+      if (this.reactable) {
         this.mutableOptions.push(option);
-        // console.log(this.mutableOptions.length);
-        // this.$nextTick(function () {
-        //   this.mutableValue = newOption[this.valueKey];
-        // });
       }
     },
     withPopper(dropdownList, component, { width }) {

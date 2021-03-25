@@ -37,7 +37,7 @@ import { InputRow, Icon, Field, Block, Draggable } from '@/components/ui';
 import { nanoid } from '@/assets/js/helper.js';
 
 export default /*#__PURE__*/ {
-  name: 'ColumnSettingData',
+  name: 'ColumnSettingItem',
   components: {
     InputRow,
     Icon,

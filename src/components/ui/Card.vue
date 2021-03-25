@@ -1,16 +1,13 @@
 /* eslint-disable vue/no-mutating-props */
 <template>
   <div class="card">
-    <!-- Header -->
-    <header v-if="!!$slots.cardHeader || !!$scopedSlots.cardHeader" class="card__header">
+    <header v-if="hasHeader" class="card__header">
       <slot name="cardHeader" />
     </header>
-    <!-- Main -->
-    <main v-if="!!$slots.cardMain || !!$scopedSlots.cardMain" class="card__main">
-      <slot name="cardMain"> </slot>
+    <main v-if="hasMain" class="card__main">
+      <slot name="cardMain" />
     </main>
-    <!-- Header -->
-    <footer v-if="!!$slots.cardFooter || !!$scopedSlots.cardFooter" class="card__footer">
+    <footer v-if="hasFooter" class="card__footer">
       <slot name="cardFooter" />
     </footer>
   </div>
@@ -19,6 +16,17 @@
 <script>
 export default /*#__PURE__*/ {
   name: 'Card',
+  computed: {
+    hasHeader() {
+      return !!this.$slots.cardHeader || !!this.$scopedSlots.cardHeader;
+    },
+    hasMain() {
+      return !!this.$slots.cardMain || !!this.$scopedSlots.cardMain;
+    },
+    hasFooter() {
+      return !!this.$slots.cardFooter || !!this.$scopedSlots.cardFooter;
+    },
+  },
 };
 </script>
 

@@ -72,7 +72,7 @@ export default /*#__PURE__*/ {
             }
 
             v = newRule;
-          } else if (k === 'data') {
+          } else if (k === 'item') {
             const { items, api, ...newItem } = v;
 
             switch (newItem.srcMode) {

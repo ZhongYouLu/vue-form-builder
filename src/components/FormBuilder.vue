@@ -2,10 +2,10 @@
   <div class="form-builder">
     <RecordControls v-model="localColumns" :record-name="`formBuilder-${id}`" :record-limit="5" immediate />
     <h1>Form ID: {{ id }}</h1>
-    <FormMainLogic v-slot="props" :columns.sync="localColumns">
+    <FormMainLogic v-slot="{ finalColumns, ...props }" :columns.sync="localColumns">
       <main class="form-builder__main">
         <FormSetting v-bind="props" />
-        <FormDemo :columns="props.finalColumns" />
+        <FormDemo :columns="finalColumns" />
       </main>
     </FormMainLogic>
   </div>

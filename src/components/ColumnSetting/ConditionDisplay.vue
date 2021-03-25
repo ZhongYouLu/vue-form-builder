@@ -61,18 +61,18 @@
             />
           </template>
           <!-- Select / Radio / Checkbox -->
-          <template v-else-if="['select', 'radio', 'checkbox'].includes(triggerColumn.type) && triggerColumn.data">
+          <template v-else-if="['select', 'radio', 'checkbox'].includes(triggerColumn.type) && triggerColumn.item">
             <div class="for">
               <Field :value="meet" type="select" :options="meetOptions" @input="$emit('update', 'meet', $event)" />
             </div>
             <Field
-              v-if="triggerColumn.data.srcMode === 'list'"
+              v-if="triggerColumn.item.srcMode === 'list'"
               :value="values"
               placeholder="請選擇條件 (可多選)"
               type="select"
               multiple
               searchable
-              :options="triggerColumn.data.items"
+              :options="triggerColumn.item.items"
               value-key="id"
               text-key="text"
               :fuse-keys="['text']"
