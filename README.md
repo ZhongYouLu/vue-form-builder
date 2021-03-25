@@ -1,4 +1,4 @@
-vue-sfc-rollup-demo
+vue-form-builder
 ===
 
 練習打包套件並發布

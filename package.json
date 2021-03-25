@@ -1,18 +1,23 @@
 {
-  "name": "@mk816017/form-builder",
-  "version": "1.1.1",
-  "description": "",
+  "name": "vue-form-builder",
+  "version": "1.2.0",
+  "description": "form builder & validation",
+  "keywords": [
+    "form",
+    "builder",
+    "validation"
+  ],
   "author": {
     "name": "ZhongYou Lu",
     "email": "mk816017@gmail.com",
     "url": "https://github.com/zhongyoulu"
   },
-  "homepage": "https://github.com/zhongyoulu/vue-sfc-rollup-demo",
+  "homepage": "https://github.com/zhongyoulu/vue-form-builder",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/zhongyoulu/vue-sfc-rollup-demo.git"
+    "url": "git+https://github.com/zhongyoulu/vue-form-builder.git"
   },
-  "bugs": "https://github.com/zhongyoulu/vue-sfc-rollup-demo/issues",
+  "bugs": "https://github.com/zhongyoulu/vue-form-builder/issues",
   "main": "dist/form-builder.js",
   "module": "dist/form-builder.esm.js",
   "unpkg": "dist/form-builder.min.js",
@@ -45,6 +50,8 @@
   "devDependencies": {
     "@babel/core": "^7.12.10",
     "@babel/preset-env": "^7.12.11",
+    "@iconify/iconify": "^2.0.0-rc.6",
+    "@popperjs/core": "^2.7.1",
     "@rollup/plugin-alias": "^3.1.1",
     "@rollup/plugin-babel": "^5.2.2",
     "@rollup/plugin-commonjs": "^17.0.0",
@@ -58,6 +65,7 @@
     "eslint": "^7.19.0",
     "eslint-plugin-prettier": "^3.3.1",
     "eslint-plugin-vue": "^7.5.0",
+    "fuse.js": "^6.4.6",
     "husky": "^4.3.8",
     "lint-staged": "^10.5.3",
     "minimist": "^1.2.5",
@@ -68,14 +76,11 @@
     "rollup-plugin-terser": "^7.0.2",
     "rollup-plugin-vue": "^5.1.9",
     "sass-loader": "^10.1.1",
-    "vue-template-compiler": "^2.6.12",
+    "sortablejs": "^1.13.0",
     "vue": "^2.6.12",
     "vue-select": "git+https://git@github.com/ZhongYouLu/vue-select.git",
-    "sortablejs": "^1.13.0",
-    "vuedraggable": "^2.24.3",
-    "@popperjs/core": "^2.7.1",
-    "fuse.js": "^6.4.6",
-    "@iconify/iconify": "^2.0.0-rc.6"
+    "vue-template-compiler": "^2.6.12",
+    "vuedraggable": "^2.24.3"
   },
   "peerDependencies": {
     "vue": "^2.6.12",
@@ -90,7 +95,7 @@
     "node": ">=12"
   },
   "rollup_config": {
-    "name": "FormXXXBuilder",
+    "name": "FormBuilder",
     "globals": {
       "vue": "Vue",
       "vuedraggable": "vuedraggable",
