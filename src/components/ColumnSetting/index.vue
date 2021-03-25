@@ -140,7 +140,7 @@ export default /*#__PURE__*/ {
       return config;
     },
     typeConstraint() {
-      return this.getTypeConstraint(this.type);
+      return this.getTypeConstraint(this.type, this.base.isMultiple);
     },
     columnsExcludeSelf() {
       return arrRemoveItemByKey(this.columns, 'id', this.id);
@@ -157,6 +157,9 @@ export default /*#__PURE__*/ {
       if (this.typeConstraint.needItems) {
         this.initItem();
       }
+    },
+    'base.isMultiple': function (isMultiple) {
+      this.initBaseDefaultValue(!!isMultiple);
     },
     'item.items': function (a, b) {
       if (a?.length < b?.length || (!a && b)) {
@@ -203,8 +206,12 @@ export default /*#__PURE__*/ {
       this.updateColumnTab(tab, targetKey, newTarget);
     },
     //-------------
-    initBaseDefaultValue() {
-      this.updateColumnTab('base', 'defaultValue', this.typeConstraint.isCheckbox ? [] : null);
+    initBaseDefaultValue(isMultiple) {
+      this.updateColumn('base', {
+        ...this.column.base,
+        isMultiple: isMultiple ? 1 : null,
+        defaultValue: isMultiple ? [] : null,
+      });
     },
     initItem() {
       if (!this.column.item.srcMode) {

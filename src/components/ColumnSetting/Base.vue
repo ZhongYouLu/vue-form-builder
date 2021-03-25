@@ -28,9 +28,9 @@ export default /*#__PURE__*/ {
     columnsObjByKey: { type: Object, required: true },
     //-----------
     // 欄位說明
-    label: { type: String, default: null },
+    desc: { type: String, default: null },
     // 欄位子說明
-    subLabel: { type: String, default: null },
+    subDesc: { type: String, default: null },
     // 預設值
     defaultValue: { type: [String, Number, Boolean, Array], default: null },
     // 提示文字
@@ -41,21 +41,23 @@ export default /*#__PURE__*/ {
     subType: { type: String, default: null },
     // 自動完成
     // autocomplete: { type: String, default: null },
+    // 可複選
+    isMultiple: { type: Number, default: null },
   },
   emits: ['update'],
   computed: {
     fields() {
       let temp = {
-        label: { props: { label: '欄位說明' } },
-        subLabel: { props: { label: '欄位子說明' } },
+        desc: { props: { label: '欄位說明' } },
+        subDesc: { props: { label: '欄位子說明' } },
       };
+
+      if (this.typeConstraint.isInput || this.typeConstraint.isSelect) {
+        temp['placeholder'] = { props: { label: '提示文字' } };
+      }
 
       if (!this.typeConstraint.isFile) {
         temp['defaultValue'] = { props: { label: '預設值' } };
-      }
-
-      if (this.typeConstraint.isInput) {
-        temp['placeholder'] = { props: { label: '提示文字' } };
       }
 
       if (this.typeConstraint.isText) {
@@ -81,12 +83,17 @@ export default /*#__PURE__*/ {
         //   };
         // }
       } else if (this.typeConstraint.isNumber) {
+        temp.defaultValue.props.type = 'number';
+      } else if (this.typeConstraint.isDate) {
+        temp.defaultValue.props.type = 'date';
+      } else if (this.typeConstraint.isCheckbox && !this.typeConstraint.isMultiple) {
         temp = {
           ...temp,
+
           defaultValue: {
             props: {
               ...temp.defaultValue.props,
-              type: 'number',
+              type: 'checkbox',
             },
           },
         };
@@ -103,13 +110,17 @@ export default /*#__PURE__*/ {
               valueKey: 'id',
               textKey: 'text',
               fuseKeys: ['text'],
-              multiple: this.typeConstraint.isCheckbox,
+              multiple: !!this.typeConstraint.isMultiple,
               taggable: true,
               pushTags: true,
               reactable: true,
             },
           },
         };
+      }
+
+      if (this.typeConstraint.isCheckbox || this.typeConstraint.isSelect) {
+        temp['isMultiple'] = { props: { label: '可複選', type: 'checkbox', text: '可複選', yes: 1, no: null } };
       }
 
       if (this.typeConstraint.isInput) {

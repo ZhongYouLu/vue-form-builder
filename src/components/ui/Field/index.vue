@@ -1,6 +1,6 @@
 <template>
   <div class="field">
-    <component :is="`field-${type}`" v-bind="$attrs" v-model="mutableValue">
+    <component :is="componentName" v-bind="$attrs" v-model="mutableValue" :multiple="multiple">
       <template v-for="(_, slot) in $scopedSlots" #[slot]="props">
         <slot :name="slot" v-bind="props" />
       </template>
@@ -34,11 +34,12 @@ export default /*#__PURE__*/ {
   props: {
     value: { type: [String, Number, Boolean, Array], default: null },
     default: { type: [String, Number, Boolean, Array], default: null },
+    multiple: { type: Boolean, default: false },
     type: {
       type: String,
       default: 'text',
       validator(value) {
-        return ['text', 'number', 'date', 'radio', 'checkbox', 'checkbox-multi', 'select', 'file'].includes(value);
+        return ['text', 'number', 'date', 'radio', 'checkbox', 'select', 'file'].includes(value);
       },
     },
   },
@@ -52,6 +53,11 @@ export default /*#__PURE__*/ {
         console.log('mutableValue', value);
         this.$emit('input', value);
       },
+    },
+    componentName() {
+      let name = `field-${this.type}`;
+      if (this.type === 'checkbox' && this.multiple) name += '-multi';
+      return name;
     },
   },
   created() {

@@ -103,7 +103,7 @@ export default /*#__PURE__*/ {
         number: { text: '數字框', icon: 'carbon:string-integer' },
         date: { text: '日期框', icon: 'carbon:calendar' },
         radio: { text: '單選框', icon: 'carbon:radio-button-checked' },
-        checkbox: { text: '複選框', icon: 'carbon:checkbox-checked' },
+        checkbox: { text: '勾選框', icon: 'carbon:checkbox-checked' },
         select: { text: '下拉選單', icon: 'carbon:list' },
         file: { text: '檔案', icon: 'ic:baseline-attach-file' },
         // ------------------
@@ -166,15 +166,17 @@ export default /*#__PURE__*/ {
     convertOptions(obj) {
       return pairs2Arr(obj, 'text', 'value');
     },
-    getTypeConstraint(type) {
+    getTypeConstraint(type, isMultiple) {
       return {
         isText: type === 'text',
         isNumber: type === 'number',
         isDate: type === 'date',
         isCheckbox: type === 'checkbox',
+        isSelect: type === 'select',
         isFile: type === 'file',
         isInput: ['text', 'number', 'date'].includes(type),
         needItems: ['select', 'radio', 'checkbox'].includes(type),
+        isMultiple: isMultiple,
         filterSame: (columns) => columns.filter((c) => c.type === type),
       };
     },

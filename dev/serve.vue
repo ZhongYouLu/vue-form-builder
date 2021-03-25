@@ -26,7 +26,11 @@
           </FormSetting>
           <div>
             <FormDemo :columns="props.columns" />
-            <FormDemo :columns="finalColumns" />
+            <hr />
+            <code>
+              {{ props.columns }}
+            </code>
+            <!-- <FormDemo :columns="finalColumns" /> -->
           </div>
         </main>
       </FormMainLogic>

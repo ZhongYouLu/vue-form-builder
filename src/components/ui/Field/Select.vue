@@ -2,6 +2,7 @@
   <VueSelect
     :value="mutableValue"
     :options="mutableOptions"
+    :name="name"
     :placeholder="placeholder"
     :autocomplete="autocomplete"
     :disabled="disabled"
@@ -73,7 +74,8 @@ export default /*#__PURE__*/ {
     // https://vue-select.org/api/props.html#options
     value: { type: [String, Number, Boolean, Array], default: null },
     options: { type: Array, default: () => [] },
-    placeholder: { type: String, default: '' },
+    name: { type: String, default: null },
+    placeholder: { type: String, default: null },
     autocomplete: { type: String, default: 'off' },
     disabled: { type: Boolean, default: false },
     multiple: { type: Boolean, default: false },
