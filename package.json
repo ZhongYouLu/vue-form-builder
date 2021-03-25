@@ -17,8 +17,8 @@
   "module": "dist/form-builder.esm.js",
   "unpkg": "dist/form-builder.min.js",
   "files": [
-    "dist/*",
-    "src/**/*.vue"
+    "/dist",
+    "/src"
   ],
   "license": "MIT",
   "private": false,
