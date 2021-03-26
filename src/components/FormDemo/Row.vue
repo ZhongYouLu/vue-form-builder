@@ -102,45 +102,54 @@ export default /*#__PURE__*/ {
 
       return { ...base, ...type[this.type] };
     },
-    errorMsg() {
-      const name = this.name || this.id;
-
-      // 必填
-      if ((this.required && this.value == null) || this.value === '') {
-        return this.msg.required?.replace('[:min]', this.minimum) || `[${name}] 為必填。`;
-      }
-
-      if (!this.value) return null;
-
-      // 字元下限
-      if (this.minimum && this.minimum > this.value.length) {
-        return this.msg.minimum?.replace('[:min]', this.minimum) || `[${name}] 最少 ${this.minimum} 個字。`;
-      }
-
-      // 字元上限
-      if (this.maximum && this.maximum < this.value.length) {
-        return this.msg.maximum?.replace('[:max]', this.maximum) || `[${name}] 最多 ${this.maximum} 個字。`;
-      }
-
-      // 與..相符
-      if (this.sameAs && this.columnsObjByKey[this.sameAs]) {
-        if (this.columnsObjByKey[this.id].type !== this.columnsObjByKey[this.sameAs].type) return null;
-        if (this.value === this.values[this.sameAs]) return null;
-
-        const sameAsName = this.sameAs
-          ? this.columnsObjByKey[this.sameAs].name || this.columnsObjByKey[this.sameAs].id
-          : '';
-
-        return this.msg.sameAs || `[${name}] 與 [${sameAsName}] 不相符`;
-      }
-
-      return null;
+    errorMsg: {
+      get() {
+        return this.error;
+      },
+      set(msg) {
+        this.$emit('update:error', msg);
+      },
     },
   },
   watch: {
-    errorMsg: {
-      handler: function (msg) {
-        this.$emit('update:error', msg);
+    value: {
+      handler: function (value) {
+        const name = this.name || this.id;
+
+        // 必填
+        if ((this.required && value == null) || value === '') {
+          this.errorMsg = this.msg.required?.replace('[:min]', this.minimum) || `[${name}] 為必填。`;
+          return;
+        }
+
+        if (!value) return null;
+
+        // 字元下限
+        if (this.minimum && this.minimum > value.length) {
+          this.errorMsg = this.msg.minimum?.replace('[:min]', this.minimum) || `[${name}] 最少 ${this.minimum} 個字。`;
+          return;
+        }
+
+        // 字元上限
+        if (this.maximum && this.maximum < value.length) {
+          this.errorMsg = this.msg.maximum?.replace('[:max]', this.maximum) || `[${name}] 最多 ${this.maximum} 個字。`;
+          return;
+        }
+
+        // 與..相符
+        if (this.sameAs && this.columnsObjByKey[this.sameAs]) {
+          if (this.columnsObjByKey[this.id].type !== this.columnsObjByKey[this.sameAs].type) return null;
+          if (value === this.values[this.sameAs]) return null;
+
+          const sameAsName = this.sameAs
+            ? this.columnsObjByKey[this.sameAs].name || this.columnsObjByKey[this.sameAs].id
+            : '';
+
+          this.errorMsg = this.msg.sameAs || `[${name}] 與 [${sameAsName}] 不相符`;
+          return;
+        }
+
+        this.errorMsg = null;
       },
       immediate: true,
     },
