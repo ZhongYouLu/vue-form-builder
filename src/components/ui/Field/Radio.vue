@@ -1,7 +1,14 @@
 <template>
   <RadioRow>
     <label v-for="option in options" :key="option[valueKey]">
-      <input v-model="mutableValue" v-bind="$attrs" type="radio" :value="option[valueKey]" />
+      <input
+        v-model="mutableValue"
+        v-bind="$attrs"
+        type="radio"
+        :value="option[valueKey]"
+        @focus="$emit('focus')"
+        @blur="$emit('blur')"
+      />
       <span>{{ option[textKey] }}</span>
     </label>
   </RadioRow>
@@ -22,7 +29,7 @@ export default /*#__PURE__*/ {
     textKey: { type: String, default: 'text' },
     valueKey: { type: String, default: 'value' },
   },
-  emits: ['input'],
+  emits: ['input', 'focus', 'blur'],
   computed: {
     mutableValue: {
       get() {

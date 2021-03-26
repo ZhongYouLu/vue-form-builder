@@ -1,6 +1,13 @@
 <template>
   <div class="field">
-    <component :is="componentName" v-bind="$attrs" v-model="mutableValue" :multiple="multiple">
+    <component
+      :is="componentName"
+      v-bind="$attrs"
+      v-model="mutableValue"
+      :multiple="multiple"
+      @focus="$emit('focus')"
+      @blur="$emit('blur')"
+    >
       <template v-for="(_, slot) in $scopedSlots" #[slot]="props">
         <slot :name="slot" v-bind="props" />
       </template>
@@ -43,7 +50,7 @@ export default /*#__PURE__*/ {
       },
     },
   },
-  emits: ['input'],
+  emits: ['input', 'focus', 'blur'],
   computed: {
     mutableValue: {
       get() {

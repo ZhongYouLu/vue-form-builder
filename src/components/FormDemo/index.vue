@@ -1,13 +1,11 @@
 <template>
   <div class="form-demo">
-    answer: {{ answer }}
-    <hr class="dashed" />
     <form name="demo" @submit.prevent="checkForm">
       <div v-for="({ id, ...column }, idx) in columns" :key="id">
         <Row
-          v-if="answer[id] !== undefined"
+          v-if="values[id] !== undefined"
           :id="id"
-          v-model="answer[id]"
+          :name="column.name"
           :idx="idx + 1"
           :type="column.type"
           v-bind="{
@@ -16,16 +14,23 @@
             ...column.item,
             ...column.condition,
           }"
+          :columns-obj-by-key="columnsObjByKey"
+          :values="values"
+          :value.sync="values[id]"
+          :error.sync="errors[id]"
         />
       </div>
       <button>Send</button>
     </form>
+    <hr class="dashed" />
+    <div>values: {{ values }}</div>
+    <div>errors: {{ errors }}</div>
   </div>
 </template>
 
 <script>
 import Row from '@/components/FormDemo/Row';
-
+import { arr2ObjByKey } from '@/assets/js/helper.js';
 export default /*#__PURE__*/ {
   name: 'FormDemo',
   components: {
@@ -43,16 +48,22 @@ export default /*#__PURE__*/ {
   },
   data() {
     return {
-      answer: {},
+      values: {},
+      errors: {},
     };
+  },
+  computed: {
+    columnsObjByKey() {
+      return arr2ObjByKey(this.columns, 'id');
+    },
   },
   watch: {
     columns: {
       handler: function (columns) {
-        this.answer = columns.reduce((acc, column) => {
-          this.$set(acc, column.id, column.base?.defaultValue || null);
-          return acc;
-        }, {});
+        columns.map((column) => {
+          this.$set(this.values, column.id, column.base?.defaultValue || null);
+          this.$set(this.errors, column.id, null);
+        });
       },
       immediate: true,
     },

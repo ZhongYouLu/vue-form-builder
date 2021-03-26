@@ -28,7 +28,15 @@
   >
     <!-- 必填處理 -->
     <template v-if="required" #search="{ attributes, events }">
-      <input :name="name" class="vs__search" :required="!mutableValue" v-bind="attributes" v-on="events" />
+      <input
+        :name="name"
+        class="vs__search"
+        :required="!mutableValue"
+        v-bind="attributes"
+        v-on="events"
+        @focus="$emit('focus')"
+        @blur="$emit('blur')"
+      />
     </template>
 
     <!-- 已選項目  -->
@@ -108,7 +116,7 @@ export default /*#__PURE__*/ {
     closeOnSelect: { type: Boolean, default: true }, // Close a dropdown when an option is chosen. Set to false to keep the dropdown open
     noDrop: { type: Boolean, default: false }, // Disable the dropdown entirely.
   },
-  emits: ['input'],
+  emits: ['input', 'focus', 'blur'],
   data() {
     return {
       placement: 'bottom',

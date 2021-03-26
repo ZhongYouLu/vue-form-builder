@@ -1,6 +1,15 @@
 <template>
   <div class="input">
-    <input v-model.number="mutableValue" v-bind="$attrs" type="number" :min="min" :max="max" :step="step" />
+    <input
+      v-model.number="mutableValue"
+      v-bind="$attrs"
+      type="number"
+      :min="min"
+      :max="max"
+      :step="step"
+      @focus="$emit('focus')"
+      @blur="$emit('blur')"
+    />
   </div>
 </template>
 
@@ -14,7 +23,7 @@ export default /*#__PURE__*/ {
     max: { type: Number, default: null },
     step: { type: Number, default: null },
   },
-  emits: ['input'],
+  emits: ['input', 'focus', 'blur'],
   computed: {
     mutableValue: {
       get() {

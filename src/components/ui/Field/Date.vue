@@ -1,6 +1,14 @@
 <template>
   <div class="input">
-    <input v-model.trim="mutableValue" v-bind="$attrs" type="date" :min="min" :max="max" />
+    <input
+      v-model.trim="mutableValue"
+      v-bind="$attrs"
+      type="date"
+      :min="min"
+      :max="max"
+      @focus="$emit('focus')"
+      @blur="$emit('blur')"
+    />
   </div>
 </template>
 
@@ -13,7 +21,7 @@ export default /*#__PURE__*/ {
     min: { type: String, default: null },
     max: { type: String, default: null },
   },
-  emits: ['input'],
+  emits: ['input', 'focus', 'blur'],
   computed: {
     mutableValue: {
       get() {

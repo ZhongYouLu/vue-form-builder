@@ -1,6 +1,13 @@
 <template>
   <div class="input">
-    <input v-bind="$attrs" type="file" :multiple="multiple" @change="previewFiles" />
+    <input
+      v-bind="$attrs"
+      type="file"
+      :multiple="multiple"
+      @change="previewFiles"
+      @focus="$emit('focus')"
+      @blur="$emit('blur')"
+    />
   </div>
 </template>
 
@@ -12,7 +19,7 @@ export default /*#__PURE__*/ {
     value: { type: [Object, FileList], default: null },
     multiple: { type: Boolean, default: null },
   },
-  emits: ['input'],
+  emits: ['input', 'focus', 'blur'],
   computed: {
     mutableValue: {
       get() {

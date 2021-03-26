@@ -8,6 +8,8 @@
         :value="option[valueKey]"
         :required="required && value.length < least"
         :disabled="disabled || (most > -1 && value.length === most && !value.includes(option[valueKey]))"
+        @focus="$emit('focus')"
+        @blur="$emit('blur')"
       />
       <span>{{ option[textKey] || `(${option[valueKey]})` }}</span>
     </label>
@@ -35,7 +37,7 @@ export default /*#__PURE__*/ {
     // 選擇數量上限
     most: { type: Number, default: -1 },
   },
-  emits: ['input'],
+  emits: ['input', 'focus', 'blur'],
   computed: {
     mutableValue: {
       get() {

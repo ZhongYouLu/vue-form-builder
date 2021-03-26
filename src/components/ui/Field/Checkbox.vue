@@ -1,7 +1,15 @@
 <template>
   <RadioRow>
     <label>
-      <input v-model="mutableValue" v-bind="$attrs" type="checkbox" :true-value="yes" :false-value="no" />
+      <input
+        v-model="mutableValue"
+        v-bind="$attrs"
+        type="checkbox"
+        :true-value="yes"
+        :false-value="no"
+        @focus="$emit('focus')"
+        @blur="$emit('blur')"
+      />
       <span>{{ text }}</span>
     </label>
   </RadioRow>
@@ -22,7 +30,7 @@ export default /*#__PURE__*/ {
     no: { type: [String, Number, Boolean], default: 0 },
     text: { type: String, default: 'Yes' },
   },
-  emits: ['input'],
+  emits: ['input', 'focus', 'blur'],
   computed: {
     mutableValue: {
       get() {

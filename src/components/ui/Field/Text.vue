@@ -1,6 +1,13 @@
 <template>
   <div class="input">
-    <input v-model.trim="mutableValue" v-bind="$attrs" :type="subType || 'text'" :maxlength="maxlength" />
+    <input
+      v-model.trim="mutableValue"
+      v-bind="$attrs"
+      :type="subType || 'text'"
+      :maxlength="maxlength"
+      @focus="$emit('focus')"
+      @blur="$emit('blur')"
+    />
   </div>
 </template>
 
@@ -15,7 +22,7 @@ export default /*#__PURE__*/ {
     minlength: { type: Number, default: null }, // The minlength attribute specifies the minimum number of characters required in an input field.
     maxlength: { type: Number, default: null }, // The maxlength attribute specifies the maximum number of characters allowed in an input field
   },
-  emits: ['input'],
+  emits: ['input', 'focus', 'blur'],
   computed: {
     mutableValue: {
       get() {
