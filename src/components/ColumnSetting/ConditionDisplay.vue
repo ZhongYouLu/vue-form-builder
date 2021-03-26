@@ -81,7 +81,6 @@
 <script>
 import { InputRow, Icon, Field, Block } from '@/components/ui';
 import { thousandSeparator } from '@/assets/js/helper.js';
-import { typeIcons } from '@/assets/js/options.js';
 
 export default /*#__PURE__*/ {
   name: 'ColumnSettingConditionDisplay',
@@ -97,6 +96,7 @@ export default /*#__PURE__*/ {
     columnsExcludeSelf: { type: Array, required: true },
     // 所有欄位群 (obj by key)
     columnsObjByKey: { type: Object, required: true },
+    typeIcons: { type: Object, required: true },
     //-----------
     idx: { type: Number, required: true },
     triggerID: { type: String, default: null },
@@ -116,9 +116,6 @@ export default /*#__PURE__*/ {
     },
     thousandSeparatorFunc() {
       return (option) => thousandSeparator(option);
-    },
-    typeIcons() {
-      return typeIcons;
     },
   },
 };

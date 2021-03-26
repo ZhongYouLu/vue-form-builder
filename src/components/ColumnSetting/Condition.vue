@@ -7,8 +7,10 @@
       label="連動必填"
       type="select"
       :options="columnsExcludeSelf"
+      :icons="typeIcons"
       value-key="id"
       text-key="name"
+      icon-key="type"
       multiple
       searchable
       @input="$emit('update', 'requiredSync', $event)"
@@ -19,8 +21,10 @@
       label="被連動必填"
       type="select"
       :options="columnsExcludeSelf"
+      :icons="typeIcons"
       value-key="id"
       text-key="name"
+      icon-key="type"
       multiple
       searchable
       no-drop
@@ -35,6 +39,7 @@
       v-bind="d"
       :columns-exclude-self="columnsExcludeSelf"
       :columns-obj-by-key="columnsObjByKey"
+      :type-icons="typeIcons"
       @update="updateDisplay(d.id, ...arguments)"
       @remove="removeDisplay(d.id)"
     />
@@ -45,6 +50,7 @@
 import InputRow from '@/components/ui/InputRow';
 import ConditionDisplay from '@/components/ColumnSetting/ConditionDisplay';
 import { nanoid } from '@/assets/js/helper.js';
+import { typeIcons } from '@/assets/js/options.js';
 
 export default /*#__PURE__*/ {
   name: 'ColumnSettingCondition',
@@ -83,6 +89,9 @@ export default /*#__PURE__*/ {
       });
 
       return requiredCheck;
+    },
+    typeIcons() {
+      return typeIcons;
     },
   },
   methods: {
