@@ -2,7 +2,6 @@
   <VueSelect
     :value="mutableValue"
     :options="mutableOptions"
-    :name="name"
     :placeholder="placeholder"
     :autocomplete="autocomplete"
     :disabled="disabled"
@@ -29,7 +28,7 @@
   >
     <!-- 必填處理 -->
     <template v-if="required" #search="{ attributes, events }">
-      <input class="vs__search" :required="!mutableValue" v-bind="attributes" v-on="events" />
+      <input :name="name" class="vs__search" :required="!mutableValue" v-bind="attributes" v-on="events" />
     </template>
 
     <!-- 已選項目  -->
@@ -89,10 +88,10 @@ export default /*#__PURE__*/ {
     resetOnOptionsChange: { type: [Function, Boolean], default: false }, // 項目更新是否重置所選值處理
     // ---------------------------------------------
     clearable: { type: Boolean, default: false }, // 是否可清除所選
-    searchable: { type: Boolean, default: false }, // 是否可查詢項目
+    searchable: { type: Boolean, default: true }, // 是否可查詢項目
     // ---------------------------------------------
     filterable: { type: Boolean, default: true }, // When true, existing options will be filtered by the search text. Should not be used in conjunction with taggable.
-    fuseKeys: { type: Array, default: () => ['name'] }, // 模糊查詢欄位
+    fuseKeys: { type: Array, default: null }, // 模糊查詢欄位
     // ---------------------------------------------
     taggable: { type: Boolean, default: false }, // Enable/disable creating options from searchInput.
     pushTags: { type: Boolean, default: false }, // When true, newly created tags will be added to the options list.
@@ -149,7 +148,7 @@ export default /*#__PURE__*/ {
 
       return (options, search) => {
         const fuse = new Fuse(options, {
-          keys: this.fuseKeys,
+          keys: this.fuseKeys ? this.fuseKeys : [this.valueKey, this.textKey],
           shouldSort: true,
         });
         return search.length ? fuse.search(search).map(({ item }) => item) : fuse.list;

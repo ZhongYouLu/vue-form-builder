@@ -6,7 +6,8 @@
         v-bind="$attrs"
         type="checkbox"
         :value="option[valueKey]"
-        :disabled="disabled || (limit > -1 && value.length === limit && !value.includes(option[valueKey]))"
+        :required="required && value.length < least"
+        :disabled="disabled || (most > -1 && value.length === most && !value.includes(option[valueKey]))"
       />
       <span>{{ option[textKey] || `(${option[valueKey]})` }}</span>
     </label>
@@ -28,7 +29,11 @@ export default /*#__PURE__*/ {
     textKey: { type: String, default: 'text' },
     valueKey: { type: String, default: 'value' },
     disabled: { type: Boolean, default: false },
-    limit: { type: Number, default: -1 },
+    required: { type: Boolean, default: false },
+    // 選擇數量下限
+    least: { type: Number, default: 1 },
+    // 選擇數量上限
+    most: { type: Number, default: -1 },
   },
   emits: ['input'],
   computed: {

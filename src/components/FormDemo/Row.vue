@@ -1,21 +1,9 @@
 <template>
   <div class="form-demo-row">
-    {{ $props }}
+    {{ $attrs }}
     <div>{{ idx }}. {{ desc }}</div>
     <div>{{ subDesc }}</div>
-    <template v-if="type">
-      <Field
-        v-model="mutableValue"
-        :name="id"
-        :type="type"
-        :placeholder="placeholder"
-        :sub-type="subType"
-        :options="items"
-        :multiple="!!isMultiple"
-        text-key="text"
-        value-key="id"
-      />
-    </template>
+    <Field v-if="type" v-model="mutableValue" :name="id" v-bind="bind" />
   </div>
 </template>
 
@@ -31,6 +19,7 @@ export default /*#__PURE__*/ {
     value: { validator: (prop) => prop !== undefined, required: true },
     id: { type: String, required: true },
     idx: { type: Number, required: true },
+    // --- base ---
     desc: { type: String, default: null },
     subDesc: { type: String, default: null },
     type: { type: String, default: null },
@@ -38,6 +27,8 @@ export default /*#__PURE__*/ {
     placeholder: { type: String, default: null },
     items: { type: Array, default: null },
     isMultiple: { type: Number, default: null },
+    // --- rule ---
+    required: { type: Number, default: null },
   },
   computed: {
     mutableValue: {
@@ -47,6 +38,38 @@ export default /*#__PURE__*/ {
       set(value) {
         this.$emit('input', value);
       },
+    },
+    bind() {
+      let base = {
+        type: this.type,
+        placeholder: this.placeholder,
+        required: !!this.required,
+      };
+
+      switch (this.type) {
+        case 'text':
+          base = {
+            ...base,
+            subType: this.subType,
+          };
+          break;
+        case 'checkbox':
+        case 'radio':
+        case 'select':
+          base = {
+            ...base,
+            options: this.items,
+            multiple: !!this.isMultiple,
+            clearable: true,
+            textKey: 'text',
+            valueKey: 'id',
+          };
+          break;
+        default:
+          break;
+      }
+
+      return base;
     },
   },
 };
