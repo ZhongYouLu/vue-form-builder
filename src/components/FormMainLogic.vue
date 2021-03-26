@@ -16,8 +16,6 @@ import {
   nanoid,
   isEmpty,
   clearEmpties,
-  nested2Pairs,
-  pairs2Arr,
   arrUpdateItemByKey,
   arrRemoveValueByKey,
   arrRemoveValues,
@@ -32,10 +30,6 @@ export default /*#__PURE__*/ {
       collect: this.collect,
       setCollect: this.setCollect,
       toggleCollect: this.toggleCollect,
-      typeOptions: this.typeOptions,
-      typeIcons: this.typeIcons,
-      getTypeConstraint: this.getTypeConstraint,
-      convertOptions: this.convertOptions,
     };
   },
   inject: [
@@ -96,34 +90,6 @@ export default /*#__PURE__*/ {
         }, {})
       );
     },
-    typeConfig() {
-      // https://www.w3schools.com/tags/tag_input.asp
-      return {
-        text: { text: '文字框', icon: 'carbon:string-text' },
-        number: { text: '數字框', icon: 'carbon:string-integer' },
-        date: { text: '日期框', icon: 'carbon:calendar' },
-        radio: { text: '單選框', icon: 'carbon:radio-button-checked' },
-        checkbox: { text: '勾選框', icon: 'carbon:checkbox-checked' },
-        select: { text: '下拉選單', icon: 'carbon:list' },
-        file: { text: '檔案', icon: 'ic:baseline-attach-file' },
-        // ------------------
-        // password: { text: '密碼框', icon: 'carbon:password' },
-        // email: { text: '電子郵件輸入欄位', icon: '' },
-        // date: { text: '日期輸入欄位', icon: '' },
-        // tel: { text: '電話號碼輸入欄位', icon: '' },
-        // url: { text: '網址輸入欄位', icon: '' },
-        // file: { text: '檔案上傳', icon: '' },
-      };
-    },
-    typeOptions() {
-      return this.convertOptions(nested2Pairs(this.typeConfig, 'text'));
-    },
-    typeIcons() {
-      return {
-        ...nested2Pairs(this.typeConfig, 'icon'),
-        undefined: 'carbon:unknown',
-      };
-    },
   },
   // 監聽連動 [Side Effect]
   watch: {
@@ -163,23 +129,6 @@ export default /*#__PURE__*/ {
     },
   },
   methods: {
-    convertOptions(obj) {
-      return pairs2Arr(obj, 'text', 'value');
-    },
-    getTypeConstraint(type, isMultiple) {
-      return {
-        isText: type === 'text',
-        isNumber: type === 'number',
-        isDate: type === 'date',
-        isCheckbox: type === 'checkbox',
-        isSelect: type === 'select',
-        isFile: type === 'file',
-        isInput: ['text', 'number', 'date'].includes(type),
-        needItems: ['select', 'radio', 'checkbox'].includes(type),
-        isMultiple: isMultiple,
-        filterSame: (columns) => columns.filter((c) => c.type === type),
-      };
-    },
     // 更新欄位群
     emitUpdate(newColumns, note) {
       console.log(`${note && `[${note}] `}update:columns`, newColumns);

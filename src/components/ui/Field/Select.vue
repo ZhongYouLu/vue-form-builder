@@ -32,14 +32,18 @@
     </template>
 
     <!-- 已選項目  -->
-    <!-- <template #selected-option="option">
-      {{ option[textKey] || `(${option[valueKey]})` }}
-    </template> -->
+    <template #selected-option="option">
+      <IconRow :icon="icons[option[iconKey]] || option[iconKey]">
+        {{ option[textKey] || `(${option[valueKey]})` }}
+      </IconRow>
+    </template>
 
     <!-- 項目  -->
-    <!-- <template #option="option">
-      {{ option }}
-    </template> -->
+    <template #option="option">
+      <IconRow :icon="icons[option[iconKey]] || option[iconKey]">
+        {{ option[textKey] || `(${option[valueKey]})` }}
+      </IconRow>
+    </template>
 
     <!-- 無項目 -->
     <template v-if="searchable" #no-options="{ search, searching }">
@@ -58,6 +62,7 @@
 
 <script>
 import VueSelect from 'vue-select';
+import IconRow from '@/components/ui/IconRow';
 import Fuse from 'fuse.js';
 import { createPopper } from '@popperjs/core';
 import { nanoid } from '@/assets/js/helper.js';
@@ -66,13 +71,14 @@ export default /*#__PURE__*/ {
   name: 'FieldSelect',
   components: {
     VueSelect,
+    IconRow,
   },
   inheritAttrs: false,
-
   props: {
     // https://vue-select.org/api/props.html#options
     value: { type: [String, Number, Boolean, Array], default: null },
     options: { type: Array, default: () => [] },
+    icons: { type: Object, default: () => ({}) },
     name: { type: String, default: null },
     placeholder: { type: String, default: null },
     autocomplete: { type: String, default: 'off' },
@@ -82,6 +88,7 @@ export default /*#__PURE__*/ {
     // ---------------------------------------------
     textKey: { type: String, default: 'text' },
     valueKey: { type: String, default: 'value' },
+    iconKey: { type: String, default: 'icon' },
     selectable: { type: Function, default: null }, // 是否可選處理
     reduce: { type: Function, default: null }, // 轉換對象處理 (傳遞給 v-model binding 或 @input event.)
     getOptionLabel: { type: Function, default: null }, // 生成項目文字處理

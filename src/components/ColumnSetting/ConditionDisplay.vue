@@ -5,8 +5,10 @@
       label="監聽欄位"
       type="select"
       :options="columnsExcludeSelf"
+      :icons="typeIcons"
       value-key="id"
       text-key="name"
+      icon-key="type"
       clearable
       searchable
       @input="$emit('update', 'triggerID', $event)"
@@ -14,13 +16,6 @@
       <template #label-left>
         <Icon icon="mdi:close-thick" is-btn @click="$emit('remove')" />
         <span>{{ idx + 1 }}. </span>
-      </template>
-      <!-- Select -->
-      <template #selected-option="o">
-        <IconRow :icon="typeIcons[o.type]">{{ o.name || `(${o.id})` }}</IconRow>
-      </template>
-      <template #option="o">
-        <IconRow :icon="typeIcons[o.type]">{{ o.name || `(${o.id})` }}</IconRow>
       </template>
     </InputRow>
     <div v-if="triggerColumn">
@@ -84,8 +79,9 @@
   </Block>
 </template>
 <script>
-import { InputRow, Icon, Field, Block, IconRow } from '@/components/ui';
+import { InputRow, Icon, Field, Block } from '@/components/ui';
 import { thousandSeparator } from '@/assets/js/helper.js';
+import { typeIcons } from '@/assets/js/options.js';
 
 export default /*#__PURE__*/ {
   name: 'ColumnSettingConditionDisplay',
@@ -93,10 +89,9 @@ export default /*#__PURE__*/ {
     InputRow,
     Icon,
     Field,
-    IconRow,
     Block,
   },
-  inject: ['handleConfirm', 'typeIcons'],
+  inject: ['handleConfirm'],
   props: {
     // 排除自己的所有欄位群
     columnsExcludeSelf: { type: Array, required: true },
@@ -121,6 +116,9 @@ export default /*#__PURE__*/ {
     },
     thousandSeparatorFunc() {
       return (option) => thousandSeparator(option);
+    },
+    typeIcons() {
+      return typeIcons;
     },
   },
 };

@@ -9,15 +9,7 @@
       :options="typeOptions"
       required
       @input="updateColumn('type', $event)"
-    >
-      <!-- Select -->
-      <template #selected-option="o">
-        <IconRow :icon="typeIcons[o.value]">{{ o.text }}</IconRow>
-      </template>
-      <template #option="o">
-        <IconRow :icon="typeIcons[o.value]">{{ o.text }}</IconRow>
-      </template>
-    </InputRow>
+    />
 
     <nav class="tabs">
       <template v-for="tab in tabOptions">
@@ -46,7 +38,7 @@
 </template>
 
 <script>
-import { InputRow, IconRow } from '@/components/ui';
+import { InputRow } from '@/components/ui';
 import SettingBase from '@/components/ColumnSetting/Base';
 import SettingItem from '@/components/ColumnSetting/Item';
 import SettingRule from '@/components/ColumnSetting/Rule';
@@ -58,18 +50,17 @@ import {
   arrRemoveValue,
   difference,
 } from '@/assets/js/helper.js';
+import { typeOptions, getTypeConstraint, convertOptions } from '@/assets/js/options.js';
 
 export default /*#__PURE__*/ {
   name: 'ColumnSetting',
   components: {
     InputRow,
-    IconRow,
     SettingBase,
     SettingItem,
     SettingRule,
     SettingCondition,
   },
-  inject: ['typeOptions', 'typeIcons', 'getTypeConstraint', 'convertOptions'],
   props: {
     idx: { type: Number, required: true },
     columns: { type: Array, required: true },
@@ -108,7 +99,7 @@ export default /*#__PURE__*/ {
       };
     },
     tabOptions() {
-      return this.convertOptions({
+      return convertOptions({
         base: '基本',
         rule: '規則',
         item: '項目',
@@ -140,7 +131,10 @@ export default /*#__PURE__*/ {
       return config;
     },
     typeConstraint() {
-      return this.getTypeConstraint(this.type, this.base.isMultiple);
+      return getTypeConstraint(this.type, this.base.subType, this.base.isMultiple);
+    },
+    typeOptions() {
+      return typeOptions;
     },
     columnsExcludeSelf() {
       return arrRemoveItemByKey(this.columns, 'id', this.id);

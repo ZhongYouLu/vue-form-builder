@@ -12,13 +12,13 @@
 
 <script>
 import InputRow from '@/components/ui/InputRow';
+import { subTypeOptions } from '@/assets/js/options.js';
 
 export default /*#__PURE__*/ {
   name: 'ColumnSettingBase',
   components: {
     InputRow,
   },
-  inject: ['convertOptions'],
   props: {
     // 識別碼
     id: { type: String, required: true },
@@ -66,22 +66,10 @@ export default /*#__PURE__*/ {
             label: '欄位性質',
             placeholder: '預設: 文字',
             type: 'select',
-            options: this.subTypeOptions,
+            options: subTypeOptions,
             clearable: true,
           },
         };
-
-        // if (!this.subType) {
-        //   temp['autocomplete'] = {
-        //     props: {
-        //       label: '自動完成',
-        //       placeholder: '預設: 關閉',
-        //       type: 'select',
-        //       options: this.autocompleteOptions,
-        //       clearable: true,
-        //     },
-        //   };
-        // }
       } else if (this.typeConstraint.isNumber) {
         temp.defaultValue.props.type = 'number';
       } else if (this.typeConstraint.isDate) {
@@ -128,29 +116,6 @@ export default /*#__PURE__*/ {
       }
 
       return temp;
-    },
-    subTypeOptions() {
-      // https://developer.mozilla.org/zh-TW/docs/Web/HTML/Element/input
-      return this.convertOptions({
-        // text: '文字', // default
-        tel: '手機',
-        email: '信箱',
-        password: '密碼',
-        // 其他
-        // file: '檔案',
-      });
-    },
-    autocompleteOptions() {
-      // https://html.spec.whatwg.org/multipage/form-control-infrastructure.html#autofilling-form-controls:-the-autocomplete-attribute
-      return this.convertOptions({
-        // off: '關閉', // default
-        name: '全名',
-        email: '信箱',
-        username: '帳號',
-        'current-password': '密碼',
-        // 其他
-        // 'new-password': '新密碼',
-      });
     },
   },
 };

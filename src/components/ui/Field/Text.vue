@@ -12,6 +12,7 @@ export default /*#__PURE__*/ {
     value: { type: String, default: null },
     subType: { type: String, default: null },
     size: { type: Number, default: null }, // The size attribute specifies the width (in characters) of an input field
+    minlength: { type: Number, default: null }, // The minlength attribute specifies the minimum number of characters required in an input field.
     maxlength: { type: Number, default: null }, // The maxlength attribute specifies the maximum number of characters allowed in an input field
   },
   emits: ['input'],

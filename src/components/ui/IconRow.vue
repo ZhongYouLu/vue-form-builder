@@ -1,7 +1,7 @@
 <template>
   <div class="icon-row">
     <slot />
-    <Icon :icon="icon" />
+    <Icon v-if="icon" :icon="icon" />
   </div>
 </template>
 
@@ -14,7 +14,7 @@ export default /*#__PURE__*/ {
     Icon,
   },
   props: {
-    icon: { type: String, required: true },
+    icon: { type: String, default: null },
   },
 };
 </script>

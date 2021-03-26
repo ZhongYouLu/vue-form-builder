@@ -24,6 +24,7 @@
 
 <script>
 import { InputRow, Icon } from '@/components/ui';
+import { typeIcons, regexOptions } from '@/assets/js/options.js';
 
 export default /*#__PURE__*/ {
   name: 'ColumnSettingRule',
@@ -62,6 +63,11 @@ export default /*#__PURE__*/ {
     most: { type: Number, default: null },
   },
   emits: ['update', 'updateObj'],
+  data() {
+    return {
+      localRegexOptions: regexOptions,
+    };
+  },
   computed: {
     fields() {
       const name = this.name || this.id;
@@ -80,8 +86,10 @@ export default /*#__PURE__*/ {
             placeholder: '請選擇欄位',
             type: 'select',
             options: this.typeConstraint.filterSame(this.columnsExcludeSelf),
+            icons: this.typeIcons,
             valueKey: 'id',
             textKey: 'name',
+            iconKey: 'type',
             clearable: true,
             searchable: true,
           },
@@ -89,12 +97,26 @@ export default /*#__PURE__*/ {
         },
       };
 
-      if (this.typeConstraint.isText) {
+      if (this.typeConstraint.isText && !this.typeConstraint.hasSubType) {
         temp = {
           ...temp,
           minimum: { props: { label: '字元下限', type: 'number' }, msg: `[${name}] 最少 [:min] 個字。` },
           maximum: { props: { label: '字元上限', type: 'number' }, msg: `[${name}] 最多 [:max] 個字。` },
-          regex: { props: { label: '驗證格式' }, msg: `[${name}] 格式驗證失敗。` },
+          regex: {
+            props: {
+              label: '驗證格式',
+              type: 'select',
+              placeholder: '請選擇',
+              options: this.localRegexOptions,
+              clearable: true,
+              searchable: true,
+              taggable: true,
+              pushTags: true,
+              createOption: (option) => ({ value: option, text: option }),
+              // getOptionLabel: (option) => option,
+            },
+            msg: `[${name}] 格式驗證失敗。`,
+          },
         };
       } else if (this.typeConstraint.isNumber) {
         temp = {
@@ -112,12 +134,19 @@ export default /*#__PURE__*/ {
 
       return temp;
     },
+    typeIcons() {
+      return typeIcons;
+    },
     toggleMsg() {
       return this.collect[this.id]['toggleMsg'];
     },
   },
   created() {
     this.setCollect(this.id, 'toggleMsg', {});
+
+    if (this.regex && this.localRegexOptions.findIndex((option) => option.value === this.regex) === -1) {
+      this.localRegexOptions = this.localRegexOptions.concat({ value: this.regex, text: this.regex });
+    }
   },
   methods: {
     update(k, v) {
