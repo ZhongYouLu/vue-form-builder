@@ -10,19 +10,20 @@
       required
       @input="updateColumn('type', $event)"
     />
-
+    <!-- Tabs -->
     <nav class="tabs">
-      <template v-for="tab in tabOptions">
-        <div v-show="tabShow[tab.value]" :key="tab.value" :class="['tabs__item', { active: currentTab === tab.value }]">
-          <span @click="currentTab = tab.value"> {{ tab.text }}</span>
+      <template v-for="(tab, tabKey) in tabs">
+        <div v-show="tab.show" :key="tabKey" :class="['tabs__item', { active: currentTab === tabKey }]">
+          <span @click="currentTab = tabKey"> {{ tab.text }}</span>
         </div>
       </template>
     </nav>
+    <!-- Settings -->
     <keep-alive>
       <component
         :is="currentCmp.component"
         v-bind="currentCmp.props"
-        v-show="tabShow[currentTab]"
+        v-show="tabs[currentTab].show"
         @update="updateColumnTab(currentTab, ...arguments)"
         @updateObj="updateColumnTabObj(currentTab, ...arguments)"
         @addArr="addColumnTabArr(currentTab, ...arguments)"
@@ -43,6 +44,7 @@ import SettingBase from '@/components/ColumnSetting/Base';
 import SettingItem from '@/components/ColumnSetting/Item';
 import SettingRule from '@/components/ColumnSetting/Rule';
 import SettingCondition from '@/components/ColumnSetting/Condition';
+import { typeOptions, getTypeConstraint } from '@/assets/js/options.js';
 import {
   arr2ObjByKey,
   arrUpdateItemByKey,
@@ -50,7 +52,6 @@ import {
   arrRemoveValue,
   difference,
 } from '@/assets/js/helper.js';
-import { typeOptions, getTypeConstraint, convertOptions } from '@/assets/js/options.js';
 
 export default /*#__PURE__*/ {
   name: 'ColumnSetting',
@@ -73,11 +74,11 @@ export default /*#__PURE__*/ {
     type: { type: String, default: '' },
     // 欄位 - 基本設定
     base: { type: Object, default: () => ({}) },
-    // 欄位 - 規則設定
-    rule: { type: Object, default: () => ({}) },
     // 欄位 - 項目設定
     item: { type: Object, default: () => ({}) },
-    // 欄位 - 顯示條件
+    // 欄位 - 規則設定
+    rule: { type: Object, default: () => ({}) },
+    // 欄位 - 條件設定
     condition: { type: Object, default: () => ({}) },
   },
   emits: ['update'],
@@ -92,26 +93,19 @@ export default /*#__PURE__*/ {
         id: this.id,
         name: this.name,
         type: this.type,
+        // --- Settings ---
         base: this.base,
-        rule: this.rule,
         item: this.item,
+        rule: this.rule,
         condition: this.condition,
       };
     },
-    tabOptions() {
-      return convertOptions({
-        base: '基本',
-        rule: '規則',
-        item: '項目',
-        condition: '條件',
-      });
-    },
-    tabShow() {
+    tabs() {
       return {
-        base: true,
-        rule: true,
-        item: this.typeConstraint.needItems,
-        condition: true,
+        base: { text: '基本', show: true },
+        item: { text: '項目', show: this.typeConstraint.needItems },
+        rule: { text: '規則', show: true },
+        condition: { text: '條件', show: true },
       };
     },
     currentCmp() {
@@ -130,11 +124,11 @@ export default /*#__PURE__*/ {
 
       return config;
     },
-    typeConstraint() {
-      return getTypeConstraint(this.type, this.base.subType, this.base.isMultiple);
-    },
     typeOptions() {
       return typeOptions;
+    },
+    typeConstraint() {
+      return getTypeConstraint(this.type, this.base.subType, this.base.isMultiple);
     },
     columnsExcludeSelf() {
       return arrRemoveItemByKey(this.columns, 'id', this.id);
