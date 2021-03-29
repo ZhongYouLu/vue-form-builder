@@ -1,6 +1,7 @@
 <template>
   <div class="input">
     <input
+      ref="input"
       v-bind="$attrs"
       type="file"
       :multiple="multiple"

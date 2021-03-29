@@ -49,12 +49,20 @@ export const getTypeConstraint = (type, subType, isMultiple) => {
 // https://html.spec.whatwg.org/multipage/form-control-infrastructure.html#autofilling-form-controls:-the-autocomplete-attribute
 export const autocompleteOptions = convertOptions({
   // off: '關閉', // default
-  name: '全名',
+  name: '姓名',
   email: '信箱',
+  tel: '電話',
+  'street-address': '地址',
   username: '帳號',
   'current-password': '密碼',
-  // 其他
-  // 'new-password': '新密碼',
+  'new-password': '新密碼',
+  // organization: '組織',
+  // 'organization-title': '職稱',
+});
+
+export const autocompleteSectionOptions = convertOptions({
+  billing: '訂購',
+  shipping: '收件',
 });
 
 // https://www.html5pattern.com/
@@ -64,10 +72,10 @@ export const autocompleteOptions = convertOptions({
     const check = regex.test(string);
   */
 export const regexConfig = {
-  tel: { text: '手機', pattern: '09[0-9]{8}' },
-  date: { text: '日期', pattern: '((19|20)?[0-9]{2}[- /.](0?[1-9]|1[012])[- /.](0?[1-9]|[12][0-9]|3[01]))' },
-  password: { text: '密碼', pattern: '(?=.*[a-zA-Z]+)(?=.*\\d+)[a-zA-Z0-9]{8,16}' },
-  chinese: { text: '中文字', pattern: '[\u4e00-\u9fa5]+' },
+  tel: { text: '手機', pattern: '^09[0-9]{8}$' },
+  date: { text: '日期', pattern: '^((19|20)?[0-9]{2}[- /.](0?[1-9]|1[012])[- /.](0?[1-9]|[12][0-9]|3[01]))$' },
+  password: { text: '密碼', pattern: '^(?=.*[a-zA-Z]+)(?=.*\\d+)[a-zA-Z0-9]{8,16}$' },
+  chinese: { text: '中文字', pattern: '^[\u4e00-\u9fa5]+$' },
 };
 
 export const regexOptions = convertOptions(nested2Pairs(regexConfig, 'text'));

@@ -1,9 +1,12 @@
 <template>
   <div class="input">
     <input
+      ref="input"
       v-model.trim="mutableValue"
       v-bind="$attrs"
       :type="subType || 'text'"
+      :size="size"
+      :minlength="minlength"
       :maxlength="maxlength"
       @focus="$emit('focus')"
       @blur="$emit('blur')"

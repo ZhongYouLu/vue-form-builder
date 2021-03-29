@@ -1,6 +1,6 @@
 <template>
   <div class="form-demo">
-    <form name="demo" @submit.prevent="checkForm">
+    <form name="demo" @submit="submit">
       <div v-for="({ id, ...column }, idx) in columns" :key="id">
         <Row
           v-if="values[id] !== undefined"
@@ -31,6 +31,7 @@
 <script>
 import Row from '@/components/FormDemo/Row';
 import { arr2ObjByKey } from '@/assets/js/helper.js';
+
 export default /*#__PURE__*/ {
   name: 'FormDemo',
   components: {
@@ -69,8 +70,18 @@ export default /*#__PURE__*/ {
     },
   },
   methods: {
-    checkForm($event) {
-      const form = $event.target;
+    // https://developers.google.com/web/fundamentals/design-and-ux/input/forms
+    submit(evt) {
+      evt.preventDefault();
+      const form = evt.target;
+      if (form.checkValidity() === false) {
+        alert('Form is invalid - submission prevented!');
+        return false;
+      }
+
+      this.serialized(form);
+    },
+    serialized(form) {
       const serialized = [];
 
       for (var i = 0, field; (field = form.elements[i]); i++) {

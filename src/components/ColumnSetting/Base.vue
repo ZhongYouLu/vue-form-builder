@@ -31,18 +31,20 @@ export default /*#__PURE__*/ {
     desc: { type: String, default: null },
     // 欄位子說明
     subDesc: { type: String, default: null },
-    // 預設值
-    defaultValue: { type: [String, Number, Boolean, Array], default: null },
     // 提示文字
     placeholder: { type: String, default: null },
-    // 加密
-    encrypt: { type: Number, default: null },
+    // 預設值
+    defaultValue: { type: [String, Number, Boolean, Array], default: null },
     // 欄位性質
     subType: { type: String, default: null },
-    // 自動完成
-    // autocomplete: { type: String, default: null },
     // 可複選
     isMultiple: { type: Number, default: null },
+    // 自動完成區段
+    // autocompleteSection: { type: String, default: null },
+    // 自動完成
+    // autocomplete: { type: String, default: null },
+    // 加密
+    encrypt: { type: Number, default: null },
   },
   emits: ['update'],
   computed: {
@@ -70,49 +72,58 @@ export default /*#__PURE__*/ {
             clearable: true,
           },
         };
-      } else if (this.typeConstraint.isNumber) {
+      }
+
+      // Change defalutValue.props.type
+      if (this.typeConstraint.isNumber) {
         temp.defaultValue.props.type = 'number';
       } else if (this.typeConstraint.isDate) {
         temp.defaultValue.props.type = 'date';
       } else if (this.typeConstraint.isCheckbox && !this.typeConstraint.isMultiple) {
-        temp = {
-          ...temp,
-
-          defaultValue: {
-            props: {
-              ...temp.defaultValue.props,
-              type: 'checkbox',
-            },
-          },
-        };
+        temp.defaultValue.props.type = 'checkbox';
       } else if (this.typeConstraint.needItems) {
-        temp = {
-          ...temp,
-          defaultValue: {
-            props: {
-              ...temp.defaultValue.props,
-              type: 'select',
-              placeholder: '請選擇',
-              options: this.columnsObjByKey[this.id].item?.items,
-              clearable: true,
-              searchable: true,
-              valueKey: 'id',
-              textKey: 'text',
-              multiple: !!this.typeConstraint.isMultiple,
-              taggable: true,
-              pushTags: true,
-              reactable: true,
-            },
-          },
+        temp.defaultValue.props = {
+          ...temp.defaultValue.props,
+          type: 'select',
+          placeholder: '請選擇',
+          options: this.columnsObjByKey[this.id].item?.items,
+          valueKey: 'id',
+          textKey: 'text',
+          multiple: !!this.typeConstraint.isMultiple,
+          clearable: true,
+          taggable: true,
+          pushTags: true,
+          reactable: true,
         };
       }
 
       if (this.typeConstraint.isCheckbox || this.typeConstraint.isSelect) {
-        temp['isMultiple'] = { props: { label: '可複選', type: 'checkbox', text: '可複選', yes: 1, no: null } };
+        temp['isMultiple'] = { props: { label: '可複選', type: 'checkbox', text: '可複選' } };
       }
 
       if (this.typeConstraint.isInput) {
-        temp['encrypt'] = { props: { label: '資料庫加密', type: 'checkbox', text: '加密', yes: 1, no: null } };
+        temp = {
+          ...temp,
+          // autocompleteSection: {
+          //   props: {
+          //     label: '自動完成區段',
+          //     type: 'select',
+          //     placeholder: '如需區隔再行指定。 e.g. 訂購地址、收件地址',
+          //     options: autocompleteSectionOptions,
+          //     clearable: true,
+          //   },
+          // },
+          // autocomplete: {
+          //   props: {
+          //     label: '自動完成',
+          //     placeholder: '請選擇',
+          //     type: 'select',
+          //     options: autocompleteOptions,
+          //     clearable: true,
+          //   },
+          // },
+          encrypt: { props: { label: '資料庫加密', type: 'checkbox', text: '加密' } },
+        };
       }
 
       return temp;

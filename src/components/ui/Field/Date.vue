@@ -1,6 +1,7 @@
 <template>
   <div class="input">
     <input
+      ref="input"
       v-model.trim="mutableValue"
       v-bind="$attrs"
       type="date"

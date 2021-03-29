@@ -2,6 +2,7 @@
   <RadioRow>
     <label v-for="option in options" :key="option[valueKey]">
       <input
+        ref="input"
         v-model="mutableValue"
         v-bind="$attrs"
         type="radio"

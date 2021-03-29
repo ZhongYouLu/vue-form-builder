@@ -29,6 +29,7 @@
     <!-- 必填處理 -->
     <template v-if="required" #search="{ attributes, events }">
       <input
+        ref="input"
         :name="name"
         class="vs__search"
         :required="!mutableValue"

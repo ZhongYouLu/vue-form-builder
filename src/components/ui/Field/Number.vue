@@ -1,6 +1,7 @@
 <template>
   <div class="input">
     <input
+      ref="input"
       v-model.number="mutableValue"
       v-bind="$attrs"
       type="number"
@@ -30,7 +31,7 @@ export default /*#__PURE__*/ {
         return this.value;
       },
       set(value) {
-        this.$emit('input', value);
+        this.$emit('input', value !== '' ? value : null);
       },
     },
   },

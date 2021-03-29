@@ -2,6 +2,7 @@
   <div class="field">
     <component
       :is="componentName"
+      ref="input"
       v-bind="$attrs"
       v-model="mutableValue"
       :multiple="multiple"

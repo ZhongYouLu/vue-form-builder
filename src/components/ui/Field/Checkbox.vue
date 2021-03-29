@@ -2,6 +2,7 @@
   <RadioRow>
     <label>
       <input
+        ref="input"
         v-model="mutableValue"
         v-bind="$attrs"
         type="checkbox"
@@ -27,7 +28,7 @@ export default /*#__PURE__*/ {
   props: {
     value: { type: [String, Number, Boolean], default: null },
     yes: { type: [String, Number, Boolean], default: 1 },
-    no: { type: [String, Number, Boolean], default: 0 },
+    no: { type: [String, Number, Boolean], default: null },
     text: { type: String, default: 'Yes' },
   },
   emits: ['input', 'focus', 'blur'],

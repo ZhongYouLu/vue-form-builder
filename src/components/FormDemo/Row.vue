@@ -3,7 +3,15 @@
     attrs: {{ $attrs }}
     <div>{{ idx }}. {{ desc }}</div>
     <div>{{ subDesc }}</div>
-    <Field v-if="type" v-model="mutableValue" :name="id" v-bind="bind" @blur="isBlur = true" />
+    <Field
+      v-if="type"
+      ref="field"
+      v-model="mutableValue"
+      :name="id"
+      v-bind="bind"
+      @focus="handleFocus"
+      @blur="handleBlur"
+    />
     <div>
       {{ isBlur ? errorMsg : null }}
     </div>
@@ -12,6 +20,7 @@
 
 <script>
 import Field from '@/components/ui/Field';
+import { getTypeConstraint } from '@/assets/js/options.js';
 
 export default /*#__PURE__*/ {
   name: 'FormDemoRow',
@@ -51,6 +60,7 @@ export default /*#__PURE__*/ {
   data() {
     return {
       isBlur: null,
+      // inputEl: null,
     };
   },
   computed: {
@@ -61,6 +71,9 @@ export default /*#__PURE__*/ {
       set(value) {
         this.$emit('update:value', value);
       },
+    },
+    typeConstraint() {
+      return getTypeConstraint(this.type, this.subType, this.isMultiple);
     },
     bind() {
       const base = {
@@ -118,22 +131,40 @@ export default /*#__PURE__*/ {
 
         // 必填
         if ((this.required && value == null) || value === '') {
-          this.errorMsg = this.msg.required?.replace('[:min]', this.minimum) || `[${name}] 為必填。`;
+          this.errorMsg = this.msg.required || `[${name}] 為必填。`;
           return;
         }
 
-        if (!value) return null;
+        if (value == null) return null;
 
-        // 字元下限
-        if (this.minimum && this.minimum > value.length) {
-          this.errorMsg = this.msg.minimum?.replace('[:min]', this.minimum) || `[${name}] 最少 ${this.minimum} 個字。`;
-          return;
+        if (this.typeConstraint.isText) {
+          // 字元下限
+          if (this.minimum && this.minimum > value.length) {
+            this.errorMsg =
+              this.msg.minimum?.replace('[:min]', this.minimum) || `[${name}] 最少 ${this.minimum} 個字。`;
+            return;
+          }
+
+          // 字元上限
+          if (this.maximum && this.maximum < value.length) {
+            this.errorMsg =
+              this.msg.maximum?.replace('[:max]', this.maximum) || `[${name}] 最多 ${this.maximum} 個字。`;
+            return;
+          }
         }
 
-        // 字元上限
-        if (this.maximum && this.maximum < value.length) {
-          this.errorMsg = this.msg.maximum?.replace('[:max]', this.maximum) || `[${name}] 最多 ${this.maximum} 個字。`;
-          return;
+        if (this.typeConstraint.isNumber) {
+          // 數字下限
+          if (this.minimum && this.minimum > value) {
+            this.errorMsg = this.msg.minimum?.replace('[:min]', this.minimum) || `[${name}] 最少 ${this.minimum}。`;
+            return;
+          }
+
+          // 數字上限
+          if (this.maximum && this.maximum < value) {
+            this.errorMsg = this.msg.maximum?.replace('[:max]', this.maximum) || `[${name}] 最多 ${this.maximum}。`;
+            return;
+          }
         }
 
         // 與..相符
@@ -152,6 +183,27 @@ export default /*#__PURE__*/ {
         this.errorMsg = null;
       },
       immediate: true,
+    },
+    // errorMsg: {
+    //   handler: function (msg) {
+    //     console.log('inputEl', this.inputEl);
+    //     if (this.inputEl) this.inputEl.setCustomValidity(msg || '');
+    //   },
+    //   immediate: true,
+    // },
+  },
+  // updated() {
+  //   this.inputEl = this.$refs.field.$refs.input.$refs.input;
+  // },
+  // mounted() {
+  //   this.inputEl = this.$refs.field.$refs.input.$refs.input;
+  // },
+  methods: {
+    handleFocus() {
+      // this.isBlur = false;
+    },
+    handleBlur() {
+      this.isBlur = true;
     },
   },
 };
