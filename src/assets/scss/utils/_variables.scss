@@ -143,3 +143,31 @@ $input-disabled-color: lighten($input-border-color, 30);
 // ========================================================
 $shadow-52: rgba(67, 71, 85, 0.27) 0px 0px 0.25em, rgba(90, 125, 188, 0.05) 0px 0.25em 1em;
 $shadow-56: rgba(14, 30, 37, 0.12) 0px 2px 4px 0px, rgba(14, 30, 37, 0.32) 0px 2px 16px 0px;
+
+// ========================================================
+// === CSS custom properties (variables) ===
+// ========================================================
+:root {
+  --themeColor: #42b983; /* 主題顏色 */
+  --fontColor: #333; /* 文字顏色 */
+  --infoColor: #1890ff; /* 提示色 */
+  --successColor: #52c41a; /* 成功色 */
+  --waringColor: #faad14; /* 警告色 */
+  --dangerColor: #ff7875; /* 危險色*/
+  --errorColor: #f4615c; /* 錯誤色 */
+  // Font
+  --fontSize: 1.6rem;
+  // Border
+  --borderColor: #d9d9d9; /* 邊框顏色、按鈕、輸入框 */
+  --borderRadius: 3px; /* 邊寬圓角 */
+  --borderWidth: 0.1rem; /* 邊框框度 */
+  // 間距
+  --vGap: 0.25em; /* Vertical*/
+  --hGap: 0.625em; /* Horizontal */
+  // Btn
+  // --btnShadow-x: 0;
+  // --btnShadow-y: 0;
+  // --btnShadow-blur: 10px;
+  // --btnShadow-scale: 0;
+  // --btnShadow-color: rgba(0, 0, 0, 0.1);
+}
