@@ -14,6 +14,7 @@
             ...column.item,
             ...column.condition,
           }"
+          :columns="columns"
           :columns-obj-by-key="columnsObjByKey"
           :values="values"
           :value.sync="values[id]"
@@ -74,7 +75,8 @@ export default /*#__PURE__*/ {
     submit(evt) {
       evt.preventDefault();
       const form = evt.target;
-      if (form.checkValidity() === false) {
+      // form.checkValidity()
+      if (form.reportValidity() === false) {
         alert('Form is invalid - submission prevented!');
         return false;
       }
