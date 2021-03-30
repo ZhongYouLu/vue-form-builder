@@ -4,7 +4,7 @@
     <!-- <legend>規則設定</legend> -->
     <div v-for="(v, k) in fields" :key="k" class="input-group">
       <InputRow :value="$props[k]" v-bind="v.props" @input="update(k, $event)">
-        <template #label-right>
+        <template #text-right>
           <Icon v-show="$props[k]" icon="mdi:ideogram-cjk-variant" is-btn @click="setToggleMsg(k)" />
         </template>
         <template v-for="(_, slot) in $scopedSlots" #[slot]="props">
@@ -77,12 +77,12 @@ export default /*#__PURE__*/ {
 
       let temp = {
         required: {
-          props: { label: '是否必填', text: '必填', type: 'checkbox', yes: 1, no: null },
+          props: { text: '是否必填', label: '必填', type: 'checkbox', yes: 1, no: null },
           msg: `[${name}] 為必填。`,
         },
         sameAs: {
           props: {
-            label: '與..相符',
+            text: '與..相符',
             placeholder: '請選擇欄位',
             type: 'select',
             options: this.typeConstraint.filterSame(this.columnsExcludeSelf),
@@ -100,11 +100,11 @@ export default /*#__PURE__*/ {
       if (this.typeConstraint.isText && !this.typeConstraint.hasSubType) {
         temp = {
           ...temp,
-          minimum: { props: { label: '字元下限', type: 'number' }, msg: `[${name}] 最少 [:min] 個字。` },
-          maximum: { props: { label: '字元上限', type: 'number' }, msg: `[${name}] 最多 [:max] 個字。` },
+          minimum: { props: { text: '字元下限', type: 'number' }, msg: `[${name}] 最少 [:min] 個字。` },
+          maximum: { props: { text: '字元上限', type: 'number' }, msg: `[${name}] 最多 [:max] 個字。` },
           regex: {
             props: {
-              label: '驗證格式',
+              text: '驗證格式',
               type: 'select',
               placeholder: '請選擇',
               options: this.localRegexOptions,
@@ -121,14 +121,14 @@ export default /*#__PURE__*/ {
       } else if (this.typeConstraint.isNumber) {
         temp = {
           ...temp,
-          minimum: { props: { label: '數字下限', type: 'number' }, msg: `[${name}] 最少 [:min]。` },
-          maximum: { props: { label: '數字上限', type: 'number' }, msg: `[${name}] 最多 [:max]。` },
+          minimum: { props: { text: '數字下限', type: 'number' }, msg: `[${name}] 最少 [:min]。` },
+          maximum: { props: { text: '數字上限', type: 'number' }, msg: `[${name}] 最多 [:max]。` },
         };
       } else if (this.typeConstraint.isMultiple) {
         temp = {
           ...temp,
-          least: { props: { label: '選擇數量下限', type: 'number' }, msg: `[${name}] 最少選 [:least] 個。` },
-          most: { props: { label: '選擇數量上限', type: 'number' }, msg: `[${name}] 最多選 [:most] 個。` },
+          least: { props: { text: '選擇數量下限', type: 'number' }, msg: `[${name}] 最少選 [:least] 個。` },
+          most: { props: { text: '選擇數量上限', type: 'number' }, msg: `[${name}] 最多選 [:most] 個。` },
         };
       }
 

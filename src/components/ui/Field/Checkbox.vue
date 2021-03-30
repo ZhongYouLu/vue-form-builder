@@ -11,7 +11,7 @@
         @focus="$emit('focus')"
         @blur="$emit('blur')"
       />
-      <span>{{ text }}</span>
+      <span>{{ label }}</span>
     </label>
   </RadioRow>
 </template>
@@ -29,7 +29,7 @@ export default /*#__PURE__*/ {
     value: { type: [String, Number, Boolean], default: null },
     yes: { type: [String, Number, Boolean], default: 1 },
     no: { type: [String, Number, Boolean], default: null },
-    text: { type: String, default: 'Yes' },
+    label: { type: String, default: '是' },
   },
   emits: ['input', 'focus', 'blur'],
   computed: {

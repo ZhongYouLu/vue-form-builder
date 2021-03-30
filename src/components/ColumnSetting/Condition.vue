@@ -4,7 +4,7 @@
     <!-- <legend>條件設定</legend> -->
     <InputRow
       :value="$props.requiredSync"
-      label="連動必填"
+      text="連動必填"
       type="select"
       :options="columnsExcludeSelf"
       :icons="typeIcons"
@@ -18,7 +18,7 @@
     <InputRow
       v-if="requiredCheck.length"
       :value="requiredCheck"
-      label="被連動必填"
+      text="被連動必填"
       type="select"
       :options="columnsExcludeSelf"
       :icons="typeIcons"

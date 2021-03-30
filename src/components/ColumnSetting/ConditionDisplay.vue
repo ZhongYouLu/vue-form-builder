@@ -2,7 +2,7 @@
   <Block>
     <InputRow
       :value="triggerID"
-      label="監聽欄位"
+      text="監聽欄位"
       type="select"
       :options="columnsExcludeSelf"
       :icons="typeIcons"
@@ -13,7 +13,7 @@
       searchable
       @input="$emit('update', 'triggerID', $event)"
     >
-      <template #label-left>
+      <template #text-left>
         <Icon icon="mdi:close-thick" is-btn @click="$emit('remove')" />
         <span>{{ idx + 1 }}. </span>
       </template>

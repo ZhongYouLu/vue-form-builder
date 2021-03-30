@@ -3,7 +3,7 @@
   <div class="column-setting">
     <InputRow
       :value="column.type"
-      label="欄位屬性"
+      text="欄位屬性"
       placeholder="請選擇屬性"
       type="select"
       :options="typeOptions"

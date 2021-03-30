@@ -50,22 +50,22 @@ export default /*#__PURE__*/ {
   computed: {
     fields() {
       let temp = {
-        desc: { props: { label: '欄位說明' } },
-        subDesc: { props: { label: '欄位子說明' } },
+        desc: { props: { text: '欄位說明' } },
+        subDesc: { props: { text: '欄位子說明' } },
       };
 
       if (this.typeConstraint.isInput || this.typeConstraint.isSelect) {
-        temp['placeholder'] = { props: { label: '提示文字' } };
+        temp['placeholder'] = { props: { text: '提示文字' } };
       }
 
       if (!this.typeConstraint.isFile) {
-        temp['defaultValue'] = { props: { label: '預設值' } };
+        temp['defaultValue'] = { props: { text: '預設值' } };
       }
 
       if (this.typeConstraint.isText) {
         temp['subType'] = {
           props: {
-            label: '欄位性質',
+            text: '欄位性質',
             placeholder: '預設: 文字',
             type: 'select',
             options: subTypeOptions,
@@ -98,7 +98,7 @@ export default /*#__PURE__*/ {
       }
 
       if (this.typeConstraint.isCheckbox || this.typeConstraint.isSelect) {
-        temp['isMultiple'] = { props: { label: '可複選', type: 'checkbox', text: '可複選' } };
+        temp['isMultiple'] = { props: { text: '可複選', type: 'checkbox', label: '可複選' } };
       }
 
       if (this.typeConstraint.isInput) {
@@ -106,7 +106,7 @@ export default /*#__PURE__*/ {
           ...temp,
           // autocompleteSection: {
           //   props: {
-          //     label: '自動完成區段',
+          //     text: '自動完成區段',
           //     type: 'select',
           //     placeholder: '如需區隔再行指定。 e.g. 訂購地址、收件地址',
           //     options: autocompleteSectionOptions,
@@ -115,14 +115,14 @@ export default /*#__PURE__*/ {
           // },
           // autocomplete: {
           //   props: {
-          //     label: '自動完成',
+          //     text: '自動完成',
           //     placeholder: '請選擇',
           //     type: 'select',
           //     options: autocompleteOptions,
           //     clearable: true,
           //   },
           // },
-          encrypt: { props: { label: '資料庫加密', type: 'checkbox', text: '加密' } },
+          encrypt: { props: { text: '資料庫加密', type: 'checkbox', label: '加密' } },
         };
       }
 

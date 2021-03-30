@@ -4,7 +4,7 @@
     <!-- <legend>項目設定</legend> -->
     <InputRow
       :value="$props.srcMode"
-      label="資料來源"
+      text="資料來源"
       placeholder="請選擇來源"
       type="select"
       :options="sourceModeOptions"
@@ -25,9 +25,9 @@
       <button class="btn btn--add" @click.prevent="addItem">&#10010;</button>
     </template>
     <template v-else>
-      <InputRow :value="$props.api.url" label="API URL" required @input="updateApi('url', $event)" />
-      <InputRow :value="$props.api.textKey" label="Value Key" required @input="updateApi('textKey', $event)" />
-      <InputRow :value="$props.api.valueKey" label="Text Key" required @input="updateApi('valueKey', $event)" />
+      <InputRow :value="$props.api.url" text="API URL" required @input="updateApi('url', $event)" />
+      <InputRow :value="$props.api.textKey" text="Value Key" required @input="updateApi('textKey', $event)" />
+      <InputRow :value="$props.api.valueKey" text="Text Key" required @input="updateApi('valueKey', $event)" />
     </template>
   </fieldset>
 </template>

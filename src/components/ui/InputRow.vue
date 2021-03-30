@@ -1,9 +1,9 @@
 <template>
   <component :is="$props.multiple ? 'div' : 'label'" :class="['input-row', { required: required }]">
     <div class="for">
-      <slot name="label-left"></slot>
-      <p>{{ label }}</p>
-      <slot name="label-right"></slot>
+      <slot name="text-left"></slot>
+      <p>{{ text }}</p>
+      <slot name="text-right"></slot>
     </div>
     <Field v-bind="$attrs" :multiple="multiple" :required="required" @input="$emit('input', $event)">
       <template v-for="(_, slot) in $scopedSlots" #[slot]="props">
@@ -23,7 +23,7 @@ export default /*#__PURE__*/ {
   },
   inheritAttrs: false,
   props: {
-    label: { type: String, default: '' },
+    text: { type: String, default: '' },
     required: { type: Boolean, default: false },
     multiple: { type: Boolean, default: false },
   },
