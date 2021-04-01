@@ -1,37 +1,39 @@
 <template>
-  <div>
-    <div class="checkbox" :disabled="disabled" :checked="checked" :empty="empty">
-      <Tips type="error" dir="topleft" :tips="tips" :show="show">
-        <label>
-          <input
-            ref="checkbox"
-            v-model="checked"
-            :name="name"
-            type="checkbox"
-            :required="required"
-            :disabled="disabled"
-            :invalid="invalid"
-            :novalidate="novalidate"
-            @keydown="handleKeydown"
-            @focus="handleFocus"
-            @blur="handleBlur"
-          />
-          <span class="cheked">
-            <Icon icon="mdi:check" />
-          </span>
-          <slot></slot>
-        </label>
-      </Tips>
-    </div>
-
+  <div class="checkbox" :disabled="disabled" :checked="checked">
+    <Tips type="error" dir="topleft" :tips="tips" :show="show">
+      <label>
+        <input
+          ref="checkbox"
+          v-model="checked"
+          :true-value="yes"
+          :false-value="no"
+          :name="name"
+          type="checkbox"
+          :required="required"
+          :disabled="disabled"
+          :invalid="invalid"
+          :novalidate="novalidate"
+          @keydown="handleKeydown"
+          @focus="handleFocus"
+          @blur="handleBlur"
+        />
+        <span class="cheked">
+          <Icon icon="mdi:check" />
+        </span>
+        <slot>
+          <span>{{ label }}</span>
+        </slot>
+      </label>
+    </Tips>
+  </div>
+  <!-- <p>{{ checked }}</p>
     <p>show: {{ show }}</p>
     <p>novalidate: {{ novalidate }}</p>
     <p>disabled: {{ disabled }}</p>
     <p>indeterminate: {{ indeterminate }}</p>
     <button @click="checkValidity">checkValidity</button>
     <button @click="focus">focus</button>
-    <button @click="reset">reset</button>
-  </div>
+    <button @click="reset">reset</button> -->
 </template>
 
 <script>
@@ -47,11 +49,16 @@ export default /*#__PURE__*/ {
   props: {
     // form: { type: Object, default: null },
     // ----------------------------------
+    value: { type: [String, Number, Boolean], default: null },
+    yes: { type: [String, Number, Boolean], default: 1 },
+    no: { type: [String, Number, Boolean], default: null },
+    label: { type: [String, Number, Boolean], default: '是' },
+    // ----------------------------------
     name: { type: String, default: null },
-    value: { type: Boolean, default: null },
     required: { type: Boolean, default: null },
     disabled: { type: Boolean, default: null },
     novalidate: { type: Boolean, default: null },
+    // ----------------------------------
     errortips: { type: String, default: null },
   },
   emits: ['input', 'focus', 'blur'],
@@ -61,7 +68,6 @@ export default /*#__PURE__*/ {
       invalid: false,
       show: false,
       tips: null,
-      empty: false,
       isfocus: false,
     };
   },
@@ -98,8 +104,7 @@ export default /*#__PURE__*/ {
   },
   methods: {
     resetSlot() {
-      this.empty = !this.$slots.default;
-      if (!this.empty) {
+      if (this.$slots.default) {
         if (!this.$slots.default[0].tag) this.$slots.default[0].tag = 'span';
       }
     },
@@ -252,16 +257,12 @@ export default /*#__PURE__*/ {
     }
   }
 
-  &[empty] .cheked {
-    margin-right: 0;
-  }
-
   .cheked {
     position: relative;
     display: flex;
     justify-content: center;
     align-items: center;
-    margin-right: 0.5em;
+
     width: 1em;
     height: 1em;
     text-align: initial;
@@ -289,6 +290,10 @@ export default /*#__PURE__*/ {
       border-radius: 50%;
       opacity: 0.2;
       z-index: -1;
+    }
+
+    & ~ *:not(:empty) {
+      margin-left: 0.5em;
     }
   }
 
