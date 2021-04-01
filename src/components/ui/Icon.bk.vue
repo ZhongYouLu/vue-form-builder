@@ -1,5 +1,5 @@
 <template>
-  <span ref="el" class="zyl-icon" :spin="spin" :style="styles" />
+  <span ref="el" class="icon" :class="classes" @click.prevent="$emit('click')" />
 </template>
 
 <script>
@@ -9,17 +9,13 @@ export default /*#__PURE__*/ {
   name: 'Icon',
   props: {
     icon: { type: String, required: true },
-    color: { type: String, required: true },
-    size: { type: Number, default: null },
-    spin: { type: Boolean, required: false },
+    isBtn: { type: Boolean, default: false },
   },
   computed: {
-    styles() {
-      const temp = {};
-      if (this.color) temp.color = this.color;
-      if (this.size) temp.fontSize = `${this.size}px`;
-
-      return temp;
+    classes() {
+      return {
+        'icon--btn': this.isBtn,
+      };
     },
   },
   watch: {
@@ -50,28 +46,37 @@ export default /*#__PURE__*/ {
 <style lang="scss">
 @import '@/assets/scss/utils.scss';
 
-.zyl-icon {
-  font-size: inherit;
-  display: inline-block;
-  transition: 0.3s;
+.icon {
+  display: flex;
+  width: 1em;
+  height: 1em;
 
   .iconify {
-    display: block;
-    width: 1em;
-    height: 1em;
-    margin: auto;
-    fill: currentColor;
-    overflow: hidden;
-    /*transition:inherit;*/
+    width: 100%;
+    height: 100%;
   }
 
-  &[spin] {
-    animation: rotate 1.4s linear infinite;
-  }
+  &--btn {
+    @include content-centered();
+    width: 1.1em;
+    height: 1.1em;
+    text-align: center;
+    border-radius: 50%;
+    outline: none;
+    user-select: none;
+    cursor: pointer;
 
-  @keyframes rotate {
-    to {
-      transform: rotate(360deg);
+    &:hover {
+      background-color: lighten($color-gray-dark, 30);
+    }
+
+    * ~ & {
+      margin-left: $gap;
+    }
+
+    .iconify {
+      width: 90%;
+      height: 90%;
     }
   }
 }

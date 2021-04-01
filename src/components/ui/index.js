@@ -1,4 +1,7 @@
+export { default as Button } from './Button.vue';
 export { default as Icon } from './Icon.vue';
+export { default as Loading } from './Loading.vue';
+export { default as Tips } from './Tips.vue';
 export { default as Field } from './Field/index.vue';
 export { default as IconRow } from './IconRow.vue';
 export { default as InputRow } from './InputRow.vue';

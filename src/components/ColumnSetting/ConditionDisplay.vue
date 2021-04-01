@@ -14,7 +14,7 @@
       @input="$emit('update', 'triggerID', $event)"
     >
       <template #text-left>
-        <Icon icon="mdi:close-thick" is-btn @click="$emit('remove')" />
+        <Button icon="mdi:close-thick" type="flat" shape="circle" @click="$emit('remove')" />
         <span>{{ idx + 1 }}. </span>
       </template>
     </InputRow>
@@ -73,20 +73,21 @@
               :fuse-keys="['text']"
               @input="$emit('update', 'values', $event)"
             />
-          </template></div
-      ></Block>
+          </template>
+        </div>
+      </Block>
     </div>
   </Block>
 </template>
 <script>
-import { InputRow, Icon, Field, Block } from '@/components/ui';
+import { InputRow, Button, Field, Block } from '@/components/ui';
 import { thousandSeparator } from '@/assets/js/helper.js';
 
 export default /*#__PURE__*/ {
   name: 'ColumnSettingConditionDisplay',
   components: {
     InputRow,
-    Icon,
+    Button,
     Field,
     Block,
   },

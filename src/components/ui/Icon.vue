@@ -1,5 +1,5 @@
 <template>
-  <span ref="el" class="icon" :class="classes" @click.prevent="$emit('click')" />
+  <span ref="el" class="icon" :style="styles" :spin="spin" @click="handleClick" />
 </template>
 
 <script>
@@ -9,13 +9,18 @@ export default /*#__PURE__*/ {
   name: 'Icon',
   props: {
     icon: { type: String, required: true },
-    isBtn: { type: Boolean, default: false },
+    color: { type: String, default: null },
+    size: { type: Number, default: null },
+    spin: { type: Boolean, default: null },
   },
+  emits: ['click'],
   computed: {
-    classes() {
-      return {
-        'icon--btn': this.isBtn,
-      };
+    styles() {
+      const temp = {};
+      if (this.color) temp.color = this.color;
+      if (this.size) temp.fontSize = `${this.size}px`;
+
+      return temp;
     },
   },
   watch: {
@@ -39,6 +44,12 @@ export default /*#__PURE__*/ {
         this.$refs.el.appendChild(span);
       }
     },
+    handleClick(e) {
+      if (this._events.click) {
+        e.preventDefault();
+        this.$emit('click');
+      }
+    },
   },
 };
 </script>
@@ -47,36 +58,31 @@ export default /*#__PURE__*/ {
 @import '@/assets/scss/utils.scss';
 
 .icon {
-  display: flex;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
   width: 1em;
   height: 1em;
+  font-size: inherit;
+  transition: 0.3s;
 
   .iconify {
+    display: block;
     width: 100%;
     height: 100%;
+    margin: auto;
+    fill: currentColor;
+    overflow: hidden;
+    /*transition:inherit;*/
   }
 
-  &--btn {
-    @include content-centered();
-    width: 1.1em;
-    height: 1.1em;
-    text-align: center;
-    border-radius: 50%;
-    outline: none;
-    user-select: none;
-    cursor: pointer;
+  &[spin] {
+    animation: rotate 1.4s linear infinite;
+  }
 
-    &:hover {
-      background-color: lighten($color-gray-dark, 30);
-    }
-
-    * ~ & {
-      margin-left: $gap;
-    }
-
-    .iconify {
-      width: 90%;
-      height: 90%;
+  @keyframes rotate {
+    to {
+      transform: rotate(360deg);
     }
   }
 }

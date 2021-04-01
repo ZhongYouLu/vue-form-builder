@@ -43,11 +43,12 @@
       @update="updateDisplay(d.id, ...arguments)"
       @remove="removeDisplay(d.id)"
     />
-    <button class="btn btn--add" @click.prevent="addDisplay">&#10010;</button>
+    <Button icon="mdi:plus" block @click="addDisplay" />
   </fieldset>
 </template>
 <script>
 import InputRow from '@/components/ui/InputRow';
+import Button from '@/components/ui/Button';
 import ConditionDisplay from '@/components/ColumnSetting/ConditionDisplay';
 import { nanoid } from '@/assets/js/helper.js';
 import { typeIcons } from '@/assets/js/options.js';
@@ -56,6 +57,7 @@ export default /*#__PURE__*/ {
   name: 'ColumnSettingCondition',
   components: {
     InputRow,
+    Button,
     ConditionDisplay,
   },
   inject: ['handleConfirm'],

@@ -1,20 +1,12 @@
 <template>
   <div class="record-controls">
-    <button @click="addToRecord">
-      <Icon icon="mdi:content-save" />
-    </button>
-    <button :disabled="!hasPrev" @click="restorePrev">
-      <Icon icon="ri:arrow-go-back-fill" />
-    </button>
-    <button :disabled="!hasNext" @click="restoreNext">
-      <Icon icon="ri:arrow-go-forward-fill" />
-    </button>
-    <button :disabled="!hasThis" @click="restoreThis">
-      <Icon icon="mdi:restore" />
-    </button>
-    <button :disabled="!hasThis" @click="removeRecord">
-      <Icon icon="mdi:trash-can" />
-    </button>
+    <div class="zyl-btn-group">
+      <Button icon="mdi:content-save" @click="addToRecord" />
+      <Button icon="ri:arrow-go-back-fill" :disabled="!hasPrev" @click="restorePrev" />
+      <Button icon="ri:arrow-go-forward-fill" :disabled="!hasNext" @click="restoreNext" />
+      <Button icon="mdi:restore" :disabled="!hasThis" @click="restoreThis" />
+      <Button icon="mdi:trash-can" :disabled="!hasThis" @click="removeRecord" />
+    </div>
     <!-- Default Slot -->
     <slot :hasThis="hasThis" :recordIdx="recordIdx" :recordLimit="recordLimit" :createdTime="createdTime">
       <span v-show="hasThis"> {{ recordIdx + 1 }} / {{ recordLimit }} 筆 : {{ createdTime }} </span>
@@ -23,13 +15,13 @@
 </template>
 
 <script>
-import Icon from '@/components/ui/Icon';
+import Button from '@/components/ui/Button';
 import { deepCopy } from '@/assets/js/helper.js';
 
 export default /*#__PURE__*/ {
   name: 'RecordControls',
   components: {
-    Icon,
+    Button,
   },
   props: {
     recordName: { type: String, required: true },

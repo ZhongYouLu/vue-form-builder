@@ -18,11 +18,11 @@
           <div v-for="(item, idx) in $props.items" :key="item.id" class="input-row">
             <div class="drag"><Icon icon="mdi:drag" />{{ idx + 1 }}</div>
             <Field :value="item.text" :placeholder="`(${item.id})`" @input="updateItem(item.id, 'text', $event)" />
-            <Icon icon="mdi:close-thick" is-btn @click="removeItem(item.id)" />
+            <Button icon="mdi:close-thick" type="flat" shape="circle" @click="removeItem(item.id)" />
           </div>
         </Draggable>
       </Block>
-      <button class="btn btn--add" @click.prevent="addItem">&#10010;</button>
+      <Button icon="mdi:plus" block @click="addItem" />
     </template>
     <template v-else>
       <InputRow :value="$props.api.url" text="API URL" required @input="updateApi('url', $event)" />
@@ -33,7 +33,7 @@
 </template>
 
 <script>
-import { InputRow, Icon, Field, Block, Draggable } from '@/components/ui';
+import { InputRow, Button, Icon, Field, Block, Draggable } from '@/components/ui';
 import { nanoid } from '@/assets/js/helper.js';
 import { convertOptions } from '@/assets/js/options.js';
 
@@ -41,6 +41,7 @@ export default /*#__PURE__*/ {
   name: 'ColumnSettingItem',
   components: {
     InputRow,
+    Button,
     Icon,
     Field,
     Block,

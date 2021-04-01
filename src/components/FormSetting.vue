@@ -25,19 +25,29 @@
                 <template v-else>
                   <div class="text-ellipsis">{{ column.name || `(${column.id})` }}</div>
                 </template>
-                <Icon
+                <Button
+                  type="flat"
+                  shape="circle"
+                  color="#fff"
                   :icon="collect[column.id].isEditName ? 'ic:baseline-done-outline' : 'mi:edit-alt'"
-                  is-btn
                   @click="toggleIsEditName(column.id)"
                 />
               </div>
               <div class="card__controll">
-                <Icon
+                <Button
+                  type="flat"
+                  shape="circle"
+                  color="#fff"
                   :icon="collect[column.id].isOpen ? 'mdi:eye-minus' : 'mdi:eye-settings'"
-                  is-btn
                   @click="toggleIsOpen(column.id)"
                 />
-                <Icon icon="mdi:close-thick" is-btn @click="invokeRemove(column.id)" />
+                <Button
+                  type="flat"
+                  shape="circle"
+                  color="#fff"
+                  icon="mdi:close-thick"
+                  @click="invokeRemove(column.id)"
+                />
               </div>
             </slot>
           </template>
@@ -61,12 +71,12 @@
         </Card>
       </Block>
     </Draggable>
-    <button class="btn btn--add" @click="invokeAdd">&#10010;</button>
+    <Button icon="mdi:plus" block @click="invokeAdd" />
   </div>
 </template>
 
 <script>
-import { Draggable, Block, Card, Icon, Field } from '@/components/ui';
+import { Draggable, Block, Card, Button, Icon, Field } from '@/components/ui';
 import ColumnSetting from '@/components/ColumnSetting';
 
 export default /*#__PURE__*/ {
@@ -75,6 +85,7 @@ export default /*#__PURE__*/ {
     Draggable,
     Block,
     Card,
+    Button,
     Icon,
     Field,
     ColumnSetting,
@@ -100,28 +111,6 @@ export default /*#__PURE__*/ {
 
 <style lang="scss">
 @import '@/assets/scss/utils.scss';
-
-.form-setting {
-  .btn {
-    width: 100%;
-    padding: $gap;
-    text-align: center;
-    color: $btn-text-color;
-    background-color: $btn-bg-color;
-    border: $border-width solid $border-color;
-    border-radius: $border-radius;
-    outline: none;
-    user-select: none;
-    cursor: pointer;
-
-    &:hover {
-      background-color: $btn-bg-color-hover;
-    }
-    &:active {
-      background-color: darken($btn-bg-color-hover, 10);
-    }
-  }
-}
 
 .card {
   &__name {

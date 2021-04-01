@@ -5,7 +5,13 @@
     <div v-for="(v, k) in fields" :key="k" class="input-group">
       <InputRow :value="$props[k]" v-bind="v.props" @input="update(k, $event)">
         <template #text-right>
-          <Icon v-show="$props[k]" icon="mdi:ideogram-cjk-variant" is-btn @click="setToggleMsg(k)" />
+          <Button
+            v-show="$props[k]"
+            icon="mdi:ideogram-cjk-variant"
+            type="flat"
+            shape="circle"
+            @click="setToggleMsg(k)"
+          />
         </template>
         <template v-for="(_, slot) in $scopedSlots" #[slot]="props">
           <slot :name="slot" v-bind="props" />
@@ -23,14 +29,14 @@
 </template>
 
 <script>
-import { InputRow, Icon } from '@/components/ui';
+import { InputRow, Button } from '@/components/ui';
 import { typeIcons, regexOptions } from '@/assets/js/options.js';
 
 export default /*#__PURE__*/ {
   name: 'ColumnSettingRule',
   components: {
     InputRow,
-    Icon,
+    Button,
   },
   inject: ['collect', 'setCollect'],
   props: {

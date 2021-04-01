@@ -1,8 +1,8 @@
 /* eslint-disable vue/no-mutating-props */
 <template>
-  <div class="zyl-loading">
-    <svg ref="loading" class="loading" :style="styles" viewBox="22 22 44 44">
-      <circle class="circle" cx="44" cy="44" r="20.2" fill="none" stroke-width="3.6"></circle>
+  <div class="loading" :style="styles">
+    <svg viewBox="22 22 44 44" :style="svgStyles">
+      <circle cx="44" cy="44" r="20.2" fill="none" stroke-width="3.6"></circle>
     </svg>
     <slot></slot>
   </div>
@@ -20,6 +20,11 @@ export default /*#__PURE__*/ {
       const temp = {};
       if (this.color) temp.color = this.color;
       if (this.size) temp.fontSize = `${this.size}px`;
+
+      return temp;
+    },
+    svgStyles() {
+      const temp = {};
       if (this.$slots.default) temp.margin = '0.5em';
 
       return temp;
@@ -31,7 +36,7 @@ export default /*#__PURE__*/ {
 <style lang="scss">
 @import '@/assets/scss/utils.scss';
 
-.zyl-loading {
+.loading {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -39,19 +44,19 @@ export default /*#__PURE__*/ {
   font-size: inherit;
   color: var(--themeColor);
 
-  .loading {
+  svg {
     display: block;
     width: 1em;
     height: 1em;
     margin: auto;
     animation: rotate 1.4s linear infinite;
   }
-  .circle {
+  circle {
     stroke: currentColor;
     animation: progress 1.4s ease-in-out infinite;
     stroke-dasharray: 80px, 200px;
     stroke-dashoffset: 0px;
-    transition: 0.3s;
+    // transition: 0.3s;
   }
 
   @keyframes rotate {
