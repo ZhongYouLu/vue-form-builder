@@ -9,7 +9,7 @@
     :suffix="suffix"
     :dir="tempDir"
     :type="type"
-    :show="show ? 'true' : 'false'"
+    :show="show ? 'show' : 'false'"
   >
     <slot>{{ tempDir }}</slot>
   </div>

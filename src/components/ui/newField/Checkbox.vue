@@ -1,18 +1,16 @@
 <template>
-  <div class="checkbox" :disabled="disabled" :checked="checked">
-    <Tips type="error" dir="topleft" :tips="tips" :show="show">
+  <div class="checkbox" :checked="checked" :disabled="disabled" :invalid="invalid">
+    <Tips type="error" :dir="idx ? 'bottomleft' : 'topleft'" :tips="tips" :show="show">
       <label>
         <input
           ref="checkbox"
           v-model="checked"
-          :true-value="yes"
-          :false-value="no"
           :name="name"
           type="checkbox"
+          :true-value="yes"
+          :false-value="no"
           :required="required"
           :disabled="disabled"
-          :invalid="invalid"
-          :novalidate="novalidate"
           @keydown="handleKeydown"
           @focus="handleFocus"
           @blur="handleBlur"
@@ -26,14 +24,6 @@
       </label>
     </Tips>
   </div>
-  <!-- <p>{{ checked }}</p>
-    <p>show: {{ show }}</p>
-    <p>novalidate: {{ novalidate }}</p>
-    <p>disabled: {{ disabled }}</p>
-    <p>indeterminate: {{ indeterminate }}</p>
-    <button @click="checkValidity">checkValidity</button>
-    <button @click="focus">focus</button>
-    <button @click="reset">reset</button> -->
 </template>
 
 <script>
@@ -47,14 +37,15 @@ export default /*#__PURE__*/ {
     Icon,
   },
   props: {
-    // form: { type: Object, default: null },
+    form: { type: HTMLFormElement, default: null },
     // ----------------------------------
-    value: { type: [String, Number, Boolean], default: null },
-    yes: { type: [String, Number, Boolean], default: 1 },
-    no: { type: [String, Number, Boolean], default: null },
-    label: { type: [String, Number, Boolean], default: '是' },
-    // ----------------------------------
+    idx: { type: Number, default: null },
     name: { type: String, default: null },
+    value: { type: [String, Number, Boolean], default: null },
+    label: { type: [String, Number, Boolean], default: '是' },
+    yes: { type: [String, Number, Boolean], default: true },
+    no: { type: [String, Number, Boolean], default: false },
+    // ----------------------------------
     required: { type: Boolean, default: null },
     disabled: { type: Boolean, default: null },
     novalidate: { type: Boolean, default: null },
@@ -64,7 +55,7 @@ export default /*#__PURE__*/ {
   emits: ['input', 'focus', 'blur'],
   data() {
     return {
-      form: null,
+      localForm: this.form,
       invalid: false,
       show: false,
       tips: null,
@@ -76,17 +67,17 @@ export default /*#__PURE__*/ {
       get() {
         return this.value;
       },
-      set(value) {
-        this.$emit('input', value);
+      set(val) {
+        this.$emit('input', val);
       },
     },
     indeterminate: {
       get() {
         return this.$refs.checkbox?.indeterminate;
       },
-      set(value) {
+      set(flag) {
         const checkbox = this.$refs.checkbox;
-        if (checkbox) checkbox.indeterminate = value;
+        if (checkbox) checkbox.indeterminate = !!flag;
       },
     },
   },
@@ -100,7 +91,9 @@ export default /*#__PURE__*/ {
     this.resetSlot();
   },
   mounted() {
-    this.form = this.$refs.checkbox.closest('form');
+    if (!this.localForm) {
+      this.localForm = this.$refs.checkbox.closest('form');
+    }
   },
   methods: {
     resetSlot() {
@@ -116,33 +109,33 @@ export default /*#__PURE__*/ {
     focus() {
       this.$refs.checkbox.focus();
     },
+    setIndeterminate(flag) {
+      this.indeterminate = flag;
+    },
     validity() {
-      const result = this.$refs.checkbox?.checkValidity();
-      // console.log('validity', result);
-      return result;
+      return this.$refs.checkbox.checkValidity();
     },
     checkValidity() {
-      if (this.novalidate || this.disabled || (this.form && this.form.novalidate)) {
+      if (this.novalidate || this.disabled || (this.localForm && this.localForm.novalidate)) {
         return true;
       }
       if (this.validity()) {
         this.invalid = false;
         this.show = false;
-        // this.tips = null;
-        return true;
       } else {
         this.focus();
         this.invalid = true;
         this.show = true;
         this.tips = this.errortips || this.$refs.checkbox?.validationMessage;
-        return false;
       }
+
+      return !this.invalid;
     },
-    toggle(evt) {
-      const target = evt.target;
-      if (target.readOnly) target.checked = target.readOnly = false;
-      else if (!target.checked) target.readOnly = this.indeterminate = true;
-    },
+    // toggle(evt) {
+    //   const target = evt.target;
+    //   if (target.readOnly) target.checked = target.readOnly = false;
+    //   else if (!target.checked) target.readOnly = this.indeterminate = true;
+    // },
     handleKeydown(evt) {
       switch (evt.keyCode) {
         case 13: //Enter
@@ -155,8 +148,7 @@ export default /*#__PURE__*/ {
     handleFocus(e) {
       e.stopPropagation();
       if (!this.isfocus) {
-        console.log('focus');
-        this.$emit('focus');
+        this.$emit('focus', this.idx);
       }
     },
     handleBlur(e) {
@@ -165,8 +157,7 @@ export default /*#__PURE__*/ {
         this.isfocus = true;
       } else {
         this.isfocus = false;
-        console.log('blur');
-        this.$emit('blur');
+        this.$emit('blur', this.idx);
       }
     },
   },
