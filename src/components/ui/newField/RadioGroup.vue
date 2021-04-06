@@ -1,15 +1,15 @@
 <template>
-  <div ref="group" class="checkbox-group" :disabled="disabled" :invalid="invalid">
+  <div ref="group" class="radio-group" :disabled="disabled" :invalid="invalid">
+    {{ invalid }}
     <Tips type="error" :tabindex="disabled ? -1 : null" :tips="tips" :show="show">
-      <Checkbox
+      <Radio
         v-for="(option, idx) in options"
         :key="option[valueKey]"
-        ref="checkbox"
+        ref="radio"
         :idx="idx"
         :name="name"
         :label="option[textKey]"
-        :value="localValue[option[valueKey]].flag"
-        :required="localValue[option[valueKey]].required"
+        :value="localValue[option[valueKey]]"
         :disabled="disabled"
         :novalidate="novalidate"
         :form="form"
@@ -23,30 +23,26 @@
 
 <script>
 import Tips from '@/components/ui/Tips';
-import Checkbox from '@/components/ui/newField/Checkbox';
-import { arrRemoveValue } from '@/assets/js/helper.js';
+import Radio from '@/components/ui/newField/Radio';
 
 export default /*#__PURE__*/ {
   name: 'CheckboxGroup',
   components: {
     Tips,
-    Checkbox,
+    Radio,
   },
   props: {
     form: { type: HTMLFormElement, default: null },
     // ----------------------------------
     name: { type: String, required: true },
-    value: { type: Array, default: () => [] },
+    value: { type: [String, Number, Boolean], default: null },
     options: { type: Array, default: () => [] },
     textKey: { type: String, default: 'text' },
     valueKey: { type: String, default: 'value' },
     // ----------------------------------
     required: { type: Boolean, default: null },
-    requiredValue: { type: Array, default: () => [] },
     disabled: { type: Boolean, default: null },
     novalidate: { type: Boolean, default: null },
-    min: { type: Number, default: null },
-    max: { type: Number, default: null },
     // ----------------------------------
     errortips: { type: String, default: null },
   },
@@ -58,7 +54,7 @@ export default /*#__PURE__*/ {
       show: false,
       tips: null,
       errorType: null,
-      defaultValue: [],
+      defaultValue: null,
     };
   },
   computed: {
@@ -73,19 +69,9 @@ export default /*#__PURE__*/ {
     localValue() {
       return this.options.reduce((acc, option) => {
         const v = option[this.valueKey];
-        acc[v] = {
-          flag: this.value.includes(v),
-          required: this.requiredValue.includes(v),
-        };
+        acc[v] = this.value === v;
         return acc;
       }, {});
-    },
-    localMin() {
-      const min = this.min || 0;
-      return this.required ? Math.max(1, min) : min;
-    },
-    localMax() {
-      return this.max || Infinity;
     },
   },
   watch: {
@@ -100,12 +86,8 @@ export default /*#__PURE__*/ {
     }
   },
   methods: {
-    toggle(key, checked) {
-      if (checked) {
-        this.mutableValue = this.mutableValue.concat(key);
-      } else {
-        this.mutableValue = arrRemoveValue(this.mutableValue, key);
-      }
+    toggle(key) {
+      this.mutableValue = key;
     },
     reset() {
       this.mutableValue = this.defaultValue;
@@ -113,39 +95,16 @@ export default /*#__PURE__*/ {
       this.show = false;
     },
     focus(idx) {
-      if (idx == null || idx < 0 || idx > this.$refs.checkbox.length - 1) idx = 0;
-      this.$refs.checkbox[idx].focus();
-    },
-    checkAll() {
-      this.mutableValue = Object.keys(this.localValue).map((key) => key);
+      if (idx == null || idx < 0 || idx > this.$refs.radio.length - 1) idx = 0;
+      this.$refs.radio[idx].focus();
     },
     validity() {
       this.errorType = null;
-      const len = this.value.length;
 
-      // 非必填且無勾選
-      if (!this.required && len == 0) {
-        return true;
-      }
-
-      // 數量限制
-      if (len < this.localMin) {
-        this.errorType = 'min';
+      // 必填
+      if (this.required && (this.value == null || this.value === '')) {
+        this.errorType = 'required';
         return false;
-      }
-      if (len > this.localMax) {
-        this.errorType = 'max';
-        return false;
-      }
-
-      // 項目必填
-      if (this.requiredValue.length) {
-        for (let i = 0, checkbox; (checkbox = this.$refs.checkbox[i]); i++) {
-          if (!checkbox.checkValidity()) {
-            this.errorType = 'required';
-            return false;
-          }
-        }
       }
 
       return true;
@@ -164,15 +123,9 @@ export default /*#__PURE__*/ {
       }
 
       switch (this.errorType) {
-        case 'min':
-          this.focus();
-          this.tips = `請至少選擇${this.localMin}項`;
-          break;
-        case 'max':
-          this.tips = `至多選擇${this.localMax}項`;
-          break;
         case 'required':
-          this.show = false;
+          this.focus();
+          this.tips = '必須選擇一項';
           break;
         default:
           break;
@@ -195,7 +148,7 @@ export default /*#__PURE__*/ {
 <style lang="scss">
 @import '@/assets/scss/utils.scss';
 
-.checkbox-group {
+.radio-group {
   display: inline-block;
 
   &:focus-within,
@@ -214,13 +167,13 @@ export default /*#__PURE__*/ {
       outline: 0;
     }
 
-    .checkbox {
+    .radio {
       pointer-events: none;
       opacity: 0.6;
     }
   }
 
-  .checkbox {
+  .radio {
     transition: opacity 0.3s;
   }
 
