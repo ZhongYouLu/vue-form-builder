@@ -70,7 +70,10 @@ export default /*#__PURE__*/ {
     },
   },
   watch: {
-    checked: 'checkValidity',
+    checked: function () {
+      this.$refs.radio.checked = this.checked;
+      this.checkValidity();
+    },
   },
   created() {
     this.resetSlot();
@@ -116,15 +119,13 @@ export default /*#__PURE__*/ {
 
       return !this.invalid;
     },
-    handleInput() {
-      if (this.value) {
-        this.$refs.radio.checked = true;
-      }
+    handleInput(e) {
+      e.target.checked = this.checked = true;
     },
     handleKeydown(e) {
       switch (e.keyCode) {
         case 13: //Enter
-          this.checked = !this.checked;
+          this.checked = true;
           break;
         default:
           break;
