@@ -1,6 +1,6 @@
 /* eslint-disable vue/no-mutating-props */
 <template>
-  <div class="zyl-btn" v-bind="wrapperProps">
+  <div class="x-btn" v-bind="wrapperProps">
     <Loading v-if="loading" />
     <Icon v-else-if="icon" :icon="icon" :color="color" />
     <slot></slot>
@@ -60,11 +60,11 @@ export default /*#__PURE__*/ {
   computed: {
     wrapperClasses() {
       return [
-        this.type && `zyl-btn--${this.type}`,
-        { 'zyl-btn--href': !!this.href },
-        { 'zyl-btn--block': this.block },
-        { 'zyl-btn--circle': this.shape === 'circle' },
-        { 'zyl-btn--disabled': !this.type && this.disabled },
+        this.type && `x-btn--${this.type}`,
+        { 'x-btn--href': !!this.href },
+        { 'x-btn--block': this.block },
+        { 'x-btn--circle': this.shape === 'circle' },
+        { 'x-btn--disabled': !this.type && this.disabled },
       ];
     },
     wrapperProps() {
@@ -148,7 +148,7 @@ export default /*#__PURE__*/ {
 <style lang="scss">
 @import '@/assets/scss/utils.scss';
 
-.zyl-btn {
+.x-btn {
   box-sizing: border-box;
   position: relative;
   padding: var(--vGap) var(--hGap);
@@ -354,7 +354,7 @@ export default /*#__PURE__*/ {
     }
   }
 
-  .zyl-btn-group & {
+  .x-btn-group & {
     margin: 0 !important;
 
     &:first-of-type {
@@ -383,7 +383,7 @@ export default /*#__PURE__*/ {
   }
 }
 
-.zyl-btn-group {
+.x-btn-group {
   display: inline-flex;
 }
 </style>

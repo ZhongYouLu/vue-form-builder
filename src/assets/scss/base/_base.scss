@@ -17,8 +17,8 @@ body {
   font-family: 'Microsoft JhengHei', sans-serif;
   font-size: $font-size;
   line-height: 1.4;
-  color: $text-color;
-  background-color: $bg-color;
+  color: var(--fontColor, $text-color);
+  background-color: var(--bgColor, $bg-color);
 }
 
 ul,

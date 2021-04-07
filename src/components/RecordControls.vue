@@ -1,6 +1,6 @@
 <template>
   <div class="record-controls">
-    <div class="zyl-btn-group">
+    <div class="x-btn-group">
       <Button icon="mdi:content-save" @click="addToRecord" />
       <Button icon="ri:arrow-go-back-fill" :disabled="!hasPrev" @click="restorePrev" />
       <Button icon="ri:arrow-go-forward-fill" :disabled="!hasNext" @click="restoreNext" />
