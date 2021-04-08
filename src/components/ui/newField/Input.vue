@@ -1,21 +1,12 @@
 /* eslint-disable vue/no-mutating-props */
 <template>
-  <div
-    class="x-input"
-    :block="block"
-    :label="label && !icon"
-    :invalid="invalid"
-    :disabled="disabled"
-    :required="required"
-    :readonly="readonly"
-  >
+  <div class="x-input" :block="block" :invalid="invalid" :disabled="disabled" :required="required" :readonly="readonly">
     <Tips type="error" :tabindex="disabled ? -1 : null" :dir="errordir" :tips="tips" :show="showTips">
-      <Icon v-if="icon" class="x-icon-pre" :icon="icon" />
+      <Icon v-if="icon" class="x-input__icon-pre" :icon="icon" />
       <textarea
         v-if="multi"
         ref="input"
         v-model="mutableValue"
-        class="_input _textarea"
         v-bind="bindAttrs"
         @focus="handleFocus"
         @blur="handleBlur"
@@ -25,7 +16,6 @@
         v-else-if="type === 'number'"
         ref="input"
         v-model.number="mutableValue"
-        class="_input"
         v-bind="bindAttrs"
         @focus="handleFocus"
         @blur="handleBlur"
@@ -35,23 +25,20 @@
         v-else
         ref="input"
         v-model.trim="mutableValue"
-        class="_input"
         v-bind="bindAttrs"
         @focus="handleFocus"
         @blur="handleBlur"
         @keydown="handleKeydown"
       />
-
-      <slot></slot>
-      <label v-if="label && !icon" class="x-input-label">{{ label }}</label>
+      <label v-if="label && !icon" class="x-input__label">{{ label }}</label>
       <template v-if="!multi">
-        <div v-if="type === 'number'" class="x-btn-right x-btn-number">
+        <div v-if="type === 'number'" class="x-input__btn-right x-input__btn-right--number">
           <Button icon="mdi:chevron-up" type="flat" @click="invokeAdd" />
           <Button icon="mdi:chevron-down" type="flat" @click="invokeSub" />
         </div>
         <Button
           v-else-if="type === 'password'"
-          class="btn-right"
+          class="x-input__btn-right"
           :icon="eyeclose ? 'mdi-light:eye-off' : 'mdi-light:eye'"
           type="flat"
           shape="circle"
@@ -59,7 +46,7 @@
         ></Button>
         <Button
           v-else-if="type === 'search'"
-          class="btn-right"
+          class="x-input__btn-right"
           icon="ic:baseline-search"
           type="flat"
           shape="circle"
@@ -154,10 +141,19 @@ export default /*#__PURE__*/ {
       }
       return type;
     },
+    classes() {
+      return [
+        'x-input__input',
+        { 'x-input__input--multi': this.multi },
+        { 'x-input__input--label': this.label && !this.icon },
+        { 'x-input__input--number': this.type === 'number' },
+      ];
+    },
     bindAttrs() {
       let temp = {
         name: this.name,
         type: this.localType,
+        class: this.classes,
         placeholder: this.label || this.placeholder,
         minlength: this.minlength,
         maxlength: this.maxlength,
@@ -275,24 +271,57 @@ export default /*#__PURE__*/ {
   box-sizing: border-box;
   position: relative;
   padding: var(--vGap) var(--hGap);
-  // display: inline-block;
   display: inline-flex;
   align-items: center;
   justify-content: left;
   vertical-align: middle;
-  line-height: inherit;
-  font-size: inherit;
+  line-height: 1.4;
+  font-size: var(--fontSize);
   color: var(--fontColor);
   border: var(--borderWidth) solid var(--borderColor);
   border-radius: var(--borderRadius);
   transition: z-index 0.3s, border-color 0.3s, box-shadow 0.3s;
 
-  &:not([block]) {
-    width: 300px;
-  }
   &[block] {
     display: flex;
   }
+  &:not([block]) {
+    width: 300px;
+  }
+
+  &[disabled] {
+    opacity: 0.8;
+    cursor: not-allowed;
+
+    .x-tips {
+      background: rgba(0, 0, 0, 0.1);
+      pointer-events: none;
+    }
+  }
+  &:not([disabled]) {
+    &:hover,
+    &:focus-within {
+      z-index: 1;
+      border-color: var(--themeColor);
+
+      .x-input__icon-pre,
+      .x-input__label {
+        color: var(--themeColor);
+      }
+
+      .x-input__btn-right {
+        &--number {
+          visibility: visible;
+        }
+      }
+    }
+
+    // 焦點的陰影
+    // &:focus-within {
+    //   box-shadow: $shadow-52;
+    // }
+  }
+
   // 無效的
   &[invalid] {
     --themeColor: var(--errorColor);
@@ -303,71 +332,52 @@ export default /*#__PURE__*/ {
     }
   }
 
-  // 非禁用下的
-  &:not([disabled]) {
-    &:hover,
-    &:focus-within {
-      z-index: 1;
-      border-color: var(--themeColor);
-
-      .x-icon-pre,
-      .x-input-label {
-        color: var(--themeColor);
-      }
-
-      .x-btn-number {
-        visibility: visible;
-      }
-    }
-
-    // 焦點的陰影
-    // &:focus-within {
-    //   box-shadow: $shadow-52;
-    // }
-  }
-
   // ???
-  &[showtips] {
-    pointer-events: all;
+  // &[showtips] {
+  //   pointer-events: all;
+  // }
+
+  &__icon-pre,
+  &__label {
+    color: #999;
   }
 
-  &[disabled] {
-    opacity: 0.8;
-    cursor: not-allowed;
-
-    .x-tips {
-      pointer-events: none;
-      background: rgba(0, 0, 0, 0.1);
-    }
-  }
-
-  .x-tips {
-    box-sizing: content-box;
-    display: flex;
-    align-items: center;
-    margin: calc(var(--vGap) * -1) calc(var(--hGap) * -1);
-    padding: var(--vGap) var(--hGap);
-    width: 100%;
-    height: 100%;
-    font-family: inherit;
-    transition: background-color 0.3s;
-  }
-
-  .x-icon-pre {
+  &__icon-pre {
     display: flex;
     margin-right: var(--vGap);
-    color: #999;
   }
 
-  & ._input::placeholder {
+  &__label {
+    position: absolute;
+
+    margin-left: -0.14em;
+    padding: 0 0.1em;
+    transform-origin: left;
+    transition: transform 0.3s ease, color 0.3s, background-color 0.3s;
+    pointer-events: none;
     user-select: none;
-    color: #999;
-  }
-  &[label] ._input::placeholder {
-    color: transparent;
+
+    &::before {
+      content: '';
+      z-index: -1;
+      position: absolute;
+      top: 0;
+      width: 100%;
+      height: calc(var(--borderWidth) * 2);
+      transition: top 0.3s ease-out;
+    }
+    :focus + &,
+    :not(:placeholder-shown) + &,
+    :-webkit-autofill + & {
+      &::before {
+        background: var(--bgColor, #fff);
+        top: calc(49% + var(--borderWidth));
+      }
+      transform: translateY(calc(-50% - var(--vGap) * 1.5)) scale(0.8);
+    }
   }
 
-  ._input {
+  &__input {
     flex: 1;
     padding: 0;
     min-width: 0;
@@ -385,9 +395,6 @@ export default /*#__PURE__*/ {
     transition: color 0.3s;
     animation: removeBg 0s forwards;
 
-    &[type='number']::-webkit-inner-spin-button {
-      display: none;
-    }
     &::-moz-focus-inner,
     &::-moz-focus-outer {
       border: 0;
@@ -399,24 +406,19 @@ export default /*#__PURE__*/ {
     &::-ms-reveal {
       display: none;
     }
+    &--number::-webkit-inner-spin-button {
+      display: none;
+    }
 
-    &-label {
-      pointer-events: none;
-      position: absolute;
-      margin-left: -0.14em;
-      padding: 0 0.14em;
-      color: #999;
-      transform-origin: left;
-      transition: transform 0.3s, color 0.3s, background-color 0.3s;
+    &::placeholder {
       user-select: none;
+      color: #999;
     }
-    &:not(:placeholder-shown) ~ .x-input-label,
-    &:focus ~ .x-input-label {
-      background: var(--bgColor, #fff);
-      transform: translateY(calc(-50% - 0.43em)) scale(0.8);
+    &--label::placeholder {
+      color: transparent;
     }
 
-    &._textarea {
+    &--multi {
       margin: 0;
       padding-right: 0.25em;
       line-height: 1.5;
@@ -427,48 +429,63 @@ export default /*#__PURE__*/ {
         align-items: flex-start;
       }
 
-      .x-icon-pre {
+      .x-input__icon-pre {
         height: 1.5em;
       }
     }
   }
 
+  .x-tips {
+    box-sizing: content-box;
+    display: flex;
+    align-items: center;
+    margin: calc(var(--vGap) * -1) calc(var(--hGap) * -1);
+    padding: var(--vGap) var(--hGap);
+    width: 100%;
+    height: 100%;
+    font-family: inherit;
+    transition: background-color 0.3s;
+  }
+
   .x-btn {
+    &:not([disabled]) {
+      &:hover,
+      &:focus-within {
+        color: var(--themeColor);
+      }
+    }
+  }
+
+  & &__btn {
     &-right {
       margin: calc(var(--vGap) * -1) -0.5em calc(var(--vGap) * -1) 0.25em;
       // padding: var(--vGap);
       // font-size: inherit;
       color: #999;
-    }
 
-    &-number {
-      display: flex;
-      flex-direction: column;
-      width: 1.5em;
-      visibility: hidden;
-      transition: 0s;
-
-      .x-btn {
-        flex: 1;
+      &--number {
         display: flex;
-        padding: 0;
-        width: 100%;
-        color: #999;
-        font-size: 0.8em;
-        border-radius: 0;
-        transition: 0.2s;
+        flex-direction: column;
+        width: 1.5em;
+        visibility: hidden;
+        transition: 0s;
 
-        &:hover {
-          flex: 1.5;
+        .x-btn {
+          flex: 1;
+          display: flex;
+          margin: 0;
+          padding: 0;
+          width: 100%;
+          color: #999;
+          font-size: 0.8em;
+          border-radius: 0;
+          transition: 0.2s;
+
+          &:hover {
+            flex: 1.5;
+          }
         }
       }
-    }
-  }
-
-  .x-btn:not([disabled]) {
-    &:hover,
-    &:focus-within {
-      color: var(--themeColor);
     }
   }
 
