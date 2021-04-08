@@ -3,35 +3,56 @@
   <div
     class="x-input"
     :block="block"
-    :label="!!label"
+    :label="label && !icon"
     :invalid="invalid"
     :disabled="disabled"
     :required="required"
     :readonly="readonly"
   >
     <Tips type="error" :tabindex="disabled ? -1 : null" :dir="errordir" :tips="tips" :show="showTips">
-      <Icon v-if="icon" class="icon-pre" :name="icon" />
-      <component
-        :is="multi ? 'textarea' : 'input'"
+      <Icon v-if="icon" class="x-icon-pre" :icon="icon" />
+      <textarea
+        v-if="multi"
         ref="input"
         v-model="mutableValue"
-        class="input"
-        :class="{ textarea: multi }"
+        class="_input _textarea"
         v-bind="bindAttrs"
         @focus="handleFocus"
+        @blur="handleBlur"
         @keydown="handleKeydown"
       />
+      <input
+        v-else-if="type === 'number'"
+        ref="input"
+        v-model.number="mutableValue"
+        class="_input"
+        v-bind="bindAttrs"
+        @focus="handleFocus"
+        @blur="handleBlur"
+        @keydown="handleKeydown"
+      />
+      <input
+        v-else
+        ref="input"
+        v-model.trim="mutableValue"
+        class="_input"
+        v-bind="bindAttrs"
+        @focus="handleFocus"
+        @blur="handleBlur"
+        @keydown="handleKeydown"
+      />
+
       <slot></slot>
-      <label v-if="label && !icon" class="input-label">{{ label }}</label>
+      <label v-if="label && !icon" class="x-input-label">{{ label }}</label>
       <template v-if="!multi">
-        <div v-if="type === 'number'" class="btn-right btn-number">
-          <Button icon="up" type="flat" @click="invokeAdd" />
-          <Button icon="down" type="flat" @click="invokeSub" />
+        <div v-if="type === 'number'" class="x-btn-right x-btn-number">
+          <Button icon="mdi:chevron-up" type="flat" @click="invokeAdd" />
+          <Button icon="mdi:chevron-down" type="flat" @click="invokeSub" />
         </div>
         <Button
           v-else-if="type === 'password'"
           class="btn-right"
-          :icon="eyeclose ? 'eye-close' : 'eye'"
+          :icon="eyeclose ? 'mdi-light:eye-off' : 'mdi-light:eye'"
           type="flat"
           shape="circle"
           @click="invokePass"
@@ -39,7 +60,7 @@
         <Button
           v-else-if="type === 'search'"
           class="btn-right"
-          icon="search"
+          icon="ic:baseline-search"
           type="flat"
           shape="circle"
           @click="invokeSearch"
@@ -61,6 +82,7 @@ export default /*#__PURE__*/ {
     Icon,
     Button,
   },
+  inheritAttrs: false,
   props: {
     form: { type: HTMLFormElement, default: null },
     // ----------------------------------
@@ -85,6 +107,8 @@ export default /*#__PURE__*/ {
     // ---------------------------------
     multi: { type: Boolean, default: null },
     block: { type: Boolean, default: null },
+    errortips: { type: String, default: null },
+    errordir: { type: String, default: 'top' },
     customValidity: {
       type: Object,
       default: () => ({
@@ -92,9 +116,8 @@ export default /*#__PURE__*/ {
         // tips: '',
       }),
     },
-    errortips: { type: String, default: null },
-    errordir: { type: String, default: 'top' },
   },
+  emits: ['input', 'focus', 'blur', 'search'],
   data() {
     return {
       localForm: this.form,
@@ -110,7 +133,7 @@ export default /*#__PURE__*/ {
         return this.value;
       },
       set(val) {
-        this.$emit('input', val);
+        this.$emit('input', val !== '' ? val : null);
       },
     },
     localType() {
@@ -174,7 +197,7 @@ export default /*#__PURE__*/ {
       this.showTips = false;
     },
     focus() {
-      this.$refs.input.focus();
+      this.$nextTick(() => this.$refs.input.focus());
     },
     validity() {
       return this.$refs.input.checkValidity() && this.customValidity.method(this.$props);
@@ -215,9 +238,15 @@ export default /*#__PURE__*/ {
     },
     handleFocus() {
       this.checkValidity();
+      this.$emit('focus');
+    },
+    handleBlur() {
+      // this.checkValidity();
+      this.$emit('blur');
     },
     invokeSearch() {
       console.log('invokeSearch');
+      this.$emit('search', this.mutableValue);
       // submit
     },
     invokePass() {
@@ -239,81 +268,62 @@ export default /*#__PURE__*/ {
 @import '@/assets/scss/utils.scss';
 
 .x-input-group {
-  display: flex;
-
-  &:not(:first-child):not(:last-child) {
-    border-radius: 0;
-  }
-  * {
-    margin: 0 !important;
-  }
-  &:not(:first-child) {
-    margin-left: -1px !important;
-  }
-  &:first-child {
-    border-top-right-radius: 0;
-    border-bottom-right-radius: 0px;
-  }
-  &:last-child {
-    border-top-left-radius: 0;
-    border-bottom-left-radius: 0;
-  }
+  @include group;
 }
+
 .x-input {
   box-sizing: border-box;
-  display: inline-block;
-  border: 1px solid var(--borderColor, rgba(0, 0, 0, 0.2));
-  border-radius: var(--borderRadius, 0.25em);
-  line-height: 1.8;
-  transition: border-color 0.3s, box-shadow 0.3s;
-  padding: 0.25em 0.625em;
-  color: var(--fontColor, #333);
-  font-size: 14px;
-
-  // &:focus-within {
-  //   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-  // }
+  position: relative;
+  padding: var(--vGap) var(--hGap);
+  // display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  justify-content: left;
+  vertical-align: middle;
+  line-height: inherit;
+  font-size: inherit;
+  color: var(--fontColor);
+  border: var(--borderWidth) solid var(--borderColor);
+  border-radius: var(--borderRadius);
+  transition: z-index 0.3s, border-color 0.3s, box-shadow 0.3s;
 
   &:not([block]) {
     width: 300px;
   }
-
   &[block] {
-    display: block;
+    display: flex;
   }
-
-  // .tips[show='show'] {
-  //   color: var(--errorColor, #f4615c);
-  // }
-
+  // 無效的
   &[invalid] {
-    // --themeColor: var(--errorColor, #f4615c);
-    // border-color: var(--errorColor, #f4615c);
     --themeColor: var(--errorColor);
     --borderColor: var(--errorColor);
 
-    // color: var(--errorColor);
-    // border-color: var(--errorColor);
-
-    .icon {
-      // color: var(--errorColor);
+    .x-icon {
+      color: var(--errorColor);
     }
   }
 
+  // 非禁用下的
   &:not([disabled]) {
     &:hover,
     &:focus-within {
+      z-index: 1;
       border-color: var(--themeColor);
 
-      .icon-pre,
-      .input-label {
+      .x-icon-pre,
+      .x-input-label {
         color: var(--themeColor);
       }
 
-      .btn-number {
+      .x-btn-number {
         visibility: visible;
       }
     }
+
+    // 焦點的陰影
+    // &:focus-within {
+    //   box-shadow: $shadow-52;
+    // }
   }
 
   // ???
@@ -325,37 +335,39 @@ export default /*#__PURE__*/ {
     opacity: 0.8;
     cursor: not-allowed;
 
-    .tips {
+    .x-tips {
       pointer-events: none;
       background: rgba(0, 0, 0, 0.1);
     }
   }
 
-  .tips {
+  .x-tips {
+    box-sizing: content-box;
     display: flex;
     align-items: center;
-    margin: -0.25em -0.625em;
-    padding: 0.25em 0.625em;
+    margin: calc(var(--vGap) * -1) calc(var(--hGap) * -1);
+    padding: var(--vGap) var(--hGap);
     width: 100%;
     height: 100%;
     font-family: inherit;
     transition: background-color 0.3s;
   }
 
-  .icon-pre {
+  .x-icon-pre {
     display: flex;
-    margin-right: 0.25em;
+    margin-right: var(--vGap);
     color: #999;
   }
 
-  & .input::placeholder {
+  & ._input::placeholder {
+    user-select: none;
     color: #999;
   }
-  &[label] .input::placeholder {
+  &[label] ._input::placeholder {
     color: transparent;
   }
 
-  .input {
+  ._input {
     flex: 1;
     padding: 0;
     min-width: 0;
@@ -396,38 +408,37 @@ export default /*#__PURE__*/ {
       color: #999;
       transform-origin: left;
       transition: transform 0.3s, color 0.3s, background-color 0.3s;
+      user-select: none;
     }
-    &:not(:placeholder-shown) ~ .input-label,
-    &:focus ~ .input-label {
+    &:not(:placeholder-shown) ~ .x-input-label,
+    &:focus ~ .x-input-label {
       background: var(--bgColor, #fff);
       transform: translateY(calc(-50% - 0.43em)) scale(0.8);
     }
 
-    &.textarea {
+    &._textarea {
       margin: 0;
       padding-right: 0.25em;
       line-height: 1.5;
 
-      .tips {
-        margin-right: -0.25em;
+      .x-tips {
+        margin-right: calc(var(--vGap) * -1);
         padding-right: 0.25em;
         align-items: flex-start;
       }
 
-      .icon-pre {
+      .x-icon-pre {
         height: 1.5em;
       }
     }
   }
 
-  .btn {
+  .x-btn {
     &-right {
-      margin: -0.25em -0.5em -0.25em 0.25em;
-      padding: 0;
-      width: 2em;
-      height: 2em;
+      margin: calc(var(--vGap) * -1) -0.5em calc(var(--vGap) * -1) 0.25em;
+      // padding: var(--vGap);
+      // font-size: inherit;
       color: #999;
-      font-size: inherit;
     }
 
     &-number {
@@ -437,7 +448,7 @@ export default /*#__PURE__*/ {
       visibility: hidden;
       transition: 0s;
 
-      .button {
+      .x-btn {
         flex: 1;
         display: flex;
         padding: 0;
@@ -454,7 +465,7 @@ export default /*#__PURE__*/ {
     }
   }
 
-  .button:not([disabled]) {
+  .x-btn:not([disabled]) {
     &:hover,
     &:focus-within {
       color: var(--themeColor);

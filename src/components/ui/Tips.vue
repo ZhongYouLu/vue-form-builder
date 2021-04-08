@@ -2,7 +2,7 @@
 <template>
   <div
     ref="tips"
-    class="tips"
+    class="x-tips"
     :style="styles"
     :tips="tips"
     :prefix="prefix"
@@ -104,7 +104,7 @@ export default /*#__PURE__*/ {
 <style lang="scss">
 @import '@/assets/scss/utils.scss';
 
-.tips {
+.x-tips {
   display: inline-block;
   position: relative;
   overflow: visible;

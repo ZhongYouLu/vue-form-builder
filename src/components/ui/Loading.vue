@@ -1,6 +1,6 @@
 /* eslint-disable vue/no-mutating-props */
 <template>
-  <div class="loading" :style="styles">
+  <div class="x-loading" :style="styles">
     <svg viewBox="22 22 44 44" :style="svgStyles">
       <circle cx="44" cy="44" r="20.2" fill="none" stroke-width="3.6"></circle>
     </svg>
@@ -36,7 +36,7 @@ export default /*#__PURE__*/ {
 <style lang="scss">
 @import '@/assets/scss/utils.scss';
 
-.loading {
+.x-loading {
   display: inline-flex;
   align-items: center;
   justify-content: center;

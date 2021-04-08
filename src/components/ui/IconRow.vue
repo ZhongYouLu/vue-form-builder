@@ -1,5 +1,5 @@
 <template>
-  <div class="icon-row">
+  <div class="x-icon-row">
     <slot />
     <Icon v-if="icon" :icon="icon" />
   </div>
@@ -22,10 +22,10 @@ export default /*#__PURE__*/ {
 <style lang="scss">
 @import '@/assets/scss/utils.scss';
 
-.icon-row {
+.x-icon-row {
   @include content-centered($x: false);
 
-  .icon {
+  .x-icon {
     margin-left: 0.5rem;
     opacity: 0.7;
   }

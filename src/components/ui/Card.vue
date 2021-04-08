@@ -1,13 +1,13 @@
 /* eslint-disable vue/no-mutating-props */
 <template>
-  <div class="card">
-    <header v-if="hasHeader" class="card__header">
+  <div class="x-card">
+    <header v-if="hasHeader" class="x-card__header">
       <slot name="cardHeader" />
     </header>
-    <main v-if="hasMain" class="card__main">
+    <main v-if="hasMain" class="x-card__main">
       <slot name="cardMain" />
     </main>
-    <footer v-if="hasFooter" class="card__footer">
+    <footer v-if="hasFooter" class="x-card__footer">
       <slot name="cardFooter" />
     </footer>
   </div>
@@ -33,7 +33,7 @@ export default /*#__PURE__*/ {
 <style lang="scss">
 @import '@/assets/scss/utils.scss';
 
-.card {
+.x-card {
   background-color: $color-white;
 
   &__header {

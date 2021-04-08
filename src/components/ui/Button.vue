@@ -26,6 +26,7 @@ export default /*#__PURE__*/ {
     Loading,
     Icon,
   },
+  inheritAttrs: false,
   props: {
     // ---- 元素屬性 ----
     name: { type: String, default: null },
@@ -111,7 +112,7 @@ export default /*#__PURE__*/ {
       }
     },
     focus() {
-      this.$refs.btn.focus();
+      this.$nextTick(() => this.$refs.btn.focus());
     },
     handleClick() {
       this.$emit('click');
@@ -148,6 +149,20 @@ export default /*#__PURE__*/ {
 <style lang="scss">
 @import '@/assets/scss/utils.scss';
 
+.x-btn-group {
+  @include group;
+
+  .x-btn {
+    &--primary,
+    &--danger,
+    &--flat {
+      &:not(:first-of-type) {
+        margin-left: var(--borderWidth) !important;
+      }
+    }
+  }
+}
+
 .x-btn {
   box-sizing: border-box;
   position: relative;
@@ -156,24 +171,27 @@ export default /*#__PURE__*/ {
   align-items: center;
   justify-content: center;
   vertical-align: middle;
-  font-size: var(--fontSize);
+  line-height: inherit;
+  font-size: inherit;
   color: var(--fontColor);
   border: var(--borderWidth) solid var(--borderColor);
   border-radius: var(--borderRadius);
-  transition: z-index 0.3s, color 0.3s, border-color 0.3s, background 0.3s, box-shadow 0.3s;
+  transition: z-index 0.3s, border-color 0.3s, box-shadow 0.3s, color 0.3s, background 0.3s;
   z-index: 0;
   overflow: hidden;
 
-  // 焦點的陰影
-  // &:focus-within {
-  //   box-shadow: $shadow-52;
-  // }
+  // 非禁用下的
+  &:not([disabled]) {
+    &:hover,
+    &:focus-within {
+      color: var(--themeColor);
+      border-color: var(--themeColor);
+    }
 
-  // 非禁用hover 或 focus
-  &:not([disabled]):hover,
-  &:focus-within {
-    color: var(--themeColor);
-    border-color: var(--themeColor);
+    // 焦點的陰影
+    // &:focus-within {
+    //   box-shadow: $shadow-52;
+    // }
   }
 
   // 禁用 or 載入中
@@ -184,7 +202,7 @@ export default /*#__PURE__*/ {
 
     .btn {
       cursor: not-allowed;
-      pointer-events: all;
+      pointer-events: auto;
     }
   }
   // 非禁用 且 非載入中
@@ -210,7 +228,7 @@ export default /*#__PURE__*/ {
     border: 0;
     background: none;
     user-select: none;
-    cursor: unset;
+    cursor: pointer;
     outline: 0;
 
     &::-moz-focus-inner {
@@ -285,11 +303,14 @@ export default /*#__PURE__*/ {
   &--primary,
   &--danger {
     color: #fff;
-    // 非禁用hover 或 focus
-    &:not([disabled]):hover,
-    &:focus-within {
-      color: #fff;
+
+    &:not([disabled]) {
+      &:hover,
+      &:focus-within {
+        color: #fff;
+      }
     }
+
     .btn::after {
       background-image: radial-gradient(circle, #fff 10%, transparent 10.01%);
     }
@@ -307,28 +328,32 @@ export default /*#__PURE__*/ {
     .btn::before {
       background: var(--themeColor);
     }
-    &:not([disabled]):hover .btn::before {
-      opacity: 0.1;
-    }
-    &:focus-within .btn::before {
-      opacity: 0.2;
+    &:not([disabled]) {
+      &:hover .btn::before {
+        opacity: 0.1;
+      }
+      &:focus-within .btn::before {
+        opacity: 0.2;
+      }
     }
   }
 
   // 切換
   &[checked] {
-    background: var(--themeColor);
     color: #fff;
+    background: var(--themeColor);
 
-    &:not([disabled]):hover,
-    &:focus-within {
-      background: var(--themeColor);
-      color: #fff;
+    &:not([disabled]) {
+      &:hover,
+      &:focus-within {
+        color: #fff;
+        background: var(--themeColor);
+      }
     }
   }
 
-  .loading,
-  .icon {
+  .x-loading,
+  .x-icon {
     color: inherit;
 
     &:first-child {
@@ -336,54 +361,22 @@ export default /*#__PURE__*/ {
     }
   }
 
-  * ~ .icon {
+  * ~ .x-icon {
     margin-left: 0.35em;
   }
-  .icon {
+  .x-icon {
     transition: none;
   }
 
   &[empty] {
     padding: var(--vGap);
 
-    .loading,
-    .icon {
+    .x-loading,
+    .x-icon {
       &:first-child {
         margin: auto;
       }
     }
   }
-
-  .x-btn-group & {
-    margin: 0 !important;
-
-    &:first-of-type {
-      border-top-right-radius: 0;
-      border-bottom-right-radius: 0;
-    }
-    &:last-of-type {
-      border-top-left-radius: 0;
-      border-bottom-left-radius: 0;
-    }
-    &:not(:first-of-type):not(:last-of-type) {
-      border-radius: 0;
-    }
-
-    &:not(:first-of-type) {
-      margin-left: calc(var(--borderWidth) * -1) !important;
-    }
-
-    &--primary,
-    &--danger,
-    &--flat {
-      &:not(:first-of-type) {
-        margin-left: var(--borderWidth) !important;
-      }
-    }
-  }
-}
-
-.x-btn-group {
-  display: inline-flex;
 }
 </style>

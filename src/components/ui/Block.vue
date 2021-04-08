@@ -1,6 +1,6 @@
 /* eslint-disable vue/no-mutating-props */
 <template>
-  <div class="block" :class="classes">
+  <div class="x-block" :class="classes">
     <slot />
   </div>
 </template>
@@ -26,7 +26,7 @@ export default /*#__PURE__*/ {
 <style lang="scss">
 @import '@/assets/scss/utils.scss';
 
-.block {
+.x-block {
   overflow: hidden;
   margin-bottom: $gap-lg;
 

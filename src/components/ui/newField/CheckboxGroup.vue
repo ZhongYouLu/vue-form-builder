@@ -1,5 +1,5 @@
 <template>
-  <div ref="group" class="checkbox-group" :disabled="disabled" :invalid="invalid">
+  <div ref="group" class="x-checkbox-group" :disabled="disabled" :invalid="invalid">
     <Tips type="error" :tabindex="disabled ? -1 : null" :tips="tips" :show="show">
       <Checkbox
         v-for="(option, idx) in options"
@@ -7,7 +7,7 @@
         ref="checkbox"
         :idx="idx"
         :name="name"
-        :label="option[textKey]"
+        :label="option[textKey] || option[valueKey]"
         :value="localValue[option[valueKey]].flag"
         :required="localValue[option[valueKey]].required"
         :disabled="disabled"
@@ -32,6 +32,7 @@ export default /*#__PURE__*/ {
     Tips,
     Checkbox,
   },
+  inheritAttrs: false,
   props: {
     form: { type: HTMLFormElement, default: null },
     // ----------------------------------
@@ -114,7 +115,7 @@ export default /*#__PURE__*/ {
     },
     focus(idx) {
       if (idx == null || idx < 0 || idx > this.$refs.checkbox.length - 1) idx = 0;
-      this.$refs.checkbox[idx].focus();
+      this.$nextTick(() => this.$refs.checkbox[idx].focus());
     },
     checkAll() {
       this.mutableValue = Object.keys(this.localValue).map((key) => key);
@@ -195,12 +196,12 @@ export default /*#__PURE__*/ {
 <style lang="scss">
 @import '@/assets/scss/utils.scss';
 
-.checkbox-group {
+.x-checkbox-group {
   display: inline-block;
 
   &:focus-within,
   &:hover {
-    .tips {
+    .x-tips {
       z-index: 2;
     }
   }
@@ -208,23 +209,23 @@ export default /*#__PURE__*/ {
   &[disabled] {
     pointer-events: none;
 
-    .tips {
+    .x-tips {
       pointer-events: all;
       cursor: not-allowed;
       outline: 0;
     }
 
-    .checkbox {
+    .x-checkbox {
       pointer-events: none;
       opacity: 0.6;
     }
   }
 
-  .checkbox {
+  .x-checkbox {
     transition: opacity 0.3s;
   }
 
-  .tips[show='show'] {
+  .x-tips[show='show'] {
     --themeColor: var(--errorColor);
     --borderColor: var(--errorColor);
   }

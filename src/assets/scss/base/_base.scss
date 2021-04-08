@@ -1,12 +1,3 @@
-* {
-  box-sizing: inherit;
-  // -webkit-tap-highlight-color: transparent;
-  &::after,
-  &::before {
-    box-sizing: inherit;
-  }
-}
-
 html {
   // This defines what 1rem is
   font-size: 62.5%; //1 rem = 10px; 10px/16px = 62.5%
@@ -15,10 +6,25 @@ html {
 body {
   box-sizing: border-box;
   font-family: 'Microsoft JhengHei', sans-serif;
-  font-size: $font-size;
+  font-size: var(--fontSize, 1.4rem);
   line-height: 1.4;
-  color: var(--fontColor, $text-color);
-  background-color: var(--bgColor, $bg-color);
+  color: var(--fontColor, #333);
+  background-color: var(--bgColor, #f7f7f7);
+}
+
+* {
+  box-sizing: inherit;
+
+  -webkit-tap-highlight-color: transparent;
+  -webkit-font-smoothing: antialiased;
+  -webkit-text-size-adjust: none;
+  // -webkit-overflow-scrolling: touch;
+  // -webkit-touch-callout: none;
+
+  &::after,
+  &::before {
+    box-sizing: inherit;
+  }
 }
 
 ul,
@@ -29,6 +35,6 @@ p {
 }
 
 ::selection {
-  color: $selection-text-color;
-  background-color: $selection-bg-color;
+  color: var(--selectionFontColor, #fff);
+  background-color: var(--selectionBgColor, #777);
 }

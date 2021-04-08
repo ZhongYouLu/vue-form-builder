@@ -1,5 +1,5 @@
 <template>
-  <div class="radio" :checked="checked" :disabled="disabled" :invalid="invalid">
+  <div class="x-radio" :checked="checked" :disabled="disabled" :invalid="invalid">
     <Tips type="error" :dir="idx ? 'bottomleft' : 'topleft'" :tips="tips" :show="show">
       <label>
         <input
@@ -16,7 +16,7 @@
           @focus="handleFocus"
           @blur="handleBlur"
         />
-        <span class="cheked" />
+        <span class="x-cheked" />
         <slot>
           <span>{{ label }}</span>
         </slot>
@@ -33,6 +33,7 @@ export default /*#__PURE__*/ {
   components: {
     Tips,
   },
+  inheritAttrs: false,
   props: {
     form: { type: HTMLFormElement, default: null },
     // ----------------------------------
@@ -98,7 +99,7 @@ export default /*#__PURE__*/ {
       this.show = false;
     },
     focus() {
-      this.$refs.radio.focus();
+      this.$nextTick(() => this.$refs.radio.focus());
     },
     validity() {
       return this.$refs.radio.checkValidity();
@@ -153,7 +154,7 @@ export default /*#__PURE__*/ {
 <style lang="scss">
 @import '@/assets/scss/utils.scss';
 
-.radio {
+.x-radio {
   display: inline-block;
   font-size: 14px;
   color: var(--fontColor, #333);
@@ -175,14 +176,14 @@ export default /*#__PURE__*/ {
       cursor: not-allowed;
     }
 
-    .cheked {
+    .x-cheked {
       background: rgba(0, 0, 0, 0.1);
     }
   }
 
   &:focus-within,
   &:not([disabled]) label:hover {
-    .cheked {
+    .x-cheked {
       border-color: var(--themeColor);
       // box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
       z-index: 1;
@@ -200,18 +201,18 @@ export default /*#__PURE__*/ {
     position: absolute;
     clip: rect(0, 0, 0, 0);
 
-    &:checked + .cheked {
+    &:checked + .x-cheked {
       border-color: var(--themeColor);
     }
-    &:checked + .cheked::before {
+    &:checked + .x-cheked::before {
       transform: scale(1);
     }
-    &:focus-visible + .cheked::after {
+    &:focus-visible + .x-cheked::after {
       transform: scale(2.5);
     }
   }
 
-  .cheked {
+  .x-cheked {
     position: relative;
     display: flex;
     justify-content: center;
@@ -251,7 +252,7 @@ export default /*#__PURE__*/ {
 
   // &:focus-within,
   // &:active:not([disabled]) {
-  //   .cheked::after {
+  //   .x-cheked::after {
   //     transform: scale(2.5);
   //   }
   // }

@@ -1,6 +1,6 @@
 /* eslint-disable vue/no-mutating-props */
 <template>
-  <div class="switch" :disabled="disabled" :checked="checked">
+  <div class="x-switch" :disabled="disabled" :checked="checked">
     <label>
       <input v-model="checked" type="checkbox" :disabled="disabled" @keydown="handleKeydown" />
     </label>
@@ -41,7 +41,7 @@ export default /*#__PURE__*/ {
 <style lang="scss">
 @import '@/assets/scss/utils.scss';
 
-.switch {
+.x-switch {
   display: inline-block;
   -webkit-tap-highlight-color: transparent; /* for removing the highlight */
 

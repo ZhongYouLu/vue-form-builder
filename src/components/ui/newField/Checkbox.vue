@@ -1,5 +1,5 @@
 <template>
-  <div class="checkbox" :checked="checked" :disabled="disabled" :invalid="invalid">
+  <div class="x-checkbox" :checked="checked" :disabled="disabled" :invalid="invalid">
     <Tips type="error" :dir="idx ? 'bottomleft' : 'topleft'" :tips="tips" :show="show">
       <label>
         <input
@@ -15,7 +15,7 @@
           @focus="handleFocus"
           @blur="handleBlur"
         />
-        <span class="cheked">
+        <span class="x-cheked">
           <Icon icon="mdi:check" />
         </span>
         <slot>
@@ -36,6 +36,7 @@ export default /*#__PURE__*/ {
     Tips,
     Icon,
   },
+  inheritAttrs: false,
   props: {
     form: { type: HTMLFormElement, default: null },
     // ----------------------------------
@@ -107,7 +108,7 @@ export default /*#__PURE__*/ {
       this.show = false;
     },
     focus() {
-      this.$refs.checkbox.focus();
+      this.$nextTick(() => this.$refs.checkbox.focus());
     },
     setIndeterminate(flag) {
       this.indeterminate = flag;
@@ -167,7 +168,7 @@ export default /*#__PURE__*/ {
 <style lang="scss">
 @import '@/assets/scss/utils.scss';
 
-.checkbox {
+.x-checkbox {
   display: inline-block;
   font-size: 14px;
   color: var(--fontColor, #333);
@@ -189,14 +190,14 @@ export default /*#__PURE__*/ {
       cursor: not-allowed;
     }
 
-    .cheked {
+    .x-cheked {
       background: rgba(0, 0, 0, 0.1);
     }
   }
 
   &:focus-within,
   &:not([disabled]) label:hover {
-    .cheked {
+    .x-cheked {
       border-color: var(--themeColor);
       // box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
       z-index: 1;
@@ -215,28 +216,28 @@ export default /*#__PURE__*/ {
     clip: rect(0, 0, 0, 0);
 
     // 勾勾
-    &:checked:not(:indeterminate) + .cheked .icon {
+    &:checked:not(:indeterminate) + .x-cheked .x-icon {
       transform: scale(1.5);
     }
 
     // 點亮背景
     &:checked,
     &:indeterminate {
-      & + .cheked {
+      & + .x-cheked {
         border-color: transparent;
         background-color: var(--themeColor);
       }
     }
 
-    &:indeterminate + .cheked::before {
+    &:indeterminate + .x-cheked::before {
       transform: scale(1);
     }
-    &:focus-visible + .cheked::after {
+    &:focus-visible + .x-cheked::after {
       transform: scale(2.5);
     }
   }
 
-  .icon {
+  .x-icon {
     color: #fff;
     transform: scale(0);
     transition: 0.2s cubic-bezier(0.12, 0.4, 0.29, 1.46) 0.1s;
@@ -248,7 +249,7 @@ export default /*#__PURE__*/ {
     }
   }
 
-  .cheked {
+  .x-cheked {
     position: relative;
     display: flex;
     justify-content: center;
@@ -290,12 +291,12 @@ export default /*#__PURE__*/ {
 
   // &:focus-within,
   // &:active:not([disabled]) {
-  //   .cheked::after {
+  //   .x-cheked::after {
   //     transform: scale(2.5);
   //   }
   // }
 
-  .tips {
+  .x-tips {
     display: block;
     padding-left: 0.575em;
     margin-left: -0.575em;

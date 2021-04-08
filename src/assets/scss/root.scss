@@ -1,22 +1,26 @@
-@import './utils/variables';
-
 // ========================================================
 // === CSS custom properties (variables) ===
 // ========================================================
 :root {
-  --themeColor: #777; /* 主題顏色 */
+  // Base Color
   --fontColor: #333; /* 文字顏色 */
-  --bgColor: #f7f7f7;
+  --bgColor: #f7f7f7; /* 背景顏色 */
+  // Selection Color
+  --selectionFontColor: #fff; /* 選取文字顏色 */
+  --selectionBgColor: #777; /* 選取背景顏色 */
+  // Theme Color
+  --themeColor: #777; /* 主題顏色 */
+  // Message Color
   --infoColor: #1890ff; /* 提示色 */
   --successColor: #52c41a; /* 成功色 */
   --waringColor: #faad14; /* 警告色 */
   --dangerColor: #ff7875; /* 危險色*/
   --errorColor: #f4615c; /* 錯誤色 */
   // Font
-  --fontSize: 1.6rem;
+  --fontSize: 1.4rem;
   // Border
-  --borderColor: #d9d9d9; /* 邊框顏色、按鈕、輸入框 */
-  --borderRadius: 3px; /* 邊寬圓角 */
+  --borderColor: rgba(0, 0, 0, 0.2); /* 邊框顏色、按鈕、輸入框 */
+  --borderRadius: 0.25em; /* 邊寬圓角 */
   --borderWidth: 0.1rem; /* 邊框框度 */
   // 間距
   --vGap: 0.25em; /* Vertical*/

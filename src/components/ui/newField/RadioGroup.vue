@@ -1,6 +1,5 @@
 <template>
-  <div ref="group" class="radio-group" :disabled="disabled" :invalid="invalid">
-    {{ invalid }}
+  <div ref="group" class="x-radio-group" :disabled="disabled" :invalid="invalid">
     <Tips type="error" :tabindex="disabled ? -1 : null" :tips="tips" :show="show">
       <Radio
         v-for="(option, idx) in options"
@@ -8,7 +7,7 @@
         ref="radio"
         :idx="idx"
         :name="name"
-        :label="option[textKey]"
+        :label="option[textKey] || option[valueKey]"
         :value="localValue[option[valueKey]]"
         :disabled="disabled"
         :novalidate="novalidate"
@@ -31,6 +30,7 @@ export default /*#__PURE__*/ {
     Tips,
     Radio,
   },
+  inheritAttrs: false,
   props: {
     form: { type: HTMLFormElement, default: null },
     // ----------------------------------
@@ -96,7 +96,7 @@ export default /*#__PURE__*/ {
     },
     focus(idx) {
       if (idx == null || idx < 0 || idx > this.$refs.radio.length - 1) idx = 0;
-      this.$refs.radio[idx].focus();
+      this.$nextTick(() => this.$refs.radio[idx].focus());
     },
     validity() {
       this.errorType = null;
@@ -134,12 +134,10 @@ export default /*#__PURE__*/ {
       return !this.invalid;
     },
     handleFocus(idx) {
-      console.log('focus', idx);
-      this.$emit('focus');
+      this.$emit('focus', idx);
     },
     handleBlur(idx) {
-      console.log('blur', idx);
-      this.$emit('blur');
+      this.$emit('blur', idx);
     },
   },
 };
@@ -148,12 +146,12 @@ export default /*#__PURE__*/ {
 <style lang="scss">
 @import '@/assets/scss/utils.scss';
 
-.radio-group {
+.x-radio-group {
   display: inline-block;
 
   &:focus-within,
   &:hover {
-    .tips {
+    .x-tips {
       z-index: 2;
     }
   }
@@ -161,23 +159,23 @@ export default /*#__PURE__*/ {
   &[disabled] {
     pointer-events: none;
 
-    .tips {
+    .x-tips {
       pointer-events: all;
       cursor: not-allowed;
       outline: 0;
     }
 
-    .radio {
+    .x-radio {
       pointer-events: none;
       opacity: 0.6;
     }
   }
 
-  .radio {
+  .x-radio {
     transition: opacity 0.3s;
   }
 
-  .tips[show='show'] {
+  .x-tips[show='show'] {
     --themeColor: var(--errorColor);
     --borderColor: var(--errorColor);
   }

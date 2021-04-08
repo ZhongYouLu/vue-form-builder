@@ -1,5 +1,5 @@
 <template>
-  <span ref="el" class="icon" :style="styles" :spin="spin" @click="handleClick" />
+  <span ref="el" class="x-icon" :style="styles" :spin="spin" @click="handleClick" />
 </template>
 
 <script>
@@ -57,7 +57,7 @@ export default /*#__PURE__*/ {
 <style lang="scss">
 @import '@/assets/scss/utils.scss';
 
-.icon {
+.x-icon {
   display: inline-flex;
   justify-content: center;
   align-items: center;

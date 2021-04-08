@@ -1,5 +1,5 @@
 <template>
-  <span ref="el" class="icon" :class="classes" @click.prevent="$emit('click')" />
+  <span ref="el" class="x-icon" :class="classes" @click.prevent="$emit('click')" />
 </template>
 
 <script>
@@ -46,7 +46,7 @@ export default /*#__PURE__*/ {
 <style lang="scss">
 @import '@/assets/scss/utils.scss';
 
-.icon {
+.x-icon {
   display: flex;
   width: 1em;
   height: 1em;
