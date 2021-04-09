@@ -7,9 +7,10 @@
     <component
       :is="href ? 'a' : 'button'"
       ref="btn"
-      class="btn"
       v-bind="cmpProps"
       @click="handleClick"
+      @focus="handleFocus"
+      @blur="handleBlur"
       @mousedown="handleMousedown"
       @keydown="handleKeydown"
     />
@@ -51,11 +52,12 @@ export default /*#__PURE__*/ {
     toggle: { type: Boolean, default: null },
     handleToggle: { type: Function, default: null },
   },
-  emits: ['click'],
+  emits: ['click', 'focus', 'blur', 'mousedown', 'keydown'],
   data() {
     return {
       checked: false,
       isEmpty: false,
+      actived: false,
     };
   },
   computed: {
@@ -77,8 +79,12 @@ export default /*#__PURE__*/ {
         checked: this.toggle && this.checked,
       };
     },
+    classes() {
+      return ['btn', { 'btn--active': this.actived }];
+    },
     cmpProps() {
       let temp = {
+        class: this.classes,
         name: this.name,
         type: this.htmltype,
         disabled: this.disabled || this.loading,
@@ -95,6 +101,18 @@ export default /*#__PURE__*/ {
       }
 
       return temp;
+    },
+  },
+  watch: {
+    actived: function (flag) {
+      if (flag) {
+        const { width, height } = this.$refs.btn.getBoundingClientRect();
+        this.$refs.btn.style.setProperty('--x', width / 2 + 'px');
+        this.$refs.btn.style.setProperty('--y', height / 2 + 'px');
+        setTimeout(() => {
+          this.actived = false;
+        }, 0);
+      }
     },
   },
   created() {
@@ -116,6 +134,7 @@ export default /*#__PURE__*/ {
     },
     handleClick() {
       this.$emit('click');
+      this.actived = true;
 
       if (this.toggle) {
         this.checked = !this.checked;
@@ -124,6 +143,12 @@ export default /*#__PURE__*/ {
           this.handleToggle(this.checked);
         }
       }
+    },
+    handleFocus() {
+      console.log('btn focus');
+    },
+    handleBlur() {
+      console.log('btn blur');
     },
     handleMousedown(e) {
       if (!this.disabled) {
@@ -137,6 +162,8 @@ export default /*#__PURE__*/ {
       switch (e.keyCode) {
         case 13: //Enter
           e.stopPropagation();
+          break;
+        case 32: //Spacebar
           break;
         default:
           break;
@@ -266,10 +293,13 @@ export default /*#__PURE__*/ {
     }
 
     // 啟動波紋
-    &:not([disabled]):active::after {
-      transform: translate(-50%, -50%) scale(0);
-      opacity: 0.3;
-      transition: 0s;
+    &--active,
+    &:active {
+      &:not([disabled])::after {
+        transform: translate(-50%, -50%) scale(0);
+        opacity: 0.3;
+        transition: 0s;
+      }
     }
   }
 
@@ -374,7 +404,7 @@ export default /*#__PURE__*/ {
     .x-loading,
     .x-icon {
       &:first-child {
-        margin: auto;
+        margin: 0 auto;
       }
     }
   }

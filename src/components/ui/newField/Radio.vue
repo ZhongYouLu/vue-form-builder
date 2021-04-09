@@ -1,6 +1,6 @@
 <template>
   <div class="x-radio" :checked="checked" :disabled="disabled" :invalid="invalid">
-    <Tips type="error" :dir="idx ? 'bottomleft' : 'topleft'" :tips="tips" :show="show">
+    <Tips type="error" :dir="idx ? 'bottomleft' : 'topleft'" :tips="tips" :show="showTips">
       <label>
         <input
           ref="radio"
@@ -55,7 +55,7 @@ export default /*#__PURE__*/ {
     return {
       localForm: this.form,
       invalid: false,
-      show: false,
+      showTips: false,
       tips: null,
       isfocus: false,
     };
@@ -96,7 +96,8 @@ export default /*#__PURE__*/ {
     reset() {
       this.checked = false;
       this.invalid = false;
-      this.show = false;
+      this.tips = null;
+      this.showTips = null;
     },
     focus() {
       this.$nextTick(() => this.$refs.radio.focus());
@@ -110,11 +111,12 @@ export default /*#__PURE__*/ {
       }
       if (this.validity()) {
         this.invalid = false;
-        this.show = false;
+        this.showTips = null;
+        this.tips = null;
       } else {
         this.focus();
         this.invalid = true;
-        this.show = true;
+        this.showTips = true;
         this.tips = this.errortips || this.$refs.radio?.validationMessage;
       }
 

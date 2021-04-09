@@ -4,14 +4,15 @@
     ref="tips"
     class="x-tips"
     :style="styles"
-    :tips="tips"
+    :tips="localTips"
+    :hastips="!!tips"
     :prefix="prefix"
     :suffix="suffix"
     :dir="tempDir"
     :type="type"
-    :show="show ? 'show' : 'false'"
+    :show="localShow"
   >
-    <slot>{{ tempDir }}</slot>
+    <slot />
   </div>
 </template>
 
@@ -51,13 +52,16 @@ export default /*#__PURE__*/ {
     prefix: { type: String, default: '' },
     suffix: { type: String, default: '' },
     show: { type: Boolean, default: null },
-
     color: { type: String, default: '' },
   },
   data() {
     return {
       TIP_SIZE: 30,
       tempDir: null,
+      localTips: this.tips,
+      localShow: this.show,
+      timer: null,
+      showTimer: null,
     };
   },
   computed: {
@@ -71,6 +75,29 @@ export default /*#__PURE__*/ {
   },
   watch: {
     dir: 'resetDir',
+    tips: function (_tips) {
+      this.timer && clearTimeout(this.timer);
+
+      if (_tips) {
+        this.localTips = _tips;
+      } else {
+        this.timer = setTimeout(() => {
+          this.localTips = null;
+        }, 300);
+      }
+    },
+    show: function (_show) {
+      this.showTimer && clearTimeout(this.showTimer);
+
+      // todo: sync
+      console.log(_show);
+      this.localShow = _show;
+      if (_show) {
+        this.showTimer = setTimeout(() => {
+          this.localShow = null;
+        }, 1500);
+      }
+    },
   },
   mounted() {
     this.resetDir();
@@ -109,10 +136,7 @@ export default /*#__PURE__*/ {
   position: relative;
   overflow: visible;
 
-  // slot {
-  //   border-radius: inherit;
-  // }
-
+  // 方框 & 箭頭
   &::before,
   &::after {
     content: '';
@@ -126,6 +150,7 @@ export default /*#__PURE__*/ {
     pointer-events: none;
     visibility: hidden;
   }
+  // 方框
   &::before {
     content: attr(prefix) attr(tips) attr(suffix);
     padding: 6px 10px;
@@ -139,16 +164,17 @@ export default /*#__PURE__*/ {
     border-radius: 3px;
     background-color: var(--color, rgba(0, 0, 0, 0.75));
   }
+  // 箭頭
   &::after {
     width: 0;
     height: 0;
     border: 6px solid transparent;
     overflow: hidden;
   }
-  &[tips]:not([tips='']) {
-    &[show='true'],
-    &:hover:not([show='false']),
-    &:focus-within:not([show='false']) {
+  &[hastips] {
+    &[show],
+    &:not([show]):hover,
+    &:not([show]):focus-within {
       &::before,
       &::after {
         visibility: visible;
@@ -170,12 +196,14 @@ export default /*#__PURE__*/ {
       margin-bottom: -12px;
       border-top-color: currentColor;
     }
-    &[show='true'],
-    &:hover:not([show='false']),
-    &:focus-within:not([show='false']) {
-      &::before,
-      &::after {
-        transform: translate(-50%, -10px);
+    &[hastips] {
+      &[show],
+      &:not([show]):hover,
+      &:not([show]):focus-within {
+        &::before,
+        &::after {
+          transform: translate(-50%, -10px);
+        }
       }
     }
   }
@@ -192,12 +220,14 @@ export default /*#__PURE__*/ {
       margin-left: -12px;
       border-right-color: currentColor;
     }
-    &[show='true'],
-    &:hover:not([show='false']),
-    &:focus-within:not([show='false']) {
-      &::before,
-      &::after {
-        transform: translate(10px, -50%);
+    &[hastips] {
+      &[show],
+      &:not([show]):hover,
+      &:not([show]):focus-within {
+        &::before,
+        &::after {
+          transform: translate(10px, -50%);
+        }
       }
     }
   }
@@ -214,12 +244,14 @@ export default /*#__PURE__*/ {
       margin-top: -12px;
       border-bottom-color: currentColor;
     }
-    &[show='true'],
-    &:hover:not([show='false']),
-    &:focus-within:not([show='false']) {
-      &::before,
-      &::after {
-        transform: translate(-50%, 10px);
+    &[hastips] {
+      &[show],
+      &:not([show]):hover,
+      &:not([show]):focus-within {
+        &::before,
+        &::after {
+          transform: translate(-50%, 10px);
+        }
       }
     }
   }
@@ -236,12 +268,14 @@ export default /*#__PURE__*/ {
       margin-right: -12px;
       border-left-color: currentColor;
     }
-    &[show='true'],
-    &:hover:not([show='false']),
-    &:focus-within:not([show='false']) {
-      &::before,
-      &::after {
-        transform: translate(-10px, -50%);
+    &[hastips] {
+      &[show],
+      &:not([show]):hover,
+      &:not([show]):focus-within {
+        &::before,
+        &::after {
+          transform: translate(-10px, -50%);
+        }
       }
     }
   }
@@ -258,12 +292,14 @@ export default /*#__PURE__*/ {
       margin-bottom: -12px;
       border-top-color: currentColor;
     }
-    &[show='true'],
-    &:hover:not([show='false']),
-    &:focus-within:not([show='false']) {
-      &::before,
-      &::after {
-        transform: translate(0, -10px);
+    &[hastips] {
+      &[show],
+      &:not([show]):hover,
+      &:not([show]):focus-within {
+        &::before,
+        &::after {
+          transform: translate(0, -10px);
+        }
       }
     }
   }
@@ -296,12 +332,14 @@ export default /*#__PURE__*/ {
       margin-left: -12px;
       border-right-color: currentColor;
     }
-    &[show='true'],
-    &:hover:not([show='false']),
-    &:focus-within:not([show='false']) {
-      &::before,
-      &::after {
-        transform: translate(10px, 0);
+    &[hastips] {
+      &[show],
+      &:not([show]):hover,
+      &:not([show]):focus-within {
+        &::before,
+        &::after {
+          transform: translate(10px, 0);
+        }
       }
     }
   }
@@ -334,12 +372,14 @@ export default /*#__PURE__*/ {
       margin-top: -12px;
       border-bottom-color: currentColor;
     }
-    &[show='true'],
-    &:hover:not([show='false']),
-    &:focus-within:not([show='false']) {
-      &::before,
-      &::after {
-        transform: translate(0, 10px);
+    &[hastips] {
+      &[show],
+      &:not([show]):hover,
+      &:not([show]):focus-within {
+        &::before,
+        &::after {
+          transform: translate(0, 10px);
+        }
       }
     }
   }
@@ -372,12 +412,14 @@ export default /*#__PURE__*/ {
       margin-right: -12px;
       border-left-color: currentColor;
     }
-    &[show='true'],
-    &:hover:not([show='false']),
-    &:focus-within:not([show='false']) {
-      &::before,
-      &::after {
-        transform: translate(-10px, 0);
+    &[hastips] {
+      &[show],
+      &:not([show]):hover,
+      &:not([show]):focus-within {
+        &::before,
+        &::after {
+          transform: translate(-10px, 0);
+        }
       }
     }
   }

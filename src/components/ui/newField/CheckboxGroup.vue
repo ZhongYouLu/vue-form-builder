@@ -1,6 +1,6 @@
 <template>
   <div ref="group" class="x-checkbox-group" :disabled="disabled" :invalid="invalid">
-    <Tips type="error" :tabindex="disabled ? -1 : null" :tips="tips" :show="show">
+    <Tips type="error" :tabindex="disabled ? -1 : null" :tips="tips" :show="showTips">
       <Checkbox
         v-for="(option, idx) in options"
         :key="option[valueKey]"
@@ -56,8 +56,8 @@ export default /*#__PURE__*/ {
     return {
       localForm: this.form,
       invalid: false,
-      show: false,
       tips: null,
+      showTips: false,
       errorType: null,
       defaultValue: [],
     };
@@ -111,7 +111,8 @@ export default /*#__PURE__*/ {
     reset() {
       this.mutableValue = this.defaultValue;
       this.invalid = false;
-      this.show = false;
+      this.tips = null;
+      this.showTips = null;
     },
     focus(idx) {
       if (idx == null || idx < 0 || idx > this.$refs.checkbox.length - 1) idx = 0;
@@ -143,7 +144,7 @@ export default /*#__PURE__*/ {
       if (this.requiredValue.length) {
         for (let i = 0, checkbox; (checkbox = this.$refs.checkbox[i]); i++) {
           if (!checkbox.checkValidity()) {
-            this.errorType = 'required';
+            this.errorType = 'item-required';
             return false;
           }
         }
@@ -158,10 +159,11 @@ export default /*#__PURE__*/ {
 
       if (this.validity()) {
         this.invalid = false;
-        this.show = false;
+        this.showTips = null;
+        this.tips = null;
       } else {
         this.invalid = true;
-        this.show = true;
+        this.showTips = true;
       }
 
       switch (this.errorType) {
@@ -172,8 +174,8 @@ export default /*#__PURE__*/ {
         case 'max':
           this.tips = `至多選擇${this.localMax}項`;
           break;
-        case 'required':
-          this.show = false;
+        case 'item-required':
+          this.tips = null;
           break;
         default:
           break;
@@ -225,7 +227,7 @@ export default /*#__PURE__*/ {
     transition: opacity 0.3s;
   }
 
-  .x-tips[show='show'] {
+  .x-tips[hastips] {
     --themeColor: var(--errorColor);
     --borderColor: var(--errorColor);
   }

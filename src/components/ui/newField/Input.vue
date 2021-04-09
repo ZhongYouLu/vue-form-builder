@@ -1,44 +1,49 @@
 /* eslint-disable vue/no-mutating-props */
 <template>
-  <div class="x-input" :block="block" :invalid="invalid" :disabled="disabled" :required="required" :readonly="readonly">
+  <div class="x-input" :disabled="disabled" :invalid="invalid" :block="block">
     <Tips type="error" :tabindex="disabled ? -1 : null" :dir="errordir" :tips="tips" :show="showTips">
-      <Icon v-if="icon" class="x-input__icon-pre" :icon="icon" />
-      <textarea
-        v-if="multi"
-        ref="input"
-        v-model="mutableValue"
-        v-bind="bindAttrs"
-        @focus="handleFocus"
-        @blur="handleBlur"
-        @keydown="handleKeydown"
-      />
-      <input
-        v-else-if="type === 'number'"
-        ref="input"
-        v-model.number="mutableValue"
-        v-bind="bindAttrs"
-        @focus="handleFocus"
-        @blur="handleBlur"
-        @keydown="handleKeydown"
-      />
-      <input
-        v-else
-        ref="input"
-        v-model.trim="mutableValue"
-        v-bind="bindAttrs"
-        @focus="handleFocus"
-        @blur="handleBlur"
-        @keydown="handleKeydown"
-      />
+      <Icon v-if="icon" class="x-input__pre" :icon="icon" />
+      <template v-if="true">
+        <textarea
+          v-if="multi"
+          ref="input"
+          v-model="mutableValue"
+          v-bind="bindAttrs"
+          @focus="handleFocus"
+          @blur="handleBlur"
+          @input="handleInput"
+          @keydown="handleKeydown"
+        />
+        <input
+          v-else-if="type === 'number'"
+          ref="input"
+          v-model.number="mutableValue"
+          v-bind="bindAttrs"
+          @focus="handleFocus"
+          @blur="handleBlur"
+          @input="handleInput"
+          @keydown="handleKeydown"
+        />
+        <input
+          v-else
+          ref="input"
+          v-model.trim="mutableValue"
+          v-bind="bindAttrs"
+          @focus="handleFocus"
+          @blur="handleBlur"
+          @input="handleInput"
+          @keydown="handleKeydown"
+        />
+      </template>
       <label v-if="label && !icon" class="x-input__label">{{ label }}</label>
       <template v-if="!multi">
-        <div v-if="type === 'number'" class="x-input__btn-right x-input__btn-right--number">
+        <div v-if="type === 'number'" class="x-input__right x-input__right--number">
           <Button icon="mdi:chevron-up" type="flat" @click="invokeAdd" />
           <Button icon="mdi:chevron-down" type="flat" @click="invokeSub" />
         </div>
         <Button
           v-else-if="type === 'password'"
-          class="x-input__btn-right"
+          class="x-input__right"
           :icon="eyeclose ? 'mdi-light:eye-off' : 'mdi-light:eye'"
           type="flat"
           shape="circle"
@@ -46,7 +51,8 @@
         ></Button>
         <Button
           v-else-if="type === 'search'"
-          class="x-input__btn-right"
+          ref="search"
+          class="x-input__right"
           icon="ic:baseline-search"
           type="flat"
           shape="circle"
@@ -79,8 +85,8 @@ export default /*#__PURE__*/ {
     placeholder: { type: String, default: null },
     label: { type: String, default: null }, // 設置後 placeholder 失效
     icon: { type: String, default: null }, // 設置後 label 失效
-    readonly: { type: Boolean, default: null },
     required: { type: Boolean, default: null },
+    readonly: { type: Boolean, default: null },
     disabled: { type: Boolean, default: null },
     novalidate: { type: Boolean, default: null },
     // ---------------------------------
@@ -96,6 +102,7 @@ export default /*#__PURE__*/ {
     block: { type: Boolean, default: null },
     errortips: { type: String, default: null },
     errordir: { type: String, default: 'top' },
+    debounce: { type: Number, default: null },
     customValidity: {
       type: Object,
       default: () => ({
@@ -103,6 +110,7 @@ export default /*#__PURE__*/ {
         // tips: '',
       }),
     },
+    callInput: { type: Function, default: null },
   },
   emits: ['input', 'focus', 'blur', 'search'],
   data() {
@@ -110,8 +118,10 @@ export default /*#__PURE__*/ {
       localForm: this.form,
       invalid: null,
       tips: null,
-      showTips: false,
+      showTips: null,
+      errorType: null,
       eyeclose: true,
+      inputTimer: null,
     };
   },
   computed: {
@@ -162,8 +172,6 @@ export default /*#__PURE__*/ {
         required: this.required,
         readonly: this.readonly,
         disabled: this.disabled,
-        // invalid: this.invalid,
-        // novalidate: this.novalidate,
       };
 
       if (this.type === 'number') {
@@ -179,7 +187,11 @@ export default /*#__PURE__*/ {
     },
   },
   watch: {
-    mutableValue: 'checkValidity',
+    mutableValue: function () {
+      this.$nextTick(() => {
+        this.checkValidity();
+      });
+    },
   },
   mounted() {
     if (!this.localForm) {
@@ -190,59 +202,105 @@ export default /*#__PURE__*/ {
     reset() {
       this.mutableValue = this.defaultvalue;
       this.invalid = false;
-      this.showTips = false;
+      this.tips = null;
+      this.showTips = null;
     },
     focus() {
       this.$nextTick(() => this.$refs.input.focus());
     },
+    // 是否有效
     validity() {
-      return this.$refs.input.checkValidity() && this.customValidity.method(this.$props);
+      // base (default)
+      if (!this.$refs.input.checkValidity()) {
+        this.errorType = null;
+        return false;
+      }
+
+      // custom
+      if (!this.customValidity.method(this.$props)) {
+        this.errorType = 'custom';
+        return false;
+      }
+
+      return true;
     },
     checkValidity() {
       if (this.novalidate || this.disabled || (this.localForm && this.localForm.novalidate)) {
         return true;
       }
+
       if (this.validity()) {
         this.invalid = false;
-        this.showTips = false;
-        return true;
+        this.showTips = null;
+        this.tips = null;
       } else {
-        this.focus();
+        // this.focus();
         this.invalid = true;
         this.showTips = true;
 
+        /* [ValidityState]
+         * badInput: 表示使用者提供了瀏覽器無法轉換的輸入
+         * customError: 有客製化設定 el.setCustomValidity(non-empty)
+         * patternMismatch: 不符合設定的 pattern 屬性的值
+         * rangeOverflow: 大於 max 屬性的值
+         * rangeUnderflow: 小於 min 屬性的值
+         * stepMismatch: 不符合 step 屬性的倍數
+         * tooLong: 長度大於 maxlength 屬性的值
+         * tooShort: 長度小於 minlength 屬性的值
+         * typeMismatch: 格式型態不正確（email, url, color）
+         * valid: 有效的，符合所有驗證
+         * valueMissing: 有設置 required 屬性，但沒有值
+         */
+
         const inputEl = this.$refs.input;
-        if (inputEl.validity.valueMissing) {
-          this.tips = inputEl.validationMessage;
-        } else {
-          if (!this.customValidity.method(inputEl)) {
+        // if (inputEl.validity.valueMissing) {
+        //   this.tips = inputEl.validationMessage;
+        // }
+
+        switch (this.errorType) {
+          case 'custom':
             this.tips = this.customValidity.tips;
-          } else {
+            break;
+          default:
             this.tips = this.errortips || inputEl.validationMessage;
-          }
+            break;
         }
-        return false;
       }
+
+      return !this.invalid;
     },
     handleKeydown(e) {
       switch (e.keyCode) {
         case 13: //Enter
+          this.$refs.search.$refs.btn.dispatchEvent(new Event('click'));
           break;
         default:
           break;
       }
     },
+    handleInput(e) {
+      e.stopPropagation();
+
+      if (this.debounce) {
+        this.inputTimer && clearTimeout(this.inputTimer);
+        this.inputTimer = setTimeout(() => {
+          this.callInput && this.callInput(this.value);
+        }, this.debounce);
+      } else {
+        this.callInput && this.callInput(this.value);
+      }
+    },
     handleFocus() {
-      this.checkValidity();
+      // this.checkValidity();
       this.$emit('focus');
     },
     handleBlur() {
-      // this.checkValidity();
+      this.validity();
       this.$emit('blur');
     },
     invokeSearch() {
       console.log('invokeSearch');
-      this.$emit('search', this.mutableValue);
+      this.$emit('search', this.value);
       // submit
     },
     invokePass() {
@@ -289,6 +347,17 @@ export default /*#__PURE__*/ {
     width: 300px;
   }
 
+  // 無效的
+  &[invalid] {
+    --themeColor: var(--errorColor);
+    --borderColor: var(--errorColor);
+
+    .x-input__pre,
+    .x-input__label {
+      color: var(--errorColor);
+    }
+  }
+
   &[disabled] {
     opacity: 0.8;
     cursor: not-allowed;
@@ -304,12 +373,12 @@ export default /*#__PURE__*/ {
       z-index: 1;
       border-color: var(--themeColor);
 
-      .x-input__icon-pre,
+      .x-input__pre,
       .x-input__label {
         color: var(--themeColor);
       }
 
-      .x-input__btn-right {
+      .x-input__right {
         &--number {
           visibility: visible;
         }
@@ -322,36 +391,31 @@ export default /*#__PURE__*/ {
     // }
   }
 
-  // 無效的
-  &[invalid] {
-    --themeColor: var(--errorColor);
-    --borderColor: var(--errorColor);
-
-    .x-icon {
-      color: var(--errorColor);
+  &__pre,
+  &__label,
+  &__right,
+  &__right--number .x-btn {
+    color: #999;
+  }
+  &__right {
+    &:hover,
+    &:focus-within {
+      color: var(--themeColor);
     }
   }
 
-  // ???
-  // &[showtips] {
-  //   pointer-events: all;
-  // }
-
-  &__icon-pre,
-  &__label {
-    color: #999;
-  }
-
-  &__icon-pre {
+  &__pre {
     display: flex;
     margin-right: var(--vGap);
   }
 
   &__label {
     position: absolute;
-
-    margin-left: -0.14em;
+    margin-left: calc(var(--fontSize) * -0.1);
     padding: 0 0.1em;
+    display: flex;
+    justify-content: center;
+    align-items: center;
     transform-origin: left;
     transition: transform 0.3s ease, color 0.3s, background-color 0.3s;
     pointer-events: none;
@@ -363,7 +427,7 @@ export default /*#__PURE__*/ {
       position: absolute;
       top: 0;
       width: 100%;
-      height: calc(var(--borderWidth) * 2);
+      height: calc(var(--borderWidth) * 3);
       transition: top 0.3s ease-out;
     }
     :focus + &,
@@ -371,7 +435,7 @@ export default /*#__PURE__*/ {
     :-webkit-autofill + & {
       &::before {
         background: var(--bgColor, #fff);
-        top: calc(49% + var(--borderWidth));
+        top: calc(49% + calc(var(--borderWidth) / 2));
       }
       transform: translateY(calc(-50% - var(--vGap) * 1.5)) scale(0.8);
     }
@@ -429,9 +493,43 @@ export default /*#__PURE__*/ {
         align-items: flex-start;
       }
 
-      .x-input__icon-pre {
+      .x-input__pre {
         height: 1.5em;
       }
+    }
+  }
+
+  & &__right {
+    margin: calc(var(--vGap) * -1) -0.5em calc(var(--vGap) * -1) 0.25em;
+
+    &--number {
+      display: flex;
+      flex-direction: column;
+      width: 1.5em;
+      height: 1.5em;
+      // visibility: hidden;
+      transition: 0s;
+
+      .x-btn {
+        flex: 1;
+        display: flex;
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        font-size: 0.8em;
+        border-radius: 0;
+        transition: 0.2s;
+
+        &:hover {
+          flex: 1.5;
+        }
+      }
+    }
+  }
+
+  @keyframes removeBg {
+    to {
+      background: transparent;
     }
   }
 
@@ -445,54 +543,6 @@ export default /*#__PURE__*/ {
     height: 100%;
     font-family: inherit;
     transition: background-color 0.3s;
-  }
-
-  .x-btn {
-    &:not([disabled]) {
-      &:hover,
-      &:focus-within {
-        color: var(--themeColor);
-      }
-    }
-  }
-
-  & &__btn {
-    &-right {
-      margin: calc(var(--vGap) * -1) -0.5em calc(var(--vGap) * -1) 0.25em;
-      // padding: var(--vGap);
-      // font-size: inherit;
-      color: #999;
-
-      &--number {
-        display: flex;
-        flex-direction: column;
-        width: 1.5em;
-        visibility: hidden;
-        transition: 0s;
-
-        .x-btn {
-          flex: 1;
-          display: flex;
-          margin: 0;
-          padding: 0;
-          width: 100%;
-          color: #999;
-          font-size: 0.8em;
-          border-radius: 0;
-          transition: 0.2s;
-
-          &:hover {
-            flex: 1.5;
-          }
-        }
-      }
-    }
-  }
-
-  @keyframes removeBg {
-    to {
-      background: transparent;
-    }
   }
 }
 </style>
