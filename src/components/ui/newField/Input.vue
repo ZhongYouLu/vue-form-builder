@@ -1,6 +1,6 @@
 /* eslint-disable vue/no-mutating-props */
 <template>
-  <div class="x-input" :disabled="disabled" :invalid="invalid" :block="block">
+  <div class="x-input" :disabled="disabled" :invalid="invalid" :block="block" :multi="multi">
     <Tips type="error" :tabindex="disabled ? -1 : null" :dir="errordir" :tips="tips" :show="showTips">
       <Icon v-if="icon" class="x-input__pre" :icon="icon" />
       <template v-if="true">
@@ -154,7 +154,6 @@ export default /*#__PURE__*/ {
     classes() {
       return [
         'x-input__input',
-        { 'x-input__input--multi': this.multi },
         { 'x-input__input--label': this.label && !this.icon },
         { 'x-input__input--number': this.type === 'number' },
       ];
@@ -300,7 +299,7 @@ export default /*#__PURE__*/ {
       this.$emit('focus');
     },
     handleBlur() {
-      this.validity();
+      this.checkValidity();
       this.$emit('blur');
     },
     invokeSubmit() {
@@ -344,6 +343,143 @@ export default /*#__PURE__*/ {
   border: var(--borderWidth) solid var(--borderColor);
   border-radius: var(--borderRadius);
   transition: z-index 0.3s, border-color 0.3s, box-shadow 0.3s;
+
+  &__pre,
+  &__label,
+  &__right,
+  &__right--number .x-btn {
+    color: #999;
+  }
+
+  &__pre {
+    display: flex;
+    margin-right: var(--vGap);
+  }
+
+  &__label {
+    position: absolute;
+    margin-left: calc(var(--fontSize) * -0.1);
+    padding: 0 0.1em;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transform-origin: left;
+    transition: transform 0.3s ease, color 0.3s, background-color 0.3s;
+    pointer-events: none;
+    user-select: none;
+
+    &::before {
+      content: '';
+      z-index: -1;
+      position: absolute;
+      top: 0;
+      width: 100%;
+      height: calc(var(--borderWidth) * 3);
+      transition: top 0.3s ease-out;
+    }
+    :focus + &,
+    :not(:placeholder-shown) + &,
+    :-webkit-autofill + & {
+      &::before {
+        background: var(--bgColor, #fff);
+        top: calc(49% + calc(var(--borderWidth) / 2));
+      }
+      transform: translateY(calc(-50% - var(--vGap) * 1.5)) scale(0.8);
+    }
+  }
+
+  & &__right {
+    margin: calc(var(--vGap) * -1) -0.5em calc(var(--vGap) * -1) var(--vGap);
+
+    &:hover,
+    &:focus-within {
+      color: var(--themeColor);
+    }
+
+    &--number {
+      display: flex;
+      flex-direction: column;
+      width: 1.5em;
+      height: 1.5em;
+      // visibility: hidden;
+      transition: 0s;
+
+      .x-btn {
+        flex: 1;
+        display: flex;
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        font-size: 0.8em;
+        border-radius: 0;
+        transition: 0.2s;
+
+        &:hover {
+          flex: 1.5;
+        }
+      }
+    }
+  }
+
+  &__input {
+    flex: 1;
+    padding: 0;
+    min-width: 0;
+    line-height: inherit;
+    text-align: inherit;
+    font-size: inherit;
+    font-family: inherit;
+    color: currentColor;
+    border: 0;
+    background: none;
+    -webkit-appearance: none;
+    -moz-appearance: textfield;
+    overflow-x: hidden;
+    outline: 0;
+    transition: color 0.3s;
+    animation: removeBg 0s forwards;
+
+    &::-moz-focus-inner,
+    &::-moz-focus-outer {
+      border: 0;
+      outline: 0;
+    }
+    &:-moz-ui-invalid {
+      box-shadow: none;
+    }
+    &::-ms-reveal {
+      display: none;
+    }
+    &--number::-webkit-inner-spin-button {
+      display: none;
+    }
+
+    &::placeholder {
+      user-select: none;
+      color: #999;
+    }
+    &--label::placeholder {
+      color: transparent;
+    }
+  }
+
+  @keyframes removeBg {
+    to {
+      background: transparent;
+    }
+  }
+
+  .x-tips {
+    box-sizing: content-box;
+    display: flex;
+    align-items: center;
+    margin: calc(var(--vGap) * -1) calc(var(--hGap) * -1);
+    padding: var(--vGap) var(--hGap);
+    width: 100%;
+    height: 100%;
+    font-family: inherit;
+    transition: background-color 0.3s;
+  }
 
   &[block] {
     display: flex;
@@ -396,158 +532,19 @@ export default /*#__PURE__*/ {
     // }
   }
 
-  &__pre,
-  &__label,
-  &__right,
-  &__right--number .x-btn {
-    color: #999;
-  }
-  &__right {
-    &:hover,
-    &:focus-within {
-      color: var(--themeColor);
-    }
-  }
+  &[multi] {
+    padding-right: var(--vGap);
+    line-height: 1.5;
 
-  &__pre {
-    display: flex;
-    margin-right: var(--vGap);
-  }
-
-  &__label {
-    position: absolute;
-    margin-left: calc(var(--fontSize) * -0.1);
-    padding: 0 0.1em;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    transform-origin: left;
-    transition: transform 0.3s ease, color 0.3s, background-color 0.3s;
-    pointer-events: none;
-    user-select: none;
-
-    &::before {
-      content: '';
-      z-index: -1;
-      position: absolute;
-      top: 0;
-      width: 100%;
-      height: calc(var(--borderWidth) * 3);
-      transition: top 0.3s ease-out;
-    }
-    :focus + &,
-    :not(:placeholder-shown) + &,
-    :-webkit-autofill + & {
-      &::before {
-        background: var(--bgColor, #fff);
-        top: calc(49% + calc(var(--borderWidth) / 2));
-      }
-      transform: translateY(calc(-50% - var(--vGap) * 1.5)) scale(0.8);
-    }
-  }
-
-  &__input {
-    flex: 1;
-    padding: 0;
-    min-width: 0;
-    line-height: inherit;
-    text-align: inherit;
-    font-size: inherit;
-    font-family: inherit;
-    color: currentColor;
-    border: 0;
-    background: none;
-    -webkit-appearance: none;
-    -moz-appearance: textfield;
-    overflow-x: hidden;
-    outline: 0;
-    transition: color 0.3s;
-    animation: removeBg 0s forwards;
-
-    &::-moz-focus-inner,
-    &::-moz-focus-outer {
-      border: 0;
-      outline: 0;
-    }
-    &:-moz-ui-invalid {
-      box-shadow: none;
-    }
-    &::-ms-reveal {
-      display: none;
-    }
-    &--number::-webkit-inner-spin-button {
-      display: none;
+    .x-tips {
+      margin-right: calc(var(--vGap) * -1);
+      padding-right: var(--vGap);
+      align-items: flex-start;
     }
 
-    &::placeholder {
-      user-select: none;
-      color: #999;
-    }
-    &--label::placeholder {
-      color: transparent;
-    }
-
-    &--multi {
-      margin: 0;
-      padding-right: 0.25em;
-      line-height: 1.5;
-
-      .x-tips {
-        margin-right: calc(var(--vGap) * -1);
-        padding-right: 0.25em;
-        align-items: flex-start;
-      }
-
-      .x-input__pre {
-        height: 1.5em;
-      }
-    }
-  }
-
-  & &__right {
-    margin: calc(var(--vGap) * -1) -0.5em calc(var(--vGap) * -1) 0.25em;
-
-    &--number {
-      display: flex;
-      flex-direction: column;
-      width: 1.5em;
+    .x-input__pre {
       height: 1.5em;
-      // visibility: hidden;
-      transition: 0s;
-
-      .x-btn {
-        flex: 1;
-        display: flex;
-        margin: 0;
-        padding: 0;
-        width: 100%;
-        font-size: 0.8em;
-        border-radius: 0;
-        transition: 0.2s;
-
-        &:hover {
-          flex: 1.5;
-        }
-      }
     }
-  }
-
-  @keyframes removeBg {
-    to {
-      background: transparent;
-    }
-  }
-
-  .x-tips {
-    box-sizing: content-box;
-    display: flex;
-    align-items: center;
-    margin: calc(var(--vGap) * -1) calc(var(--hGap) * -1);
-    padding: var(--vGap) var(--hGap);
-    width: 100%;
-    height: 100%;
-    font-family: inherit;
-    transition: background-color 0.3s;
   }
 }
 </style>
