@@ -12,7 +12,7 @@
           @focus="handleFocus"
           @blur="handleBlur"
           @input="handleInput"
-          @keydown="handleKeydown"
+          @keyup="handleKeyup"
         />
         <input
           v-else-if="type === 'number'"
@@ -22,7 +22,7 @@
           @focus="handleFocus"
           @blur="handleBlur"
           @input="handleInput"
-          @keydown="handleKeydown"
+          @keyup="handleKeyup"
         />
         <input
           v-else
@@ -32,7 +32,7 @@
           @focus="handleFocus"
           @blur="handleBlur"
           @input="handleInput"
-          @keydown="handleKeydown"
+          @keyup="handleKeyup"
         />
       </template>
       <label v-if="label && !icon" class="x-input__label">{{ label }}</label>
@@ -56,7 +56,7 @@
           icon="ic:baseline-search"
           type="flat"
           shape="circle"
-          @click="invokeSearch"
+          @click="invokeSubmit"
         ></Button>
       </template>
     </Tips>
@@ -112,7 +112,7 @@ export default /*#__PURE__*/ {
     },
     callInput: { type: Function, default: null },
   },
-  emits: ['input', 'focus', 'blur', 'search'],
+  emits: ['input', 'focus', 'blur', 'submit'],
   data() {
     return {
       localForm: this.form,
@@ -269,10 +269,15 @@ export default /*#__PURE__*/ {
 
       return !this.invalid;
     },
-    handleKeydown(e) {
+    handleKeyup(e) {
       switch (e.keyCode) {
         case 13: //Enter
-          this.$refs.search.$refs.btn.dispatchEvent(new Event('click'));
+          if (this.validity()) {
+            const searchBtn = this.$refs.search;
+            // searchBtn.$refs.btn.focus();
+            searchBtn.$refs.btn.dispatchEvent(new MouseEvent('mousedown'));
+            searchBtn.handleClick();
+          }
           break;
         default:
           break;
@@ -298,9 +303,9 @@ export default /*#__PURE__*/ {
       this.validity();
       this.$emit('blur');
     },
-    invokeSearch() {
-      console.log('invokeSearch');
-      this.$emit('search', this.value);
+    invokeSubmit() {
+      console.log('invokeSubmit');
+      this.$emit('submit', this.value);
       // submit
     },
     invokePass() {

@@ -103,18 +103,6 @@ export default /*#__PURE__*/ {
       return temp;
     },
   },
-  watch: {
-    actived: function (flag) {
-      if (flag) {
-        const { width, height } = this.$refs.btn.getBoundingClientRect();
-        this.$refs.btn.style.setProperty('--x', width / 2 + 'px');
-        this.$refs.btn.style.setProperty('--y', height / 2 + 'px');
-        setTimeout(() => {
-          this.actived = false;
-        }, 0);
-      }
-    },
-  },
   created() {
     this.checkSlot();
   },
@@ -132,9 +120,25 @@ export default /*#__PURE__*/ {
     focus() {
       this.$nextTick(() => this.$refs.btn.focus());
     },
+    activeRipple(e) {
+      if (!this.disabled) {
+        this.actived = true;
+
+        const { left, top, width, height } = this.$refs.btn.getBoundingClientRect();
+        const x = e?.clientX ? e.clientX - left : width / 2;
+        const y = e?.clientY ? e.clientY - top : height / 2;
+
+        // 設定波紋(ripple)中心位置
+        this.$refs.btn.style.setProperty('--x', x + 'px');
+        this.$refs.btn.style.setProperty('--y', y + 'px');
+
+        this.$nextTick(() => {
+          this.actived = false;
+        });
+      }
+    },
     handleClick() {
       this.$emit('click');
-      this.actived = true;
 
       if (this.toggle) {
         this.checked = !this.checked;
@@ -145,25 +149,22 @@ export default /*#__PURE__*/ {
       }
     },
     handleFocus() {
-      console.log('btn focus');
+      // console.log('btn focus');
     },
     handleBlur() {
-      console.log('btn blur');
+      // console.log('btn blur');
     },
     handleMousedown(e) {
-      if (!this.disabled) {
-        // 設定波紋(ripple)起始位置
-        const { left, top } = this.$refs.btn.getBoundingClientRect();
-        this.$refs.btn.style.setProperty('--x', e.clientX - left + 'px');
-        this.$refs.btn.style.setProperty('--y', e.clientY - top + 'px');
-      }
+      this.activeRipple(e);
     },
     handleKeydown(e) {
       switch (e.keyCode) {
         case 13: //Enter
           e.stopPropagation();
+          this.activeRipple();
           break;
         case 32: //Spacebar
+          this.activeRipple();
           break;
         default:
           break;
