@@ -12,6 +12,7 @@
           @focus="handleFocus"
           @blur="handleBlur"
           @input="handleInput"
+          @keydown="handleKeydown"
           @keyup="handleKeyup"
         />
         <input
@@ -22,6 +23,7 @@
           @focus="handleFocus"
           @blur="handleBlur"
           @input="handleInput"
+          @keydown="handleKeydown"
           @keyup="handleKeyup"
         />
         <input
@@ -32,6 +34,7 @@
           @focus="handleFocus"
           @blur="handleBlur"
           @input="handleInput"
+          @keydown="handleKeydown"
           @keyup="handleKeyup"
         />
       </template>
@@ -268,6 +271,16 @@ export default /*#__PURE__*/ {
 
       return !this.invalid;
     },
+    handleKeydown(e) {
+      switch (e.keyCode) {
+        case 13: //Enter
+          e.preventDefault();
+          e.stopPropagation();
+          break;
+        default:
+          break;
+      }
+    },
     handleKeyup(e) {
       switch (e.keyCode) {
         case 13: //Enter
@@ -304,7 +317,7 @@ export default /*#__PURE__*/ {
     },
     invokeSubmit() {
       console.log('invokeSubmit');
-      this.$emit('submit', this.value);
+      // this.$emit('submit', this.value);
       // submit
     },
     invokePass() {

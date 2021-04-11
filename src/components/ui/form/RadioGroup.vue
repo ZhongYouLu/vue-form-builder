@@ -22,7 +22,7 @@
 
 <script>
 import Tips from '@/components/ui/Tips';
-import Radio from '@/components/ui/newField/Radio';
+import Radio from '@/components/ui/form/Radio';
 
 export default /*#__PURE__*/ {
   name: 'CheckboxGroup',

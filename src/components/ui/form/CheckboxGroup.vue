@@ -23,7 +23,7 @@
 
 <script>
 import Tips from '@/components/ui/Tips';
-import Checkbox from '@/components/ui/newField/Checkbox';
+import Checkbox from '@/components/ui/form/Checkbox';
 import { arrRemoveValue } from '@/assets/js/helper.js';
 
 export default /*#__PURE__*/ {
