@@ -83,6 +83,7 @@ export default /*#__PURE__*/ {
     form: { type: HTMLFormElement, default: null },
     // ----------------------------------
     value: { type: [String, Number], default: null },
+    id: { type: String, default: null },
     name: { type: String, default: null },
     type: { type: String, default: null },
     placeholder: { type: String, default: null },
@@ -163,6 +164,7 @@ export default /*#__PURE__*/ {
     },
     bindAttrs() {
       let temp = {
+        id: this.id,
         name: this.name,
         type: this.localType,
         class: this.classes,

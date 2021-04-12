@@ -1,10 +1,11 @@
 <template>
   <div class="form-demo">
-    <form name="demo" @submit="submit">
-      <div v-for="({ id, ...column }, idx) in columns" :key="id">
-        <Row
+    <Form name="demo" @submit="submit">
+      <template v-for="({ id, ...column }, idx) in columns">
+        <FormItem
           v-if="values[id] !== undefined"
           :id="id"
+          :key="id"
           :name="column.name"
           :idx="idx + 1"
           :type="column.type"
@@ -20,9 +21,9 @@
           :value.sync="values[id]"
           :error.sync="errors[id]"
         />
-      </div>
-      <button>Send</button>
-    </form>
+      </template>
+      <Button htmltype="submit">Send</Button>
+    </Form>
     <hr class="dashed" />
     <div>values: {{ values }}</div>
     <div>errors: {{ errors }}</div>
@@ -30,13 +31,17 @@
 </template>
 
 <script>
-import Row from '@/components/FormDemo/Row';
+import Form from '@/components/ui/form/Form';
+import FormItem from '@/components/ui/form/FormItem';
+import Button from '@/components/ui/Button';
 import { arr2ObjByKey } from '@/assets/js/helper.js';
 
 export default /*#__PURE__*/ {
   name: 'FormDemo',
   components: {
-    Row,
+    Form,
+    FormItem,
+    Button,
   },
   props: {
     // id: {

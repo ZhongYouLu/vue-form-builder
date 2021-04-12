@@ -83,4 +83,5 @@ export default Vue.extend({
 @import '@/assets/scss/base/normalize.scss';
 @import '@/assets/scss/utils.scss';
 @import '@/assets/scss/base/base.scss';
+@import '@/assets/scss/root.scss';
 </style>

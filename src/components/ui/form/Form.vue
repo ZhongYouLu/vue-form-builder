@@ -14,13 +14,8 @@
 </template>
 
 <script>
-import Button from '@/components/ui/Button';
-
 export default /*#__PURE__*/ {
   name: 'Form',
-  components: {
-    Button,
-  },
   props: {
     name: { type: String, default: 'GET' },
     method: { type: String, default: 'GET' },
@@ -115,15 +110,4 @@ export default /*#__PURE__*/ {
 <style lang="scss">
 @import '@/assets/scss/utils.scss';
 
-.x-form {
-  display: grid;
-  grid-template-columns: auto 1fr;
-  grid-gap: 0.8em;
-  align-items: center;
-  justify-items: end;
-
-  [type='none'] {
-    display: contents;
-  }
-}
 </style>

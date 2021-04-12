@@ -86,7 +86,7 @@ export default /*#__PURE__*/ {
       let temp = {
         class: this.classes,
         name: this.name,
-        type: this.htmltype,
+        type: this.htmltype || (!this.href && 'button'),
         disabled: this.disabled || this.loading,
       };
 
