@@ -2,23 +2,31 @@
   <!-- 基本設定 -->
   <fieldset>
     <!-- <legend>基本設定</legend> -->
-    <InputRow v-for="(v, k) in fields" :key="k" :value="$props[k]" v-bind="v.props" @input="$emit('update', k, $event)">
+    <FormItem
+      v-for="(v, k) in fields"
+      :id="`${id}-${k}`"
+      :key="k"
+      v-bind="v.props"
+      :value="$props[k]"
+      @update:value="$emit('update', k, $event)"
+    >
       <template v-for="(_, slot) in $scopedSlots" #[slot]="props">
         <slot :name="slot" v-bind="props" />
       </template>
-    </InputRow>
+    </FormItem>
   </fieldset>
 </template>
 
 <script>
-import InputRow from '@/components/ui/InputRow';
+import FormItem from '@/components/ui/form/FormItem';
 import { subTypeOptions } from '@/assets/js/options.js';
 
 export default /*#__PURE__*/ {
   name: 'ColumnSettingBase',
   components: {
-    InputRow,
+    FormItem,
   },
+  inheritAttrs: false,
   props: {
     // 識別碼
     id: { type: String, required: true },
@@ -38,7 +46,7 @@ export default /*#__PURE__*/ {
     // 欄位性質
     subType: { type: String, default: null },
     // 可複選
-    isMultiple: { type: Number, default: null },
+    multiple: { type: Number, default: null },
     // 自動完成區段
     // autocompleteSection: { type: String, default: null },
     // 自動完成
@@ -50,22 +58,22 @@ export default /*#__PURE__*/ {
   computed: {
     fields() {
       let temp = {
-        desc: { props: { text: '欄位說明' } },
-        subDesc: { props: { text: '欄位子說明' } },
+        desc: { props: { desc: '欄位說明' } },
+        subDesc: { props: { desc: '欄位子說明' } },
       };
 
       if (this.typeConstraint.isInput || this.typeConstraint.isSelect) {
-        temp['placeholder'] = { props: { text: '提示文字' } };
+        temp['placeholder'] = { props: { desc: '提示文字' } };
       }
 
       if (!this.typeConstraint.isFile) {
-        temp['defaultValue'] = { props: { text: '預設值' } };
+        temp['defaultValue'] = { props: { desc: '預設值' } };
       }
 
       if (this.typeConstraint.isText) {
         temp['subType'] = {
           props: {
-            text: '欄位性質',
+            desc: '欄位性質',
             placeholder: '預設: 文字',
             type: 'select',
             options: subTypeOptions,
@@ -98,7 +106,7 @@ export default /*#__PURE__*/ {
       }
 
       if (this.typeConstraint.isCheckbox || this.typeConstraint.isSelect) {
-        temp['isMultiple'] = { props: { text: '可複選', type: 'checkbox', label: '可複選' } };
+        temp['multiple'] = { props: { desc: '可複選', type: 'checkbox', label: '可複選' } };
       }
 
       if (this.typeConstraint.isInput) {
@@ -122,7 +130,7 @@ export default /*#__PURE__*/ {
           //     clearable: true,
           //   },
           // },
-          encrypt: { props: { text: '資料庫加密', type: 'checkbox', label: '加密' } },
+          encrypt: { props: { desc: '資料庫加密', type: 'checkbox', label: '加密' } },
         };
       }
 

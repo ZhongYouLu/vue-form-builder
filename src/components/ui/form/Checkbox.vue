@@ -3,9 +3,10 @@
     <Tips type="error" :dir="idx ? 'bottomleft' : 'topleft'" :tips="tips" :show="showTips">
       <label>
         <input
+          :id="id"
           ref="checkbox"
           v-model="checked"
-          :name="name"
+          :name="name || id"
           type="checkbox"
           :true-value="yes"
           :false-value="no"
@@ -41,11 +42,12 @@ export default /*#__PURE__*/ {
     form: { type: HTMLFormElement, default: null },
     // ----------------------------------
     idx: { type: Number, default: null },
+    id: { type: String, default: null },
     name: { type: String, default: null },
     value: { type: [String, Number, Boolean], default: null },
     label: { type: [String, Number, Boolean], default: '是' },
-    yes: { type: [String, Number, Boolean], default: true },
-    no: { type: [String, Number, Boolean], default: false },
+    yes: { type: [String, Number, Boolean], default: 1 },
+    no: { type: [String, Number, Boolean], default: null },
     // ----------------------------------
     required: { type: Boolean, default: null },
     disabled: { type: Boolean, default: null },

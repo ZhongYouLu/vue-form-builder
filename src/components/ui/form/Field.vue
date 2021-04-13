@@ -1,12 +1,12 @@
 <template>
-  <div class="field2">
+  <div class="field">
     <component
       :is="componentName"
       ref="input"
       v-bind="$attrs"
       v-model="mutableValue"
       :type="subType || type"
-      :multiple="multiple"
+      :multiple="!!multiple"
       @focus="$emit('focus')"
       @blur="$emit('blur')"
     >
@@ -24,6 +24,7 @@ import XCheckboxGroup from '@/components/ui/form/CheckboxGroup';
 import XRadio from '@/components/ui/form/Radio';
 import XRadioGroup from '@/components/ui/form/RadioGroup';
 import XSelect from '@/components/ui/form/Select';
+import { typeConfig, subTypeConfig, getTypeConstraint } from '@/assets/js/options.js';
 
 export default /*#__PURE__*/ {
   name: 'Field',
@@ -39,15 +40,9 @@ export default /*#__PURE__*/ {
   props: {
     value: { type: [String, Number, Boolean, Array], default: null },
     default: { type: [String, Number, Boolean, Array], default: null },
-    multiple: { type: Boolean, default: false },
-    subType: { type: String, default: null },
-    type: {
-      type: String,
-      default: 'text',
-      validator(value) {
-        return ['text', 'number', 'date', 'radio', 'checkbox', 'select'].includes(value);
-      },
-    },
+    multiple: { type: [Boolean, Number], default: null },
+    type: { validator: (val) => !!typeConfig[val], default: 'text' },
+    subType: { validator: (val) => !!subTypeConfig[val], default: null },
   },
   emits: ['input', 'focus', 'blur'],
   computed: {
@@ -60,19 +55,23 @@ export default /*#__PURE__*/ {
         this.$emit('input', value);
       },
     },
+    typeConstraint() {
+      return getTypeConstraint(this.type, this.subType, this.multiple);
+    },
     componentName() {
       let name = null;
       switch (this.type) {
         case 'text':
         case 'number':
+        case 'date':
+        case 'file':
           name = 'x-input';
           break;
-
         default:
           name = `x-${this.type}`;
           break;
       }
-      if (['checkbox', 'radop'].includes(this.type) && this.multiple) name += '-group';
+      if (['checkbox', 'radio'].includes(this.type) && this.multiple) name += '-group';
       return name;
     },
   },
@@ -81,5 +80,6 @@ export default /*#__PURE__*/ {
       this.mutableValue = this.default;
     }
   },
+  methods: {},
 };
 </script>

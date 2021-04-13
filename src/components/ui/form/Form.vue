@@ -110,4 +110,14 @@ export default /*#__PURE__*/ {
 <style lang="scss">
 @import '@/assets/scss/utils.scss';
 
+form {
+  counter-reset: num;
+
+  & > .x-form-item .label {
+    &::before {
+      counter-increment: num;
+      content: counter(num) '. ';
+    }
+  }
+}
 </style>

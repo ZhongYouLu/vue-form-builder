@@ -3,6 +3,7 @@
     <Tips type="error" :dir="idx ? 'bottomleft' : 'topleft'" :tips="tips" :show="showTips">
       <label>
         <input
+          :id="id"
           ref="radio"
           v-model="checked"
           :name="name"
@@ -38,6 +39,7 @@ export default /*#__PURE__*/ {
     form: { type: HTMLFormElement, default: null },
     // ----------------------------------
     idx: { type: Number, default: null },
+    id: { type: String, default: null },
     name: { type: String, default: null },
     value: { type: [String, Number, Boolean], default: null },
     label: { type: [String, Number, Boolean], default: '是' },

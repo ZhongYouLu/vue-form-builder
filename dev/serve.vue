@@ -47,7 +47,6 @@ import Vue from 'vue';
 // === library ===
 // import { FormBuilder } from '@/entry/library/entry.esm';
 import { FormMainLogic, FormSetting, FormDemo, RecordControls } from '@/entry/library/entry.esm';
-// import Field from '@/components/ui/Field';
 
 export default Vue.extend({
   name: 'ServeDev',
@@ -57,7 +56,6 @@ export default Vue.extend({
     FormSetting,
     FormDemo,
     RecordControls,
-    // Field,
   },
   provide() {
     return {

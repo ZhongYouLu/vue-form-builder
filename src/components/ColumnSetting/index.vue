@@ -1,14 +1,15 @@
 /* eslint-disable vue/no-mutating-props */
 <template>
   <div class="column-setting">
-    <InputRow
+    <FormItem
+      :id="`${id}-type`"
       :value="column.type"
-      text="欄位屬性"
+      desc="欄位屬性"
       placeholder="請選擇屬性"
       type="select"
       :options="typeOptions"
       required
-      @input="updateColumn('type', $event)"
+      @update:value="updateColumn('type', $event)"
     />
     <!-- Tabs -->
     <nav class="tabs">
@@ -39,7 +40,7 @@
 </template>
 
 <script>
-import { InputRow } from '@/components/ui';
+import FormItem from '@/components/ui/form/FormItem';
 import SettingBase from '@/components/ColumnSetting/Base';
 import SettingItem from '@/components/ColumnSetting/Item';
 import SettingRule from '@/components/ColumnSetting/Rule';
@@ -56,7 +57,7 @@ import {
 export default /*#__PURE__*/ {
   name: 'ColumnSetting',
   components: {
-    InputRow,
+    FormItem,
     SettingBase,
     SettingItem,
     SettingRule,
@@ -128,7 +129,7 @@ export default /*#__PURE__*/ {
       return typeOptions;
     },
     typeConstraint() {
-      return getTypeConstraint(this.type, this.base.subType, this.base.isMultiple);
+      return getTypeConstraint(this.type, this.base.subType, this.base.multiple);
     },
     columnsExcludeSelf() {
       return arrRemoveItemByKey(this.columns, 'id', this.id);
@@ -146,8 +147,8 @@ export default /*#__PURE__*/ {
         this.initItem();
       }
     },
-    'base.isMultiple': function (isMultiple) {
-      this.initBaseDefaultValue(!!isMultiple);
+    'base.multiple': function (multiple) {
+      this.initBaseDefaultValue(!!multiple);
     },
     'item.items': function (a, b) {
       if (a?.length < b?.length || (!a && b)) {
@@ -194,11 +195,11 @@ export default /*#__PURE__*/ {
       this.updateColumnTab(tab, targetKey, newTarget);
     },
     //-------------
-    initBaseDefaultValue(isMultiple) {
+    initBaseDefaultValue(multiple) {
       this.updateColumn('base', {
         ...this.column.base,
-        isMultiple: isMultiple ? 1 : null,
-        defaultValue: isMultiple ? [] : null,
+        multiple: multiple ? 1 : null,
+        defaultValue: multiple ? [] : null,
       });
     },
     initItem() {

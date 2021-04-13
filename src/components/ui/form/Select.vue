@@ -29,6 +29,7 @@
     <!-- 必填處理 -->
     <template v-if="required" #search="{ attributes, events }">
       <input
+        :id="id"
         ref="input"
         :name="name"
         class="vs__search"
@@ -88,6 +89,7 @@ export default /*#__PURE__*/ {
     value: { type: [String, Number, Boolean, Array], default: null },
     options: { type: Array, default: () => [] },
     icons: { type: Object, default: () => ({}) },
+    id: { type: String, default: null },
     name: { type: String, default: null },
     placeholder: { type: String, default: null },
     autocomplete: { type: String, default: 'off' },
@@ -236,23 +238,67 @@ export default /*#__PURE__*/ {
 @import '@/assets/scss/utils.scss';
 
 // Vue-select
+$vs-colors: (
+  lightest: rgba(60, 60, 60, 0.26),
+  light: rgba(60, 60, 60, 0.5),
+  dark: #333,
+  darkest: rgba(0, 0, 0, 0.15),
+) !default;
 $vs-component-placeholder-color: $color-gray-dark;
-$vs-state-active-bg: $selection-bg-color;
-$vs-state-active-color: $selection-text-color;
+$vs-state-active-bg: var(--selectionBgColor);
+$vs-state-active-color: var(--selectionFontColor);
 
-$vs-border-width: $border-width;
+$vs-border-width: var(--borderWidth);
 $vs-border-style: solid;
-$vs-border-radius: $border-radius;
-$vs-border-color: $border-color;
+$vs-border-radius: var(--borderRadius);
+$vs-border-color: var(--borderColor);
 
-$vs-controls-color: $border-color;
+$vs-controls-color: var(--borderColor);
 
 $vs-dropdown-box-shadow: 0px 3px 6px 0px rgba(0, 0, 0, 0.5);
 
 @import '~vue-select/src/scss/vue-select.scss';
 
+.v-select {
+  line-height: 1.4;
+
+  .vs__actions svg {
+    transition: fill 300ms, transform 150ms cubic-bezier(1, -0.115, 0.975, 0.855);
+  }
+
+  &:hover,
+  &:focus-within {
+    .vs__dropdown-toggle {
+      border-color: var(--themeColor);
+    }
+    .vs__actions svg {
+      fill: var(--themeColor);
+    }
+  }
+}
 .vs {
+  &__search,
+  &__search:focus {
+    margin: calc(var(--borderWidth) * -1) 0;
+    padding: var(--vGap) var(--hGap);
+  }
+  &__selected-options {
+    padding: 0;
+  }
+
+  &__selected {
+    margin: calc(var(--vGap) / 2) 0 calc(var(--vGap) / 2) var(--vGap);
+    padding: 0 var(--vGap);
+
+    button:disabled {
+      display: none;
+    }
+  }
+
   &__dropdown-toggle {
+    padding: 0;
+    transition: z-index 0.3s, border-color 0.3s, box-shadow 0.3s;
+
     .v-select.drop-up.vs--open & {
       border-radius: 0 0 $vs-border-radius $vs-border-radius;
       border-top-color: transparent;
@@ -260,14 +306,20 @@ $vs-dropdown-box-shadow: 0px 3px 6px 0px rgba(0, 0, 0, 0.5);
     }
   }
 
-  &__dropdown-option--disabled {
-    display: none;
-  }
-}
+  &__dropdown-option {
+    // transition: color 0.1s, background 0.1s;
+    .x-icon {
+      transition: unset;
+    }
 
-.vs__selected {
-  button:disabled {
-    display: none;
+    &--disabled {
+      display: none;
+    }
+  }
+
+  &__actions {
+    margin: 0;
+    padding: var(--vGap) var(--hGap) var(--vGap) 0;
   }
 }
 

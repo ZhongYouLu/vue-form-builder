@@ -22,8 +22,6 @@ export default /*#__PURE__*/ {
   props: {
     tips: { type: String, default: null },
     dir: {
-      type: String,
-      default: 'top',
       validator(value) {
         return [
           // 'auto',
@@ -41,13 +39,13 @@ export default /*#__PURE__*/ {
           'leftbottom',
         ].includes(value);
       },
+      default: 'top',
     },
     type: {
-      type: String,
-      default: null,
       validator(value) {
         return ['success', 'error', 'warning'].includes(value);
       },
+      default: null,
     },
     prefix: { type: String, default: '' },
     suffix: { type: String, default: '' },

@@ -1,6 +1,7 @@
 <template>
   <Block>
-    <InputRow
+    <FormItem
+      :id="id"
       :value="triggerID"
       text="監聽欄位"
       type="select"
@@ -11,13 +12,13 @@
       icon-key="type"
       clearable
       searchable
-      @input="$emit('update', 'triggerID', $event)"
+      @update:value="$emit('update', 'triggerID', $event)"
     >
       <template #text-left>
         <Button icon="mdi:close-thick" type="flat" shape="circle" @click="$emit('remove')" />
         <span>{{ idx + 1 }}. </span>
       </template>
-    </InputRow>
+    </FormItem>
     <div v-if="triggerColumn">
       <Block>
         <div class="input-row">
@@ -80,13 +81,14 @@
   </Block>
 </template>
 <script>
-import { InputRow, Button, Field, Block } from '@/components/ui';
+import { Button, Field, Block } from '@/components/ui';
+import FormItem from '@/components/ui/form/FormItem';
 import { thousandSeparator } from '@/assets/js/helper.js';
 
 export default /*#__PURE__*/ {
   name: 'ColumnSettingConditionDisplay',
   components: {
-    InputRow,
+    FormItem,
     Button,
     Field,
     Block,
@@ -99,6 +101,7 @@ export default /*#__PURE__*/ {
     columnsObjByKey: { type: Object, required: true },
     typeIcons: { type: Object, required: true },
     //-----------
+    id: { type: String, required: true },
     idx: { type: Number, required: true },
     triggerID: { type: String, default: null },
     values: { type: Array, default: () => [] },

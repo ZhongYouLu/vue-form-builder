@@ -2,9 +2,10 @@
   <!-- 條件設定 -->
   <fieldset>
     <!-- <legend>條件設定</legend> -->
-    <InputRow
+    <FormItem
+      :id="`${id}-requiredSync`"
       :value="$props.requiredSync"
-      text="連動必填"
+      desc="連動必填"
       type="select"
       :options="columnsExcludeSelf"
       :icons="typeIcons"
@@ -13,12 +14,13 @@
       icon-key="type"
       multiple
       searchable
-      @input="$emit('update', 'requiredSync', $event)"
+      @update:value="$emit('update', 'requiredSync', $event)"
     />
-    <InputRow
+    <FormItem
       v-if="requiredCheck.length"
+      :id="`${id}-requiredCheck`"
       :value="requiredCheck"
-      text="被連動必填"
+      desc="被連動必填"
       type="select"
       :options="columnsExcludeSelf"
       :icons="typeIcons"
@@ -47,7 +49,7 @@
   </fieldset>
 </template>
 <script>
-import InputRow from '@/components/ui/InputRow';
+import FormItem from '@/components/ui/form/FormItem';
 import Button from '@/components/ui/Button';
 import ConditionDisplay from '@/components/ColumnSetting/ConditionDisplay';
 import { nanoid } from '@/assets/js/helper.js';
@@ -56,11 +58,12 @@ import { typeIcons } from '@/assets/js/options.js';
 export default /*#__PURE__*/ {
   name: 'ColumnSettingCondition',
   components: {
-    InputRow,
+    FormItem,
     Button,
     ConditionDisplay,
   },
   inject: ['handleConfirm'],
+  inheritAttrs: false,
   props: {
     // 識別碼
     id: { type: String, required: true },

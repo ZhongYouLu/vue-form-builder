@@ -1,60 +1,42 @@
 /* eslint-disable vue/no-mutating-props */
 <template>
-  <li ref="item" class="x-form-item">
-    <div class="label">
-      <label :for="`item-${id}`" :class="{ required: required }">{{ idx }}. {{ desc }}</label>
-    </div>
-    <Field
-      v-if="type"
-      :id="`item-${id}`"
-      ref="field"
-      v-model="mutableValue"
-      :name="id"
-      v-bind="bind"
-      @focus="handleFocus"
-      @blur="handleBlur"
-    />
-  </li>
+  <div class="x-form-item">
+    <label :for="id" class="label" :class="{ required: required }">
+      <slot name="text-left"></slot>
+      <span>{{ desc }}</span>
+      <slot name="text-right"></slot>
+    </label>
+    <Field :id="id" v-model="mutableValue" :required="required" v-bind="$attrs" @focus="handleFocus" @blur="handleBlur">
+      <template v-for="(_, slot) in $scopedSlots" #[slot]="props">
+        <slot :name="slot" v-bind="props" />
+      </template>
+    </Field>
+  </div>
 </template>
 
 <script>
 import Field from '@/components/ui/form/Field';
-import { getTypeConstraint } from '@/assets/js/options.js';
+// import { getTypeConstraint } from '@/assets/js/options.js';
 
 export default /*#__PURE__*/ {
   name: 'FormItem',
   components: {
     Field,
   },
+  inheritAttrs: false,
   props: {
-    columns: { type: Array, required: true },
-    columnsObjByKey: { type: Object, required: true },
-    values: { type: Object, required: true },
-    // ------------
-    value: { validator: (prop) => prop !== undefined, required: true },
-    error: { type: String, default: null },
+    idx: { type: Number, default: null },
+    columns: { type: Array, default: null },
+    columnsObjByKey: { type: Object, default: null },
+    values: { type: Object, default: null },
     // ------------
     id: { type: String, required: true },
-    idx: { type: Number, required: true },
-    name: { type: String, default: null },
-    type: { type: String, default: null },
-    // --- base ---
+    value: { type: [String, Number, Boolean, Array], default: null },
+    error: { type: String, default: null },
+    // ------------
     desc: { type: String, default: null }, // 欄位說明
     subDesc: { type: String, default: null }, // 欄位子說明
-    subType: { type: String, default: null }, // 欄位性質
-    placeholder: { type: String, default: null }, // 提示文字
-    // --- items ---
-    items: { type: Array, default: null }, // 項目
-    isMultiple: { type: Number, default: null }, // 是否可複選
-    // --- rule ---
-    msg: { type: Object, default: () => ({}) }, // 規則提示
-    required: { type: Number, default: null }, // 必填
-    sameAs: { type: String, default: null }, // 與..相符
-    regex: { type: String, default: null }, // 驗證格式
-    minimum: { type: Number, default: null }, // 字元下限(數字下限)
-    maximum: { type: Number, default: null }, // 字元上限(數字上限)
-    least: { type: Number, default: null }, // 選擇數量下限 [多選框選項]
-    most: { type: Number, default: null }, // 選擇數量上限 [多選框選項]
+    required: { type: Boolean, default: null },
   },
   emits: ['update:value', 'update:error'],
   data() {
@@ -72,59 +54,21 @@ export default /*#__PURE__*/ {
         this.$emit('update:value', value);
       },
     },
-    typeConstraint() {
-      return getTypeConstraint(this.type, this.subType, this.isMultiple);
-    },
-    bind() {
-      const base = {
-        type: this.type,
-        placeholder: this.placeholder,
-        required: !!this.required,
-      };
-
-      const needItems = {
-        options: this.items,
-        clearable: true,
-        textKey: 'text',
-        valueKey: 'id',
-      };
-
-      const type = {
-        text: {
-          subType: this.subType,
-          regex: this.regex,
-          minimum: this.minimum,
-          maximum: this.maximum,
-        },
-        number: {
-          minimum: this.minimum,
-          maximum: this.maximum,
-        },
-        radio: {
-          ...needItems,
-        },
-        checkbox: {
-          ...needItems,
-          multiple: !!this.isMultiple,
-        },
-        select: {
-          ...needItems,
-          multiple: !!this.isMultiple,
-        },
-      };
-
-      return { ...base, ...type[this.type] };
-    },
+    // typeConstraint() {
+    //   return getTypeConstraint(this.type, this.subType, this.multiple);
+    // },
     errorMsg: {
       get() {
         return this.error;
       },
       set(msg) {
-        console.log('update:error', msg);
-        this.$emit('update:error', msg);
+        // console.log('update:error', msg);
+        // this.$emit('update:error', msg);
       },
     },
     sameAsSync() {
+      if (!this.columns) return [];
+
       return this.columns.reduce((acc, column) => {
         if (column.rule?.sameAs === this.id) acc.push(column.id);
         return acc;
@@ -134,18 +78,20 @@ export default /*#__PURE__*/ {
   watch: {
     value: {
       handler: function (value) {
-        const name = this.name || this.id;
-        this.checkRule(name, value);
+        // this.checkRule(this.name || this.id, value);
       },
       immediate: true,
     },
     errorMsg: {
       handler: function (msg) {
-        console.log('inputEl', this.inputEl);
-        if (this.inputEl) this.inputEl.setCustomValidity(msg || '');
+        // console.log('inputEl', this.inputEl);
+        // if (this.inputEl) this.inputEl.setCustomValidity(msg || '');
       },
       immediate: true,
     },
+  },
+  created() {
+    console.log('FormItem Created', this.id, this.name);
   },
   updated() {
     // this.inputEl = this.$refs.field.$refs.input.$refs.input;
@@ -201,7 +147,7 @@ export default /*#__PURE__*/ {
       }
 
       // 檢查 - 與..相符
-      if (this.sameAs && this.columnsObjByKey[this.sameAs]) {
+      if (this.columnsObjByKey && this.sameAs && this.columnsObjByKey[this.sameAs]) {
         if (
           // 如果同類型
           this.columnsObjByKey[this.id].type === this.columnsObjByKey[this.sameAs].type &&
@@ -227,26 +173,46 @@ export default /*#__PURE__*/ {
 @import '@/assets/scss/utils.scss';
 
 .x-form-item {
-  &:not(:last-of-type) {
-    margin-bottom: $gap-lg;
-  }
-  label.required:not(:empty)::before {
-    content: '*';
-    color: var(--errorColor, #f4615c);
+  display: flex;
+  flex-wrap: wrap;
+
+  &:not(:last-child) {
+    margin-bottom: $gap;
   }
 
-  &:not([type]) {
-    display: flex;
-    flex-wrap: wrap;
-
+  &:hover {
     .label {
-      flex: 0 0 6em;
-      margin-right: 10px;
-      color: var(--fontColor, #333);
+      // font-weight: bolder;
+      color: var(--themeColor);
     }
+  }
 
-    .field {
-      flex: 1 1 20em;
+  .label {
+    position: relative;
+    // flex: 0 0 10rem;
+    flex: 1 1 30%;
+    margin-right: var(--hGap);
+    padding-top: var(--vGap);
+    max-width: 15rem;
+    color: var(--fontColor);
+    // white-space: nowrap; /* 強迫不換行 */
+
+    &.required::after {
+      content: '*';
+      position: absolute;
+      // left: calc(var(--hGap) * -1);
+      top: var(--vGap);
+      // vertical-align: middle;
+      color: var(--dangerColor);
+    }
+  }
+
+  .field {
+    flex: 1 1 20rem;
+    width: 100%;
+
+    & > * {
+      width: 100%;
     }
   }
 }

@@ -39,9 +39,8 @@ export default /*#__PURE__*/ {
     disabled: { type: Boolean, default: null }, // 禁用
     // ---- 元件樣式 ----
     type: {
-      type: String,
-      default: null,
       validator: (value) => ['primary', 'danger', 'flat', 'dashed'].includes(value),
+      default: null,
     },
     icon: { type: String, default: null }, // 圖示
     color: { type: String, default: null }, // 圖示顏色

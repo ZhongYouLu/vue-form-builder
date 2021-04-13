@@ -24,9 +24,9 @@ export const subTypeConfig = {
   tel: { text: '電話', icon: 'carbon:phone' },
   email: { text: '信箱', icon: 'carbon:email' },
   password: { text: '密碼', icon: 'carbon:password' },
+  url: { text: '網址', icon: 'mdi:web' },
   // 其他
   // search: { text: '搜尋', icon: 'carbon:search' },
-  // url: { text: '網址', icon: '' },
 };
 export const subTypeOptions = obj2Arr(subTypeConfig, ['text', 'icon'], 'value');
 

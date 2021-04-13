@@ -2,9 +2,9 @@
   <!-- 項目設定 -->
   <fieldset>
     <!-- <legend>項目設定</legend> -->
-    <InputRow
+    <FormItem
       :value="$props.srcMode"
-      text="資料來源"
+      desc="資料來源"
       placeholder="請選擇來源"
       type="select"
       :options="sourceModeOptions"
@@ -15,7 +15,7 @@
     <template v-if="$props.srcMode === 'list'">
       <Block v-show="$props.items.length">
         <Draggable :value="$props.items" @input="update('items', $event)">
-          <div v-for="(item, idx) in $props.items" :key="item.id" class="input-row">
+          <div v-for="(item, idx) in $props.items" :key="item.id" class="x-input-group">
             <div class="drag"><Icon icon="mdi:drag" />{{ idx + 1 }}</div>
             <Field :value="item.text" :placeholder="`(${item.id})`" @input="updateItem(item.id, 'text', $event)" />
             <Button icon="mdi:close-thick" type="flat" shape="circle" @click="removeItem(item.id)" />
@@ -25,22 +25,41 @@
       <Button icon="mdi:plus" block @click="addItem" />
     </template>
     <template v-else>
-      <InputRow :value="$props.api.url" text="API URL" required @input="updateApi('url', $event)" />
-      <InputRow :value="$props.api.textKey" text="Value Key" required @input="updateApi('textKey', $event)" />
-      <InputRow :value="$props.api.valueKey" text="Text Key" required @input="updateApi('valueKey', $event)" />
+      <FormItem
+        :id="`${id}-api-url`"
+        :value="$props.api.url"
+        desc="API URL"
+        required
+        @input="updateApi('url', $event)"
+      />
+      <FormItem
+        :id="`${id}-api-vk`"
+        :value="$props.api.textKey"
+        desc="Value Key"
+        required
+        @input="updateApi('textKey', $event)"
+      />
+      <FormItem
+        :id="`${id}-api-tk`"
+        :value="$props.api.valueKey"
+        desc="Text Key"
+        required
+        @input="updateApi('valueKey', $event)"
+      />
     </template>
   </fieldset>
 </template>
 
 <script>
-import { InputRow, Button, Icon, Field, Block, Draggable } from '@/components/ui';
+import FormItem from '@/components/ui/form/FormItem';
+import { Button, Icon, Field, Block, Draggable } from '@/components/ui';
 import { nanoid } from '@/assets/js/helper.js';
 import { convertOptions } from '@/assets/js/options.js';
 
 export default /*#__PURE__*/ {
   name: 'ColumnSettingItem',
   components: {
-    InputRow,
+    FormItem,
     Button,
     Icon,
     Field,
@@ -48,16 +67,18 @@ export default /*#__PURE__*/ {
     Draggable,
   },
   inject: ['handleConfirm'],
+  inheritAttrs: false,
   props: {
     // 排除自己的所有欄位群
     columnsExcludeSelf: { type: Array, required: true },
     // 所有欄位群 (obj by key)
     columnsObjByKey: { type: Object, required: true },
     //-----------
+    id: { type: String, required: true },
     // 資料來源模式
-    srcMode: { type: String, default: 'list', validator: (value) => ['list', 'api'].includes(value) },
+    srcMode: { validator: (value) => ['list', 'api'].includes(value), default: 'list' },
     // 顯示模式
-    displayMode: { type: String, default: 'line', validator: (value) => ['line', 'next', 'bothSide'].includes(value) },
+    displayMode: { validator: (value) => ['line', 'next', 'bothSide'].includes(value), default: 'line' },
     // 項目
     items: { type: Array, default: () => [] },
     // API設定
