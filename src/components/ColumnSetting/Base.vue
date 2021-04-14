@@ -4,7 +4,7 @@
     <!-- <legend>基本設定</legend> -->
     <FormItem
       v-for="(v, k) in fields"
-      :id="`${id}-${k}`"
+      :id="`[${id}]-${k}`"
       :key="k"
       v-bind="v.props"
       :value="$props[k]"

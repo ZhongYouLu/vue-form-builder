@@ -187,7 +187,6 @@ export default /*#__PURE__*/ {
         };
       }
 
-      console.log(temp);
       return temp;
     },
   },
@@ -330,9 +329,11 @@ export default /*#__PURE__*/ {
     },
     invokeAdd() {
       this.$refs.input.stepUp();
+      this.mutableValue = Number(this.$refs.input.value);
     },
     invokeSub() {
       this.$refs.input.stepDown();
+      this.mutableValue = Number(this.$refs.input.value);
     },
   },
 };

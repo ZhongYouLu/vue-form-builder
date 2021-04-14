@@ -34,7 +34,8 @@ export default /*#__PURE__*/ {
   props: {
     form: { type: HTMLFormElement, default: null },
     // ----------------------------------
-    name: { type: String, required: true },
+    // id: { type: String, default: null },
+    name: { type: String, default: null },
     value: { type: [String, Number, Boolean], default: null },
     options: { type: Array, default: () => [] },
     textKey: { type: String, default: 'text' },

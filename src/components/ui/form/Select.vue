@@ -26,14 +26,13 @@
     @option:selected="handleSelected"
     @option:created="handleCreated"
   >
-    <!-- 必填處理 -->
-    <template v-if="required" #search="{ attributes, events }">
+    <template #search="{ attributes, events }">
       <input
         :id="id"
         ref="input"
         :name="name"
         class="vs__search"
-        :required="!mutableValue"
+        :required="required && !mutableValue"
         v-bind="attributes"
         v-on="events"
         @focus="$emit('focus')"

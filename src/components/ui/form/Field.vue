@@ -2,9 +2,11 @@
   <div class="field">
     <component
       :is="componentName"
+      :id="id"
       ref="input"
-      v-bind="$attrs"
       v-model="mutableValue"
+      :name="name || id"
+      v-bind="$attrs"
       :type="subType || type"
       :multiple="!!multiple"
       @focus="$emit('focus')"
@@ -21,7 +23,6 @@
 import XInput from '@/components/ui/form/Input';
 import XCheckbox from '@/components/ui/form/Checkbox';
 import XCheckboxGroup from '@/components/ui/form/CheckboxGroup';
-import XRadio from '@/components/ui/form/Radio';
 import XRadioGroup from '@/components/ui/form/RadioGroup';
 import XSelect from '@/components/ui/form/Select';
 import { typeConfig, subTypeConfig, getTypeConstraint } from '@/assets/js/options.js';
@@ -32,12 +33,13 @@ export default /*#__PURE__*/ {
     XInput,
     XCheckbox,
     XCheckboxGroup,
-    XRadio,
     XRadioGroup,
     XSelect,
   },
   inheritAttrs: false,
   props: {
+    id: { type: String, default: null },
+    name: { type: String, default: null },
     value: { type: [String, Number, Boolean, Array], default: null },
     default: { type: [String, Number, Boolean, Array], default: null },
     multiple: { type: [Boolean, Number], default: null },
@@ -67,11 +69,17 @@ export default /*#__PURE__*/ {
         case 'file':
           name = 'x-input';
           break;
+        case 'radio':
+          name = 'x-radio-group';
+          break;
+        case 'checkbox':
+          name = 'x-checkbox';
+          if (this.multiple) name += '-group';
+          break;
         default:
           name = `x-${this.type}`;
           break;
       }
-      if (['checkbox', 'radio'].includes(this.type) && this.multiple) name += '-group';
       return name;
     },
   },
@@ -79,6 +87,8 @@ export default /*#__PURE__*/ {
     if (this.default != null && this.mutableValue == null) {
       this.mutableValue = this.default;
     }
+
+    console.log('Field', this.id, this.name != this.id && this.name);
   },
   methods: {},
 };

@@ -3,7 +3,7 @@
   <fieldset>
     <!-- <legend>規則設定</legend> -->
     <div v-for="(v, k) in fields" :key="k" class="input-group">
-      <FormItem :id="`${id}-${k}`" v-bind="v.props" :value="$props[k]" @update:value="update(k, $event)">
+      <FormItem :id="`[${id}]-${k}`" v-bind="v.props" :value="$props[k]" @update:value="update(k, $event)">
         <template #text-right>
           <Button
             v-show="$props[k]"
@@ -20,7 +20,7 @@
       <!-- Msg -->
       <FormItem
         v-show="$props[k] && toggleMsg[k]"
-        :id="`${id}-${k}-msg`"
+        :id="`[${id}]-${k}-msg`"
         :value="$props.msg[k]"
         :placeholder="v.msg"
         @update:value="$emit('updateObj', 'msg', k, $event)"

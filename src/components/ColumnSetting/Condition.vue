@@ -3,7 +3,7 @@
   <fieldset>
     <!-- <legend>條件設定</legend> -->
     <FormItem
-      :id="`${id}-requiredSync`"
+      :id="`[${id}]-requiredSync`"
       :value="$props.requiredSync"
       desc="連動必填"
       type="select"
@@ -18,7 +18,7 @@
     />
     <FormItem
       v-if="requiredCheck.length"
-      :id="`${id}-requiredCheck`"
+      :id="`[${id}]-requiredCheck`"
       :value="requiredCheck"
       desc="被連動必填"
       type="select"

@@ -6,7 +6,15 @@
       <span>{{ desc }}</span>
       <slot name="text-right"></slot>
     </label>
-    <Field :id="id" v-model="mutableValue" :required="required" v-bind="$attrs" @focus="handleFocus" @blur="handleBlur">
+    <Field
+      :id="id"
+      v-model="mutableValue"
+      :name="name || id"
+      :required="!!required"
+      v-bind="$attrs"
+      @focus="handleFocus"
+      @blur="handleBlur"
+    >
       <template v-for="(_, slot) in $scopedSlots" #[slot]="props">
         <slot :name="slot" v-bind="props" />
       </template>
@@ -31,12 +39,13 @@ export default /*#__PURE__*/ {
     values: { type: Object, default: null },
     // ------------
     id: { type: String, required: true },
+    name: { type: String, default: null },
     value: { type: [String, Number, Boolean, Array], default: null },
     error: { type: String, default: null },
     // ------------
     desc: { type: String, default: null }, // 欄位說明
     subDesc: { type: String, default: null }, // 欄位子說明
-    required: { type: Boolean, default: null },
+    required: { type: [Boolean, Number], default: null },
   },
   emits: ['update:value', 'update:error'],
   data() {
@@ -91,7 +100,7 @@ export default /*#__PURE__*/ {
     },
   },
   created() {
-    console.log('FormItem Created', this.id, this.name);
+    console.log('FormItem', this.id, this.name);
   },
   updated() {
     // this.inputEl = this.$refs.field.$refs.input.$refs.input;

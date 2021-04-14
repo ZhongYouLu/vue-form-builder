@@ -3,7 +3,7 @@
     <FormItem
       :id="id"
       :value="triggerID"
-      text="監聽欄位"
+      desc="監聽欄位"
       type="select"
       :options="columnsExcludeSelf"
       :icons="typeIcons"

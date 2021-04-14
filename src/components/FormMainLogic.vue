@@ -131,7 +131,7 @@ export default /*#__PURE__*/ {
   methods: {
     // 更新欄位群
     emitUpdate(newColumns, note) {
-      console.log(`${note && `[${note}] `}update:columns`, newColumns);
+      // console.log(`${note && `[${note}] `}update:columns`, newColumns);
       const cleanColumns = newColumns.map((c) => clearEmpties(c));
       this.$emit('update:columns', cleanColumns);
     },

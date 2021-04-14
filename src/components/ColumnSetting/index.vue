@@ -2,7 +2,7 @@
 <template>
   <div class="column-setting">
     <FormItem
-      :id="`${id}-type`"
+      :id="`[${id}]-type`"
       :value="column.type"
       desc="欄位屬性"
       placeholder="請選擇屬性"
@@ -164,33 +164,33 @@ export default /*#__PURE__*/ {
   },
   methods: {
     updateColumn(tab, val) {
-      console.log(`updateColumn[${tab}]`, val);
+      // console.log(`updateColumn[${tab}]`, val);
       this.column[tab] = val;
       this.$emit('update', this.column.id, this.column);
     },
     updateColumnTab(tab, targetKey, targetVal) {
-      console.log(`updateColumnTab[${tab}][${targetKey}]`, targetVal);
+      // console.log(`updateColumnTab[${tab}][${targetKey}]`, targetVal);
       const newTab = { ...this.column[tab], [targetKey]: targetVal };
       this.updateColumn(tab, newTab);
     },
     updateColumnTabObj(tab, targetKey, k, v) {
-      console.log(`updateColumnTabObj[${tab}][${targetKey}][${k}]`, v);
+      // console.log(`updateColumnTabObj[${tab}][${targetKey}][${k}]`, v);
       const newTarget = { ...this.column[tab][targetKey], [k]: v };
       this.updateColumnTab(tab, targetKey, newTarget);
     },
     addColumnTabArr(tab, targetKey, v) {
-      console.log(`addColumnTabArr[${tab}][${targetKey}]`, v);
+      // console.log(`addColumnTabArr[${tab}][${targetKey}]`, v);
       const target = this.column[tab][targetKey];
       const newTarget = target ? [...target, v] : [v];
       this.updateColumnTab(tab, targetKey, newTarget);
     },
     updateColumnTabArr(tab, targetKey, id, k, v) {
-      console.log(`updateColumnTabArr[${tab}][${targetKey}][${id}][${k}]`, v);
+      // console.log(`updateColumnTabArr[${tab}][${targetKey}][${id}][${k}]`, v);
       const newTarget = arrUpdateItemByKey(this.column[tab][targetKey], 'id', id, { [k]: v });
       this.updateColumnTab(tab, targetKey, newTarget);
     },
     removeColumnTabArr(tab, targetKey, id) {
-      console.log(`removeColumnTabArr[${tab}][${targetKey}]`, id);
+      // console.log(`removeColumnTabArr[${tab}][${targetKey}]`, id);
       const newTarget = arrRemoveItemByKey(this.column[tab][targetKey], 'id', id);
       this.updateColumnTab(tab, targetKey, newTarget);
     },

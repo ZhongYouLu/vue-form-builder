@@ -6,7 +6,7 @@
           :id="id"
           ref="checkbox"
           v-model="checked"
-          :name="name || id"
+          :name="name"
           type="checkbox"
           :true-value="yes"
           :false-value="no"

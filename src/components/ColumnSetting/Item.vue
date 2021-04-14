@@ -3,13 +3,14 @@
   <fieldset>
     <!-- <legend>項目設定</legend> -->
     <FormItem
+      :id="`[${id}]-src-mode`"
       :value="$props.srcMode"
       desc="資料來源"
       placeholder="請選擇來源"
       type="select"
       :options="sourceModeOptions"
       required
-      @input="update('srcMode', $event)"
+      @update:value="update('srcMode', $event)"
     />
     <hr class="dashed" />
     <template v-if="$props.srcMode === 'list'">
@@ -26,25 +27,25 @@
     </template>
     <template v-else>
       <FormItem
-        :id="`${id}-api-url`"
+        :id="`[${id}]-api-url`"
         :value="$props.api.url"
         desc="API URL"
         required
-        @input="updateApi('url', $event)"
+        @update:value="updateApi('url', $event)"
       />
       <FormItem
-        :id="`${id}-api-vk`"
+        :id="`[${id}]-api-vk`"
         :value="$props.api.textKey"
         desc="Value Key"
         required
-        @input="updateApi('textKey', $event)"
+        @update:value="updateApi('textKey', $event)"
       />
       <FormItem
-        :id="`${id}-api-tk`"
+        :id="`[${id}]-api-tk`"
         :value="$props.api.valueKey"
         desc="Text Key"
         required
-        @input="updateApi('valueKey', $event)"
+        @update:value="updateApi('valueKey', $event)"
       />
     </template>
   </fieldset>
