@@ -89,9 +89,10 @@ export default /*#__PURE__*/ {
       handler: function (columns, old) {
         columns.map((column) => {
           let value = this.values[column.id] || null;
+
           const oldDefault = old?.find((c) => c.id === column.id)?.base?.defaultValue;
           const newDefault = column.base?.defaultValue;
-          if (newDefault && newDefault !== oldDefault) value = newDefault;
+          if (newDefault !== oldDefault) value = newDefault || null;
 
           this.$set(this.values, column.id, value);
           this.$set(this.errors, column.id, null);

@@ -89,12 +89,12 @@ export default /*#__PURE__*/ {
         temp.defaultValue.props.type = 'date';
       } else if (this.typeConstraint.isCheckbox && !this.typeConstraint.isMultiple) {
         temp.defaultValue.props.type = 'checkbox';
-      } else if (this.typeConstraint.needItems) {
+      } else if (this.typeConstraint.needOptions) {
         temp.defaultValue.props = {
           ...temp.defaultValue.props,
           type: 'select',
           placeholder: '請選擇',
-          options: this.columnsObjByKey[this.id].item?.items,
+          options: this.columnsObjByKey[this.id].item?.options,
           valueKey: 'id',
           textKey: 'text',
           multiple: !!this.typeConstraint.isMultiple,

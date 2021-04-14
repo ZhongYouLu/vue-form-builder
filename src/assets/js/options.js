@@ -12,7 +12,7 @@ export const typeConfig = {
   select: { text: '下拉選單', icon: 'carbon:list' },
   file: { text: '檔案', icon: 'ic:baseline-attach-file' },
 };
-export const typeOptions = obj2Arr(typeConfig, ['text', 'icon'], 'value');
+export const typeOptions = obj2Arr(typeConfig, ['text', 'icon'], 'id');
 export const typeIcons = {
   ...nested2Pairs(typeConfig, 'icon'),
   undefined: 'carbon:unknown',
@@ -28,7 +28,7 @@ export const subTypeConfig = {
   // 其他
   // search: { text: '搜尋', icon: 'carbon:search' },
 };
-export const subTypeOptions = obj2Arr(subTypeConfig, ['text', 'icon'], 'value');
+export const subTypeOptions = obj2Arr(subTypeConfig, ['text', 'icon'], 'id');
 
 export const getTypeConstraint = (type, subType, isMultiple) => {
   return {
@@ -39,7 +39,7 @@ export const getTypeConstraint = (type, subType, isMultiple) => {
     isSelect: type === 'select',
     isFile: type === 'file',
     isInput: ['text', 'number', 'date'].includes(type),
-    needItems: ['select', 'radio', 'checkbox'].includes(type),
+    needOptions: ['select', 'radio', 'checkbox'].includes(type),
     hasSubType: !!subType,
     isMultiple: isMultiple,
     filterSame: (columns) => columns.filter((c) => c.type === type),

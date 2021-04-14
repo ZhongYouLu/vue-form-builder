@@ -67,14 +67,14 @@ export default /*#__PURE__*/ {
 
             v = newRule;
           } else if (k === 'item') {
-            const { items, api, ...newItem } = v;
+            const { options, api, ...newItem } = v;
 
             switch (newItem.srcMode) {
               case 'api':
                 newItem['api'] = api;
                 break;
               case 'list':
-                newItem['items'] = items;
+                newItem['options'] = options;
                 break;
             }
 

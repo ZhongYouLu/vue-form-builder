@@ -96,8 +96,8 @@ export default /*#__PURE__*/ {
     multiple: { type: Boolean, default: false },
     required: { type: Boolean, default: false },
     // ---------------------------------------------
+    valueKey: { type: String, default: 'id' },
     textKey: { type: String, default: 'text' },
-    valueKey: { type: String, default: 'value' },
     iconKey: { type: String, default: 'icon' },
     selectable: { type: Function, default: null }, // 是否可選處理
     reduce: { type: Function, default: null }, // 轉換對象處理 (傳遞給 v-model binding 或 @input event.)

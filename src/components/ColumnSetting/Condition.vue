@@ -9,7 +9,6 @@
       type="select"
       :options="columnsExcludeSelf"
       :icons="typeIcons"
-      value-key="id"
       text-key="name"
       icon-key="type"
       multiple
@@ -24,7 +23,6 @@
       type="select"
       :options="columnsExcludeSelf"
       :icons="typeIcons"
-      value-key="id"
       text-key="name"
       icon-key="type"
       multiple

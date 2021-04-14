@@ -104,7 +104,7 @@ export default /*#__PURE__*/ {
     tabs() {
       return {
         base: { text: '基本', show: true },
-        item: { text: '項目', show: this.typeConstraint.needItems },
+        item: { text: '項目', show: this.typeConstraint.needOptions },
         rule: { text: '規則', show: true },
         condition: { text: '條件', show: true },
       };
@@ -143,14 +143,17 @@ export default /*#__PURE__*/ {
     type: function () {
       this.initBaseDefaultValue();
 
-      if (this.typeConstraint.needItems) {
+      if (this.typeConstraint.needOptions) {
         this.initItem();
+      }
+      if (!this.typeConstraint.isText) {
+        this.updateColumn('base', { ...this.column.base, subType: null });
       }
     },
     'base.multiple': function (multiple) {
       this.initBaseDefaultValue(!!multiple);
     },
-    'item.items': function (a, b) {
+    'item.options': function (a, b) {
       if (a?.length < b?.length || (!a && b)) {
         const diff = difference(b, a || [])[0];
         this.initBaseDefaultValue();
@@ -207,7 +210,7 @@ export default /*#__PURE__*/ {
         this.updateColumn('item', {
           ...this.column.item,
           srcMode: 'list',
-          items: [],
+          options: [],
         });
       }
     },

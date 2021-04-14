@@ -7,7 +7,6 @@
       type="select"
       :options="columnsExcludeSelf"
       :icons="typeIcons"
-      value-key="id"
       text-key="name"
       icon-key="type"
       clearable
@@ -73,9 +72,7 @@
               type="select"
               multiple
               searchable
-              :options="triggerColumn.item.items"
-              value-key="id"
-              text-key="text"
+              :options="triggerColumn.item.options"
               :fuse-keys="['text']"
               @update:value="$emit('update', 'values', $event)"
             />
@@ -116,8 +113,8 @@ export default /*#__PURE__*/ {
   computed: {
     meetOptions() {
       return [
-        { value: null, text: '符合其一' },
-        { value: 1, text: '符合全部' },
+        { id: null, text: '符合其一' },
+        { id: 1, text: '符合全部' },
       ];
     },
     triggerColumn() {

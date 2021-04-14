@@ -14,20 +14,20 @@
     />
     <hr class="dashed" />
     <template v-if="$props.srcMode === 'list'">
-      <Block v-show="$props.items.length">
-        <Draggable :value="$props.items" @input="update('items', $event)">
-          <div v-for="(item, idx) in $props.items" :key="item.id" class="x-input-group">
+      <Block v-show="$props.options.length">
+        <Draggable :value="$props.options" @input="update('options', $event)">
+          <div v-for="(option, idx) in $props.options" :key="option.id" class="x-input-group">
             <div class="drag"><Icon icon="mdi:drag" />{{ idx + 1 }}</div>
             <Field
-              :value="item.text"
-              :placeholder="`(${item.id})`"
-              @update:value="updateItem(item.id, 'text', $event)"
+              :value="option.text"
+              :placeholder="`(${option.id})`"
+              @update:value="updateOption(option.id, 'text', $event)"
             />
-            <Button icon="mdi:close-thick" type="flat" shape="circle" @click="removeItem(item.id)" />
+            <Button icon="mdi:close-thick" type="flat" shape="circle" @click="removeOption(option.id)" />
           </div>
         </Draggable>
       </Block>
-      <Button icon="mdi:plus" block @click="addItem" />
+      <Button icon="mdi:plus" block @click="addOption" />
     </template>
     <template v-else>
       <FormItem
@@ -85,7 +85,7 @@ export default /*#__PURE__*/ {
     // 顯示模式
     displayMode: { validator: (value) => ['line', 'next', 'bothSide'].includes(value), default: 'line' },
     // 項目
-    items: { type: Array, default: () => [] },
+    options: { type: Array, default: () => [] },
     // API設定
     api: { type: Object, default: () => ({ url: '', textKey: '', valueKey: '' }) },
   },
@@ -112,20 +112,20 @@ export default /*#__PURE__*/ {
     updateApi(key, val) {
       this.$emit('updateObj', 'api', key, val);
     },
-    updateItem(id, key, val) {
-      this.$emit('updateArr', 'items', id, key, val);
+    updateOption(id, key, val) {
+      this.$emit('updateArr', 'options', id, key, val);
     },
-    addItem() {
-      this.$emit('addArr', 'items', { id: nanoid(6), text: '' });
+    addOption() {
+      this.$emit('addArr', 'options', { id: nanoid(6), text: '' });
     },
-    removeItem(id) {
+    removeOption(id) {
       // 確認刪除函式
       const allowFunc = () => {
-        this.$emit('removeArr', 'items', id);
+        this.$emit('removeArr', 'options', id);
       };
 
-      const idx = this.$props.items.findIndex((item) => item.id === id);
-      const { text } = this.$props.items[idx];
+      const idx = this.$props.options.findIndex((option) => option.id === id);
+      const { text } = this.$props.options[idx];
       const showMsg = `確定刪除項目 #${idx + 1} [${text || id}] ?`;
 
       if (this.handleConfirm) {
