@@ -1,5 +1,5 @@
 <template>
-  <div class="field">
+  <div class="x-field">
     <component
       :is="componentName"
       :id="id"
@@ -25,7 +25,7 @@ import XCheckbox from '@/components/ui/form/Checkbox';
 import XCheckboxGroup from '@/components/ui/form/CheckboxGroup';
 import XRadioGroup from '@/components/ui/form/RadioGroup';
 import XSelect from '@/components/ui/form/Select';
-import { typeConfig, subTypeConfig, getTypeConstraint } from '@/assets/js/options.js';
+import { typeConfig, subTypeConfig } from '@/assets/js/options.js';
 
 export default /*#__PURE__*/ {
   name: 'Field',
@@ -42,9 +42,9 @@ export default /*#__PURE__*/ {
     name: { type: String, default: null },
     value: { type: [String, Number, Boolean, Array], default: null },
     default: { type: [String, Number, Boolean, Array], default: null },
-    multiple: { type: [Boolean, Number], default: null },
     type: { validator: (val) => !!typeConfig[val], default: 'text' },
     subType: { validator: (val) => !!subTypeConfig[val], default: null },
+    multiple: { type: [Boolean, Number], default: null },
   },
   emits: ['input', 'focus', 'blur'],
   computed: {
@@ -56,9 +56,6 @@ export default /*#__PURE__*/ {
         console.log('mutableValue', value);
         this.$emit('input', value);
       },
-    },
-    typeConstraint() {
-      return getTypeConstraint(this.type, this.subType, this.multiple);
     },
     componentName() {
       let name = null;
@@ -83,13 +80,18 @@ export default /*#__PURE__*/ {
       return name;
     },
   },
+  watch: {
+    default: {
+      handler: function (_default) {
+        if (_default != null && this.mutableValue == null) {
+          this.mutableValue = _default;
+        }
+      },
+      immediate: true,
+    },
+  },
   created() {
-    if (this.default != null && this.mutableValue == null) {
-      this.mutableValue = this.default;
-    }
-
     console.log('Field', this.id, this.name != this.id && this.name);
   },
-  methods: {},
 };
 </script>

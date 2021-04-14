@@ -80,8 +80,6 @@ export default /*#__PURE__*/ {
   },
   inheritAttrs: false,
   props: {
-    form: { type: HTMLFormElement, default: null },
-    // ----------------------------------
     value: { type: [String, Number], default: null },
     id: { type: String, default: null },
     name: { type: String, default: null },
@@ -119,7 +117,6 @@ export default /*#__PURE__*/ {
   emits: ['input', 'focus', 'blur', 'submit'],
   data() {
     return {
-      localForm: this.form,
       invalid: null,
       tips: null,
       showTips: null,
@@ -197,11 +194,6 @@ export default /*#__PURE__*/ {
       });
     },
   },
-  mounted() {
-    if (!this.localForm) {
-      this.localForm = this.$refs.input.closest('form');
-    }
-  },
   methods: {
     reset() {
       this.mutableValue = this.defaultvalue;
@@ -229,7 +221,7 @@ export default /*#__PURE__*/ {
       return true;
     },
     checkValidity() {
-      if (this.novalidate || this.disabled || (this.localForm && this.localForm.novalidate)) {
+      if (this.novalidate || this.disabled) {
         return true;
       }
 

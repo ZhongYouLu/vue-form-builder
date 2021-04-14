@@ -11,7 +11,6 @@
         :value="localValue[option[valueKey]]"
         :disabled="disabled"
         :novalidate="novalidate"
-        :form="form"
         @input="toggle(option[valueKey], $event)"
         @focus="handleFocus"
         @blur="handleBlur"
@@ -32,8 +31,6 @@ export default /*#__PURE__*/ {
   },
   inheritAttrs: false,
   props: {
-    form: { type: HTMLFormElement, default: null },
-    // ----------------------------------
     // id: { type: String, default: null },
     name: { type: String, default: null },
     value: { type: [String, Number, Boolean], default: null },
@@ -50,7 +47,6 @@ export default /*#__PURE__*/ {
   emits: ['input', 'focus', 'blur'],
   data() {
     return {
-      localForm: this.form,
       invalid: false,
       tips: null,
       showTips: false,
@@ -81,11 +77,6 @@ export default /*#__PURE__*/ {
   created() {
     this.defaultValue = this.value;
   },
-  mounted() {
-    if (!this.localForm) {
-      this.localForm = this.$refs.group.closest('form');
-    }
-  },
   methods: {
     toggle(key) {
       this.mutableValue = key;
@@ -112,7 +103,7 @@ export default /*#__PURE__*/ {
       return true;
     },
     checkValidity() {
-      if (this.novalidate || this.disabled || (this.localForm && this.localForm.novalidate)) {
+      if (this.novalidate || this.disabled) {
         return true;
       }
 

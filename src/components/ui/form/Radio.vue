@@ -36,8 +36,6 @@ export default /*#__PURE__*/ {
   },
   inheritAttrs: false,
   props: {
-    form: { type: HTMLFormElement, default: null },
-    // ----------------------------------
     idx: { type: Number, default: null },
     id: { type: String, default: null },
     name: { type: String, default: null },
@@ -55,7 +53,6 @@ export default /*#__PURE__*/ {
   emits: ['input', 'focus', 'blur'],
   data() {
     return {
-      localForm: this.form,
       invalid: false,
       showTips: false,
       tips: null,
@@ -84,11 +81,6 @@ export default /*#__PURE__*/ {
   beforeUpdate() {
     this.resetSlot();
   },
-  mounted() {
-    if (!this.localForm) {
-      this.localForm = this.$refs.radio.closest('form');
-    }
-  },
   methods: {
     resetSlot() {
       if (this.$slots.default) {
@@ -108,7 +100,7 @@ export default /*#__PURE__*/ {
       return this.$refs.radio.checkValidity();
     },
     checkValidity() {
-      if (this.novalidate || this.disabled || (this.localForm && this.localForm.novalidate)) {
+      if (this.novalidate || this.disabled) {
         return true;
       }
       if (this.validity()) {

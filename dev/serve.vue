@@ -25,12 +25,11 @@
             <!-- <template #option="option"> {{ option }} [test] </template> -->
           </FormSetting>
           <div>
-            <FormDemo :columns="props.columns" />
+            <FormDemo :columns="finalColumns" />
             <hr />
             <code>
-              {{ props.columns }}
+              {{ finalColumns }}
             </code>
-            <!-- <FormDemo :columns="finalColumns" /> -->
           </div>
         </main>
       </FormMainLogic>

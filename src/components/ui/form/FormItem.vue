@@ -216,7 +216,7 @@ export default /*#__PURE__*/ {
     }
   }
 
-  .field {
+  .x-field {
     flex: 1 1 20rem;
     width: 100%;
 
