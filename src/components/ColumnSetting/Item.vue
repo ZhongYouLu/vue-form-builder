@@ -18,7 +18,11 @@
         <Draggable :value="$props.items" @input="update('items', $event)">
           <div v-for="(item, idx) in $props.items" :key="item.id" class="x-input-group">
             <div class="drag"><Icon icon="mdi:drag" />{{ idx + 1 }}</div>
-            <Field :value="item.text" :placeholder="`(${item.id})`" @input="updateItem(item.id, 'text', $event)" />
+            <Field
+              :value="item.text"
+              :placeholder="`(${item.id})`"
+              @update:value="updateItem(item.id, 'text', $event)"
+            />
             <Button icon="mdi:close-thick" type="flat" shape="circle" @click="removeItem(item.id)" />
           </div>
         </Draggable>

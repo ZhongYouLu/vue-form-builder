@@ -10,17 +10,16 @@
       :novalidate="novalidate"
       :disabled="disabled"
       :type="type"
-      @submit="submit"
     >
-      <template v-for="({ id, ...column }, idx) in columns">
+      <template v-for="{ id, ...column } in columns">
         <FormItem
           v-if="values[id] !== undefined"
           :id="id"
-          ref="formItem"
           :key="id"
-          :idx="idx + 1"
+          ref="formItem"
           :type="column.type"
           :novalidate="novalidate"
+          :disabled="disabled"
           v-bind="{
             ...column.base,
             ...column.rule,
@@ -32,9 +31,15 @@
           :values="values"
           :value.sync="values[id]"
           :error.sync="errors[id]"
-        />
+          @focus="handleFocus"
+          @blur="handleBlur"
+        >
+          <template v-for="(_, slot) in $scopedSlots" #[slot]="props">
+            <slot :name="slot" v-bind="props" />
+          </template>
+        </FormItem>
       </template>
-      <Button htmltype="submit">Send</Button>
+      <Button @click="submit">Send</Button>
       <Button htmltype="reset" @click="reset">reset</Button>
     </form>
     <hr class="dashed" />
@@ -103,13 +108,13 @@ export default /*#__PURE__*/ {
       });
     },
     validity() {
-      return this.$refs.form.elements.every((el) => el.validity());
+      this.$refs.formItem.every((el) => el.validity());
     },
     formdata() {
       const formdata = new FormData();
       const jsondata = {};
       if (!this.disabled) {
-        this.$refs.form.elements.forEach((el) => {
+        this.$refs.formItem.forEach((el) => {
           formdata.set(el.name, el.value);
           jsondata[el.name] = el.value;
         });
@@ -121,7 +126,7 @@ export default /*#__PURE__*/ {
       if (this.novalidate) {
         return true;
       }
-      const elements = [...this.$refs.form.elements].reverse();
+      const elements = [...this.$refs.formItem].reverse();
       let validity = true;
       elements.forEach((el) => {
         if (el.checkValidity && !el.checkValidity()) {
@@ -132,7 +137,6 @@ export default /*#__PURE__*/ {
       return validity;
     },
     submit(e) {
-      e.preventDefault();
       if (this.checkValidity() && !this.disabled) {
         // https://developers.google.com/web/fundamentals/design-and-ux/input/forms
 
@@ -209,6 +213,12 @@ export default /*#__PURE__*/ {
       }
 
       console.log('serialized:', serialized.join('&'));
+    },
+    handleFocus(e) {
+      console.log('focus', e);
+    },
+    handleBlur(e) {
+      console.log('blur', e);
     },
   },
 };

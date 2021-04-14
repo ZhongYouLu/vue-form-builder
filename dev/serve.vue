@@ -17,8 +17,8 @@
                 {{ test.isOpen ? 'close' : 'open' }}
               </button>
               <div class="card__name">
-                <Field v-model="test.column.name" :placeholder="test.column.id" />
-                <Field v-if="test.column.rule && test.column.rule.msg" v-model="test.column.rule.msg.required" />
+                <Field :value.sync="test.column.name" :placeholder="test.column.id" />
+                <Field v-if="test.column.rule && test.column.rule.msg" :value.sync="test.column.rule.msg.required" />
               </div>
               <button @click="props.invokeRemove(test.column.id)">X</button>
             </template> -->

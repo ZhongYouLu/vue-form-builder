@@ -36,7 +36,7 @@
               :reduce="(option) => option"
               :get-option-label="(option) => option"
               :create-option="(option) => option"
-              @input="$emit('update', 'values', $event)"
+              @update:value="$emit('update', 'values', $event)"
             />
           </template>
           <template v-else-if="triggerColumn.type === 'number'">
@@ -53,13 +53,18 @@
               :reduce="(option) => option"
               :get-option-label="thousandSeparatorFunc"
               :create-option="(option) => Number(option)"
-              @input="$emit('update', 'values', $event)"
+              @update:value="$emit('update', 'values', $event)"
             />
           </template>
           <!-- Select / Radio / Checkbox -->
           <template v-else-if="['select', 'radio', 'checkbox'].includes(triggerColumn.type) && triggerColumn.item">
             <div class="for">
-              <Field :value="meet" type="select" :options="meetOptions" @input="$emit('update', 'meet', $event)" />
+              <Field
+                :value="meet"
+                type="select"
+                :options="meetOptions"
+                @update:value="$emit('update', 'meet', $event)"
+              />
             </div>
             <Field
               v-if="triggerColumn.item.srcMode === 'list'"
@@ -72,7 +77,7 @@
               value-key="id"
               text-key="text"
               :fuse-keys="['text']"
-              @input="$emit('update', 'values', $event)"
+              @update:value="$emit('update', 'values', $event)"
             />
           </template>
         </div>

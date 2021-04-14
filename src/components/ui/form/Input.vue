@@ -301,13 +301,13 @@ export default /*#__PURE__*/ {
         this.callInput && this.callInput(this.value);
       }
     },
-    handleFocus() {
+    handleFocus(e) {
       // this.checkValidity();
-      this.$emit('focus');
+      this.$emit('focus', e);
     },
-    handleBlur() {
+    handleBlur(e) {
       this.checkValidity();
-      this.$emit('blur');
+      this.$emit('blur', e);
     },
     invokeSubmit() {
       console.log('invokeSubmit');

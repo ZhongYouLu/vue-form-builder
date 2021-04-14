@@ -283,11 +283,17 @@ $vs-dropdown-box-shadow: 0px 3px 6px 0px rgba(0, 0, 0, 0.5);
   }
   &__selected-options {
     padding: 0;
+    overflow: hidden;
   }
 
   &__selected {
-    margin: calc(var(--vGap) / 2) 0 calc(var(--vGap) / 2) var(--vGap);
     padding: 0 var(--vGap);
+    margin: calc(var(--vGap) / 2) 0 calc(var(--vGap) / 2) var(--vGap);
+
+    .vs--single.vs--open & {
+      margin: calc(var(--borderWidth) * -1) 0;
+      padding: var(--vGap) var(--hGap);
+    }
 
     button:disabled {
       display: none;

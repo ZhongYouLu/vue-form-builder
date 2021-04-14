@@ -20,7 +20,7 @@
               </div>
               <div class="card__name">
                 <template v-if="collect[column.id].isEditName">
-                  <Field v-model="column.name" :placeholder="column.id" />
+                  <Field :value.sync="column.name" :placeholder="column.id" />
                 </template>
                 <template v-else>
                   <div class="text-ellipsis">{{ column.name || `(${column.id})` }}</div>
