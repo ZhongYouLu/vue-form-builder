@@ -65,10 +65,10 @@ export default /*#__PURE__*/ {
   computed: {
     checked: {
       get() {
-        return this.value;
+        return this.value === this.yes;
       },
       set(val) {
-        this.$emit('input', val);
+        this.$emit('input', val === this.yes);
       },
     },
     indeterminate: {
@@ -90,6 +90,12 @@ export default /*#__PURE__*/ {
   beforeUpdate() {
     this.resetSlot();
   },
+  updated() {
+    this.$refs.checkbox.checked = this.checked;
+  },
+  mounted() {
+    this.$refs.checkbox.checked = this.checked;
+  },
   methods: {
     resetSlot() {
       if (this.$slots.default) {
@@ -97,7 +103,7 @@ export default /*#__PURE__*/ {
       }
     },
     reset() {
-      this.checked = false;
+      this.checked = this.no;
       this.invalid = false;
       this.tips = null;
       this.showTips = null;
@@ -128,15 +134,10 @@ export default /*#__PURE__*/ {
 
       return !this.invalid;
     },
-    // toggle(evt) {
-    //   const target = evt.target;
-    //   if (target.readOnly) target.checked = target.readOnly = false;
-    //   else if (!target.checked) target.readOnly = this.indeterminate = true;
-    // },
-    handleKeydown(evt) {
-      switch (evt.keyCode) {
+    handleKeydown(e) {
+      switch (e.keyCode) {
         case 13: //Enter
-          this.checked = !this.checked;
+          this.checked = this.checked ? this.no : this.yes;
           break;
         default:
           break;

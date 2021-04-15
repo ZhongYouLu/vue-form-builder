@@ -12,7 +12,6 @@
           :false-value="no"
           :required="required"
           :disabled="disabled"
-          @input="handleInput"
           @keydown="handleKeydown"
           @focus="handleFocus"
           @blur="handleBlur"
@@ -41,8 +40,8 @@ export default /*#__PURE__*/ {
     name: { type: String, default: null },
     value: { type: [String, Number, Boolean], default: null },
     label: { type: [String, Number, Boolean], default: '是' },
-    yes: { type: [String, Number, Boolean], default: true },
-    no: { type: [String, Number, Boolean], default: false },
+    yes: { type: [String, Number, Boolean], default: 1 },
+    no: { type: [String, Number, Boolean], default: null },
     // ----------------------------------
     required: { type: Boolean, default: null },
     disabled: { type: Boolean, default: null },
@@ -62,24 +61,31 @@ export default /*#__PURE__*/ {
   computed: {
     checked: {
       get() {
-        return this.value;
+        return this.value === this.yes;
       },
       set(val) {
-        this.$emit('input', val);
+        if (val === this.no) {
+          this.$refs.radio.checked = this.checked;
+          return;
+        }
+        this.$emit('input', val === this.yes);
       },
     },
   },
   watch: {
-    checked: function () {
-      this.$refs.radio.checked = this.checked;
-      this.checkValidity();
-    },
+    checked: 'checkValidity',
   },
   created() {
     this.resetSlot();
   },
   beforeUpdate() {
     this.resetSlot();
+  },
+  updated() {
+    this.$refs.radio.checked = this.checked;
+  },
+  mounted() {
+    this.$refs.radio.checked = this.checked;
   },
   methods: {
     resetSlot() {
@@ -88,7 +94,7 @@ export default /*#__PURE__*/ {
       }
     },
     reset() {
-      this.checked = false;
+      this.checked = this.no;
       this.invalid = false;
       this.tips = null;
       this.showTips = null;
@@ -116,13 +122,10 @@ export default /*#__PURE__*/ {
 
       return !this.invalid;
     },
-    handleInput(e) {
-      e.target.checked = this.checked = true;
-    },
     handleKeydown(e) {
       switch (e.keyCode) {
         case 13: //Enter
-          this.checked = true;
+          this.checked = this.checked ? this.no : this.yes;
           break;
         default:
           break;

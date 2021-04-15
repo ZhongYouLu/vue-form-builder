@@ -10,6 +10,8 @@
         :label="option[textKey] || option[valueKey]"
         :value="localValue[option[valueKey]].flag"
         :required="localValue[option[valueKey]].required"
+        :yes="yes"
+        :no="no"
         :disabled="disabled"
         :novalidate="novalidate"
         @input="toggle(option[valueKey], $event)"
@@ -33,11 +35,13 @@ export default /*#__PURE__*/ {
   },
   inheritAttrs: false,
   props: {
-    name: { type: String, required: true },
+    name: { type: String, default: null },
     value: { type: Array, default: () => [] },
     options: { type: Array, default: () => [] },
+    valueKey: { type: String, default: 'id' },
     textKey: { type: String, default: 'text' },
-    valueKey: { type: String, default: 'value' },
+    yes: { type: [String, Number, Boolean], default: 1 },
+    no: { type: [String, Number, Boolean], default: null },
     // ----------------------------------
     required: { type: Boolean, default: null },
     requiredValue: { type: Array, default: () => [] },
@@ -71,7 +75,7 @@ export default /*#__PURE__*/ {
       return this.options.reduce((acc, option) => {
         const v = option[this.valueKey];
         acc[v] = {
-          flag: this.value.includes(v),
+          flag: this.value.includes(v) ? this.yes : this.no,
           required: this.requiredValue.includes(v),
         };
         return acc;
@@ -175,12 +179,10 @@ export default /*#__PURE__*/ {
       return !this.invalid;
     },
     handleFocus(idx) {
-      console.log('focus', idx);
-      this.$emit('focus');
+      this.$emit('focus', idx);
     },
     handleBlur(idx) {
-      console.log('blur', idx);
-      this.$emit('blur');
+      this.$emit('blur', idx);
     },
   },
 };
@@ -215,6 +217,7 @@ export default /*#__PURE__*/ {
   }
 
   .x-checkbox {
+    margin-right: var(--fontSize);
     transition: opacity 0.3s;
   }
 

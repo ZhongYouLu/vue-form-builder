@@ -280,9 +280,11 @@ export default /*#__PURE__*/ {
         case 13: //Enter
           if (this.validity()) {
             const searchBtn = this.$refs.search;
-            // searchBtn.$refs.btn.focus();
-            searchBtn.$refs.btn.dispatchEvent(new MouseEvent('mousedown'));
-            searchBtn.handleClick();
+            if (searchBtn) {
+              // searchBtn.$refs.btn.focus();
+              searchBtn.$refs.btn.dispatchEvent(new MouseEvent('mousedown'));
+              searchBtn.handleClick();
+            }
           }
           break;
         default:

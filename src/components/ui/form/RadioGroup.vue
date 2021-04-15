@@ -9,6 +9,8 @@
         :name="name"
         :label="option[textKey] || option[valueKey]"
         :value="localValue[option[valueKey]]"
+        :yes="yes"
+        :no="no"
         :disabled="disabled"
         :novalidate="novalidate"
         @input="toggle(option[valueKey], $event)"
@@ -31,12 +33,13 @@ export default /*#__PURE__*/ {
   },
   inheritAttrs: false,
   props: {
-    // id: { type: String, default: null },
     name: { type: String, default: null },
     value: { type: [String, Number, Boolean], default: null },
     options: { type: Array, default: () => [] },
+    valueKey: { type: String, default: 'id' },
     textKey: { type: String, default: 'text' },
-    valueKey: { type: String, default: 'value' },
+    yes: { type: [String, Number, Boolean], default: 1 },
+    no: { type: [String, Number, Boolean], default: null },
     // ----------------------------------
     required: { type: Boolean, default: null },
     disabled: { type: Boolean, default: null },
@@ -66,7 +69,7 @@ export default /*#__PURE__*/ {
     localValue() {
       return this.options.reduce((acc, option) => {
         const v = option[this.valueKey];
-        acc[v] = this.value === v;
+        acc[v] = this.value === v ? this.yes : this.no;
         return acc;
       }, {});
     },
@@ -78,8 +81,10 @@ export default /*#__PURE__*/ {
     this.defaultValue = this.value;
   },
   methods: {
-    toggle(key) {
-      this.mutableValue = key;
+    toggle(key, checked) {
+      if (checked) {
+        this.mutableValue = key;
+      }
     },
     reset() {
       this.mutableValue = this.defaultValue;
@@ -166,6 +171,7 @@ export default /*#__PURE__*/ {
   }
 
   .x-radio {
+    margin-right: var(--fontSize);
     transition: opacity 0.3s;
   }
 
