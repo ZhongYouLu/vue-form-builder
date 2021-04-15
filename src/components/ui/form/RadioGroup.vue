@@ -13,7 +13,7 @@
         :no="no"
         :disabled="disabled"
         :novalidate="novalidate"
-        @input="toggle(option[valueKey], $event)"
+        @update:value="toggle(option[valueKey], $event)"
         @focus="handleFocus"
         @blur="handleBlur"
       />
@@ -81,8 +81,8 @@ export default /*#__PURE__*/ {
     this.defaultValue = this.value;
   },
   methods: {
-    toggle(key, checked) {
-      if (checked) {
+    toggle(key, flag) {
+      if (flag === this.yes) {
         this.mutableValue = key;
       }
     },

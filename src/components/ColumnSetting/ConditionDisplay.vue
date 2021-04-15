@@ -21,61 +21,56 @@
     <div v-if="triggerColumn">
       <Block>
         <div class="input-row">
-          <template v-if="triggerColumn.type === 'text'">
-            <div class="for"></div>
-            <Field
-              :value="values"
-              type="select"
-              multiple
-              taggable
-              searchable
-              placeholder="請輸入條件，按下 Enter 確認。 (可輸入多筆)"
-              no-drop
-              :close-on-select="false"
-              :reduce="(option) => option"
-              :get-option-label="(option) => option"
-              :create-option="(option) => option"
-              @update:value="$emit('update', 'values', $event)"
-            />
-          </template>
-          <template v-else-if="triggerColumn.type === 'number'">
-            <div class="for">符合其一</div>
-            <Field
-              :value="values"
-              type="select"
-              multiple
-              taggable
-              searchable
-              placeholder="請輸入條件，按下 Enter 確認。 (可輸入多筆)"
-              no-drop
-              :close-on-select="false"
-              :reduce="(option) => option"
-              :get-option-label="thousandSeparatorFunc"
-              :create-option="(option) => Number(option)"
-              @update:value="$emit('update', 'values', $event)"
-            />
-          </template>
-          <!-- Select / Radio / Checkbox -->
-          <template v-else-if="['select', 'radio', 'checkbox'].includes(triggerColumn.type) && triggerColumn.item">
-            <div class="for">
+          <div class="for">
+            <Field :value="meet" type="select" :options="meetOptions" @update:value="$emit('update', 'meet', $event)" />
+          </div>
+          <template v-if="meet !== null">
+            <template v-if="triggerColumn.type === 'text'">
               <Field
-                :value="meet"
+                :value="values"
                 type="select"
-                :options="meetOptions"
-                @update:value="$emit('update', 'meet', $event)"
+                multiple
+                taggable
+                searchable
+                placeholder="請輸入條件，按下 Enter 確認。 (可輸入多筆)"
+                no-drop
+                :close-on-select="false"
+                :reduce="(option) => option"
+                :get-option-label="(option) => option"
+                :create-option="(option) => option"
+                @update:value="$emit('update', 'values', $event)"
               />
-            </div>
-            <Field
-              v-if="triggerColumn.item.srcMode === 'list'"
-              :value="values"
-              placeholder="請選擇條件 (可多選)"
-              type="select"
-              multiple
-              searchable
-              :options="triggerColumn.item.options"
-              :fuse-keys="['text']"
-              @update:value="$emit('update', 'values', $event)"
-            />
+            </template>
+            <template v-else-if="triggerColumn.type === 'number'">
+              <Field
+                :value="values"
+                type="select"
+                multiple
+                taggable
+                searchable
+                placeholder="請輸入條件，按下 Enter 確認。 (可輸入多筆)"
+                no-drop
+                :close-on-select="false"
+                :reduce="(option) => option"
+                :get-option-label="thousandSeparatorFunc"
+                :create-option="(option) => Number(option)"
+                @update:value="$emit('update', 'values', $event)"
+              />
+            </template>
+            <!-- Select / Radio / Checkbox -->
+            <template v-else-if="['select', 'radio', 'checkbox'].includes(triggerColumn.type) && triggerColumn.item">
+              <Field
+                v-if="triggerColumn.item.srcMode === 'list'"
+                :value="values"
+                placeholder="請選擇條件 (可多選)"
+                type="select"
+                multiple
+                searchable
+                :options="triggerColumn.item.options"
+                :fuse-keys="['text']"
+                @update:value="$emit('update', 'values', $event)"
+              />
+            </template>
           </template>
         </div>
       </Block>
@@ -106,15 +101,16 @@ export default /*#__PURE__*/ {
     id: { type: String, required: true },
     idx: { type: Number, required: true },
     triggerID: { type: String, default: null },
+    meet: { type: Number, default: null },
     values: { type: Array, default: () => [] },
-    meet: { type: Number, default: null }, // null: 滿足其一, 1: 滿足全部
   },
   emits: ['update'],
   computed: {
     meetOptions() {
       return [
-        { id: null, text: '符合其一' },
-        { id: 1, text: '符合全部' },
+        { id: null, text: '有效的' },
+        { id: 1, text: '符合其一' },
+        { id: 2, text: '符合全部' },
       ];
     },
     triggerColumn() {

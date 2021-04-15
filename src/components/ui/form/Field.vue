@@ -4,11 +4,11 @@
       :is="componentName"
       :id="id"
       ref="input"
-      v-model="mutableValue"
       :name="name || id"
       v-bind="$attrs"
       :type="subType || type"
       :multiple="!!multiple"
+      :value.sync="mutableValue"
       @focus="$emit('focus', $event)"
       @blur="$emit('blur', $event)"
     >

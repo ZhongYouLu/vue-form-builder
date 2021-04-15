@@ -118,7 +118,7 @@ export default /*#__PURE__*/ {
     closeOnSelect: { type: Boolean, default: true }, // Close a dropdown when an option is chosen. Set to false to keep the dropdown open
     noDrop: { type: Boolean, default: false }, // Disable the dropdown entirely.
   },
-  emits: ['input', 'focus', 'blur'],
+  emits: ['update:value', 'focus', 'blur'],
   data() {
     return {
       placement: 'bottom',
@@ -130,7 +130,7 @@ export default /*#__PURE__*/ {
         return this.value;
       },
       set(value) {
-        this.$emit('input', value);
+        this.$emit('update:value', value);
       },
     },
     mutableOptions() {

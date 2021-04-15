@@ -95,8 +95,6 @@ export default /*#__PURE__*/ {
           type: 'select',
           placeholder: '請選擇',
           options: this.columnsObjByKey[this.id].item?.options,
-          valueKey: 'id',
-          textKey: 'text',
           multiple: !!this.typeConstraint.isMultiple,
           clearable: true,
           taggable: true,

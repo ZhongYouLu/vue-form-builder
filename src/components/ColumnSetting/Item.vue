@@ -94,7 +94,7 @@ export default /*#__PURE__*/ {
     sourceModeOptions() {
       return convertOptions({
         list: '手動設置',
-        api: 'API',
+        // api: 'API',
       });
     },
     displayModeOptions() {

@@ -141,14 +141,34 @@ export default /*#__PURE__*/ {
   // 監聽連動 [Side Effect]
   watch: {
     type: function () {
+      if (this.currentTab === 'item' && !this.typeConstraint.needOptions) {
+        this.currentTab = 'base';
+      }
+
       this.initBaseDefaultValue();
 
       if (this.typeConstraint.needOptions) {
-        this.initItem();
+        if (!this.column.item.srcMode) {
+          this.updateColumn('item', {
+            ...this.column.item,
+            srcMode: 'list',
+            options: [],
+          });
+        }
       }
+
       if (!this.typeConstraint.isText) {
         this.updateColumn('base', { ...this.column.base, subType: null });
       }
+
+      this.columnsExcludeSelf.map((c) => {
+        c.condition?.display?.map((d) => {
+          if (d.triggerID === this.id) {
+            d.values = [];
+            // d.meet = null;
+          }
+        });
+      });
     },
     'base.multiple': function (multiple) {
       this.initBaseDefaultValue(!!multiple);
@@ -157,9 +177,12 @@ export default /*#__PURE__*/ {
       if (a?.length < b?.length || (!a && b)) {
         const diff = difference(b, a || [])[0];
         this.initBaseDefaultValue();
+
         this.columnsExcludeSelf.map((c) => {
           c.condition?.display?.map((d) => {
-            d.values = arrRemoveValue(d.values, diff.id);
+            if (d.triggerID === this.id) {
+              d.values = arrRemoveValue(d.values, diff.id);
+            }
           });
         });
       }
@@ -204,15 +227,6 @@ export default /*#__PURE__*/ {
         multiple: multiple ? 1 : null,
         defaultValue: multiple ? [] : null,
       });
-    },
-    initItem() {
-      if (!this.column.item.srcMode) {
-        this.updateColumn('item', {
-          ...this.column.item,
-          srcMode: 'list',
-          options: [],
-        });
-      }
     },
   },
 };

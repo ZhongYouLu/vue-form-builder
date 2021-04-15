@@ -1,6 +1,6 @@
 import { obj2Arr, nested2Pairs, pairs2Arr } from '@/assets/js/helper.js';
 
-export const convertOptions = (obj) => pairs2Arr(obj, 'text', 'value');
+export const convertOptions = (obj) => pairs2Arr(obj, 'text', 'id');
 
 // https://www.w3schools.com/tags/tag_input.asp
 export const typeConfig = {

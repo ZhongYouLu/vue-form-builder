@@ -114,7 +114,7 @@ export default /*#__PURE__*/ {
     },
     callInput: { type: Function, default: null },
   },
-  emits: ['input', 'focus', 'blur', 'submit'],
+  emits: ['update:value', 'focus', 'blur', 'submit'],
   data() {
     return {
       invalid: null,
@@ -131,7 +131,7 @@ export default /*#__PURE__*/ {
         return this.value;
       },
       set(val) {
-        this.$emit('input', val !== '' ? val : null);
+        this.$emit('update:value', val !== '' ? val : null);
       },
     },
     localType() {
@@ -141,6 +141,7 @@ export default /*#__PURE__*/ {
         case 'email':
         case 'tel':
         case 'url':
+        case 'date': // 之後要搬走
           type = this.type;
           break;
         case 'password':
@@ -181,6 +182,12 @@ export default /*#__PURE__*/ {
           min: this.min,
           max: this.max,
           step: this.step,
+        };
+      } else if (this.type === 'date') {
+        temp = {
+          ...temp,
+          min: this.min,
+          max: this.max,
         };
       }
 

@@ -113,14 +113,14 @@ export default /*#__PURE__*/ {
         a.forEach((c) => {
           // 如果有規則
           if (c.rule) {
+            // 連動必填
+            c.rule.requiredSync = arrRemoveValues(c.condition.requiredSync, deductIds);
             // 與...相符
             if (deductIds.includes(c.rule.sameAs)) c.rule.sameAs = null;
           }
 
           // 如果有條件
-          if (c.condition) {
-            // 連動必填
-            c.condition.requiredSync = arrRemoveValues(c.condition.requiredSync, deductIds);
+          if (c.rule) {
             // 顯示
             c.condition.display = arrRemoveValuesByKey(c.condition.display, 'triggerID', deductIds);
           }

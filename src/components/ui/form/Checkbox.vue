@@ -53,7 +53,7 @@ export default /*#__PURE__*/ {
     // ----------------------------------
     errortips: { type: String, default: null },
   },
-  emits: ['input', 'focus', 'blur'],
+  emits: ['update:value', 'focus', 'blur'],
   data() {
     return {
       invalid: false,
@@ -68,7 +68,8 @@ export default /*#__PURE__*/ {
         return this.value === this.yes;
       },
       set(val) {
-        this.$emit('input', val === this.yes);
+        console.log(this.id, val);
+        this.$emit('update:value', val);
       },
     },
     indeterminate: {

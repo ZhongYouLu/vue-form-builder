@@ -14,7 +14,7 @@
         :no="no"
         :disabled="disabled"
         :novalidate="novalidate"
-        @input="toggle(option[valueKey], $event)"
+        @update:value="toggle(option[valueKey], $event)"
         @focus="handleFocus"
         @blur="handleBlur"
       />
@@ -52,7 +52,7 @@ export default /*#__PURE__*/ {
     // ----------------------------------
     errortips: { type: String, default: null },
   },
-  emits: ['input', 'focus', 'blur'],
+  emits: ['update:value', 'focus', 'blur'],
   data() {
     return {
       invalid: false,
@@ -68,7 +68,7 @@ export default /*#__PURE__*/ {
         return this.value;
       },
       set(val) {
-        this.$emit('input', val);
+        this.$emit('update:value', val);
       },
     },
     localValue() {
@@ -96,8 +96,8 @@ export default /*#__PURE__*/ {
     this.defaultValue = this.value;
   },
   methods: {
-    toggle(key, checked) {
-      if (checked) {
+    toggle(key, flag) {
+      if (flag === this.yes) {
         this.mutableValue = this.mutableValue.concat(key);
       } else {
         this.mutableValue = arrRemoveValue(this.mutableValue, key);

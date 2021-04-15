@@ -2,6 +2,35 @@
   <!-- 規則設定 -->
   <fieldset>
     <!-- <legend>規則設定</legend> -->
+    <FormItem
+      :id="`[${id}]-requiredSync`"
+      :value="$props.requiredSync"
+      desc="連動必填"
+      type="select"
+      :options="columnsExcludeSelf"
+      :icons="typeIcons"
+      text-key="name"
+      icon-key="type"
+      multiple
+      searchable
+      @update:value="$emit('update', 'requiredSync', $event)"
+    />
+    <FormItem
+      v-if="requiredCheck.length"
+      :id="`[${id}]-requiredCheck`"
+      :value="requiredCheck"
+      desc="被連動必填"
+      type="select"
+      :options="columnsExcludeSelf"
+      :icons="typeIcons"
+      text-key="name"
+      icon-key="type"
+      multiple
+      searchable
+      no-drop
+      disabled
+    />
+    <hr class="dashed" />
     <div v-for="(v, k) in fields" :key="k" class="input-group">
       <FormItem :id="`[${id}]-${k}`" v-bind="v.props" :value="$props[k]" @update:value="update(k, $event)">
         <template #text-right>
@@ -56,14 +85,16 @@ export default /*#__PURE__*/ {
     //-----------
     // 規則提示
     msg: { type: Object, default: () => ({}) },
+    // 連動必填元素 (如果自身有值，其元素必填)
+    requiredSync: { type: Array, default: () => [] },
     // 必填
     required: { type: Number, default: null },
     // 與..相符
     sameAs: { type: String, default: null },
     // 字元下限
-    minimum: { type: Number, default: null },
+    minimum: { type: [Number, String], default: null },
     // 字元上限
-    maximum: { type: Number, default: null },
+    maximum: { type: [Number, String], default: null },
     // 驗證格式
     regex: { type: String, default: null },
     // 選擇數量下限 [多選框選項]
@@ -96,7 +127,6 @@ export default /*#__PURE__*/ {
             type: 'select',
             options: this.typeConstraint.filterSame(this.columnsExcludeSelf),
             icons: this.typeIcons,
-            valueKey: 'id',
             textKey: 'name',
             iconKey: 'type',
             clearable: true,
@@ -133,6 +163,12 @@ export default /*#__PURE__*/ {
           minimum: { props: { desc: '數字下限', type: 'number' }, msg: `[${name}] 最少 [:min]。` },
           maximum: { props: { desc: '數字上限', type: 'number' }, msg: `[${name}] 最多 [:max]。` },
         };
+      } else if (this.typeConstraint.isDate) {
+        temp = {
+          ...temp,
+          minimum: { props: { desc: '日期下限', type: 'date' }, msg: `[${name}] 不得小於 [:min]。` },
+          maximum: { props: { desc: '日期上限', type: 'date' }, msg: `[${name}] 不得大於 [:max]。` },
+        };
       } else if (this.typeConstraint.isMultiple) {
         temp = {
           ...temp,
@@ -148,6 +184,18 @@ export default /*#__PURE__*/ {
     },
     toggleMsg() {
       return this.collect[this.id]['toggleMsg'];
+    },
+    // 自身必填檢查 (來自其他元素的 requiredSync)
+    requiredCheck() {
+      const requiredCheck = [];
+
+      this.columnsExcludeSelf.forEach((c) => {
+        if (c.rule?.requiredSync?.includes(this.id)) {
+          requiredCheck.push(c.id);
+        }
+      });
+
+      return requiredCheck;
     },
   },
   created() {

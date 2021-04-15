@@ -49,7 +49,7 @@ export default /*#__PURE__*/ {
     // ----------------------------------
     errortips: { type: String, default: null },
   },
-  emits: ['input', 'focus', 'blur'],
+  emits: ['update:value', 'focus', 'blur'],
   data() {
     return {
       invalid: false,
@@ -68,7 +68,7 @@ export default /*#__PURE__*/ {
           this.$refs.radio.checked = this.checked;
           return;
         }
-        this.$emit('input', val === this.yes);
+        this.$emit('update:value', val);
       },
     },
   },
