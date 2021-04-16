@@ -166,6 +166,10 @@ export default /*#__PURE__*/ {
     align-items: center;
   }
 
+  .x-cheked {
+    background-color: #fff;
+  }
+
   &[disabled] {
     pointer-events: none;
     opacity: 0.6;

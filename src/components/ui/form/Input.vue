@@ -360,6 +360,7 @@ export default /*#__PURE__*/ {
   color: var(--fontColor);
   border: var(--borderWidth) solid var(--borderColor);
   border-radius: var(--borderRadius);
+  background-color: #fff;
   transition: z-index 0.3s, border-color 0.3s, box-shadow 0.3s;
 
   &__pre,

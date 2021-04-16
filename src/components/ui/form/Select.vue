@@ -260,6 +260,7 @@ $vs-dropdown-box-shadow: 0px 3px 6px 0px rgba(0, 0, 0, 0.5);
 
 .v-select {
   line-height: 1.4;
+  background-color: #fff;
 
   .vs__actions svg {
     transition: fill 300ms, transform 150ms cubic-bezier(1, -0.115, 0.975, 0.855);

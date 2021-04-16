@@ -70,18 +70,18 @@ export default /*#__PURE__*/ {
             const { options, api, ...newItem } = v;
 
             switch (newItem.srcMode) {
-              case 'api':
-                newItem['api'] = api;
-                break;
               case 'list':
                 newItem['options'] = options;
+                break;
+              case 'api':
+                newItem['api'] = api;
                 break;
             }
 
             v = newItem;
           } else if (k === 'condition') {
             // TODO:
-            console.log(k, v);
+            console.log('finalColumns computed: ', k, v);
           }
 
           if (!isEmpty(v)) acc[k] = v;
@@ -99,9 +99,7 @@ export default /*#__PURE__*/ {
         Object.keys(this.collect)
       );
       if (diffIds.length) {
-        diffIds.map((id) => {
-          this.$set(this.collect, id, {});
-        });
+        diffIds.forEach((id) => this.$set(this.collect, id, {}));
       }
 
       // 減少
@@ -120,7 +118,7 @@ export default /*#__PURE__*/ {
           }
 
           // 如果有條件
-          if (c.rule) {
+          if (c.condition) {
             // 顯示
             c.condition.display = arrRemoveValuesByKey(c.condition.display, 'triggerID', deductIds);
           }
@@ -131,8 +129,8 @@ export default /*#__PURE__*/ {
   methods: {
     // 更新欄位群
     emitUpdate(newColumns, note) {
-      // console.log(`${note && `[${note}] `}update:columns`, newColumns);
-      const cleanColumns = newColumns.map((c) => clearEmpties(c));
+      console.log(`${note && `[${note}] `}update:columns`, newColumns);
+      const cleanColumns = clearEmpties(newColumns);
       this.$emit('update:columns', cleanColumns);
     },
     // 呼叫更新欄位群

@@ -116,10 +116,6 @@ export default /*#__PURE__*/ {
   &__name {
     @include content-centered();
     min-width: 0; // fix: text-ellipsis
-
-    input {
-      color: $color-black;
-    }
   }
 
   &__controll {

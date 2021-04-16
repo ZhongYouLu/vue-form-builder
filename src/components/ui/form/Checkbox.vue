@@ -68,7 +68,6 @@ export default /*#__PURE__*/ {
         return this.value === this.yes;
       },
       set(val) {
-        console.log(this.id, val);
         this.$emit('update:value', val);
       },
     },
@@ -177,6 +176,10 @@ export default /*#__PURE__*/ {
     cursor: pointer;
     display: flex;
     align-items: center;
+  }
+
+  .x-cheked {
+    background-color: #fff;
   }
 
   &[disabled] {
