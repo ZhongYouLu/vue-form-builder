@@ -1,7 +1,7 @@
 <template>
   <!-- 條件設定 -->
   <fieldset>
-    <ConditionDisplay
+    <!-- <ConditionDisplay
       v-for="(d, idx) in $props.display"
       :key="d.id"
       :idx="idx"
@@ -12,7 +12,18 @@
       @update="updateDisplay(d.id, ...arguments)"
       @remove="removeDisplay(d.id)"
     />
-    <Button icon="mdi:plus" type="dashed" block @click="addDisplay" />
+    <Button icon="mdi:plus" block @click="addDisplay" /> -->
+
+    <ul>
+      <ConditionDisplay
+        :item="display"
+        :columns-exclude-self="columnsExcludeSelf"
+        :columns-obj-by-key="columnsObjByKey"
+        :type-icons="typeIcons"
+        @make-folder="makeFolder"
+        @add-item="addItem"
+      ></ConditionDisplay>
+    </ul>
   </fieldset>
 </template>
 <script>
@@ -41,16 +52,64 @@ export default /*#__PURE__*/ {
     // 所有欄位群 (obj by key)
     columnsObjByKey: { type: Object, required: true },
     //-----------
+    // 連動必填元素 (如果自身有值，其元素必填)
+    requiredSync: { type: Array, default: () => [] },
     // 顯示條件
-    display: { type: Array, default: () => [] },
+    display: {
+      type: Object,
+      default: () => ({
+        name: 'My Tree',
+        children: [
+          { name: 'hello' },
+          { name: 'wat' },
+          {
+            name: 'child folder',
+            children: [
+              {
+                name: 'child folder',
+                children: [{ name: 'hello' }, { name: 'wat' }],
+              },
+              { name: 'hello' },
+              { name: 'wat' },
+              {
+                name: 'child folder',
+                children: [{ name: 'hello' }, { name: 'wat' }],
+              },
+            ],
+          },
+        ],
+      }),
+    },
   },
   emits: ['update', 'updateObj', 'updateArr', 'addArr', 'removeArr'],
   computed: {
+    // 自身必填檢查 (來自其他元素的 requiredSync)
+    requiredCheck() {
+      const requiredCheck = [];
+
+      this.columnsExcludeSelf.forEach((c) => {
+        if (c.condition?.requiredSync?.includes(this.id)) {
+          requiredCheck.push(c.id);
+        }
+      });
+
+      return requiredCheck;
+    },
     typeIcons() {
       return typeIcons;
     },
   },
   methods: {
+    makeFolder: function (item) {
+      this.$set(item, 'children', []);
+      this.addItem(item);
+    },
+    addItem: function (item) {
+      item.children.push({
+        name: 'new stuff',
+      });
+    },
+
     addDisplay() {
       this.$emit('addArr', 'display', { id: nanoid(6) });
     },
@@ -74,3 +133,17 @@ export default /*#__PURE__*/ {
   },
 };
 </script>
+
+<style>
+.item {
+  cursor: pointer;
+}
+.bold {
+  font-weight: bold;
+}
+ul {
+  padding-left: 1em;
+  line-height: 1.5em;
+  list-style-type: dot;
+}
+</style>
