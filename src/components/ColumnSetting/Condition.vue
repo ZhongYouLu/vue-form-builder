@@ -12,7 +12,7 @@
       @update="updateDisplay(d.id, ...arguments)"
       @remove="removeDisplay(d.id)"
     />
-    <Button icon="mdi:plus" block @click="addDisplay" />
+    <Button icon="mdi:plus" type="dashed" block @click="addDisplay" />
   </fieldset>
 </template>
 <script>

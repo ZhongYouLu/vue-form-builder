@@ -71,7 +71,7 @@
         </Card>
       </Block>
     </Draggable>
-    <Button icon="mdi:plus" block @click="invokeAdd" />
+    <Button icon="mdi:plus" type="dashed" block @click="invokeAdd" />
   </div>
 </template>
 

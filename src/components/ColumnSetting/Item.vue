@@ -27,7 +27,7 @@
           </div>
         </Draggable>
       </Block>
-      <Button icon="mdi:plus" block @click="addOption" />
+      <Button icon="mdi:plus" type="dashed" block @click="addOption" />
     </template>
     <template v-else>
       <FormItem
