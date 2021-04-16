@@ -128,32 +128,39 @@ export default /*#__PURE__*/ {
   },
   methods: {
     // 更新欄位群
-    emitUpdate(newColumns, note) {
-      console.log(`${note && `[${note}] `}update:columns`, newColumns);
+    emitUpdate(newColumns) {
       const cleanColumns = clearEmpties(newColumns);
-      this.$emit('update:columns', cleanColumns);
+      this.$emit('update:columns', cleanColumns || []);
     },
     // 呼叫更新欄位群
     invokeUpdateColumns(newColumns) {
-      this.emitUpdate(newColumns, 'invokeUpdateColumns');
+      console.log('invokeUpdateColumns', newColumns);
+      this.emitUpdate(newColumns);
     },
     // 呼叫新增欄位
     invokeAdd() {
-      const emptyColumn = { id: nanoid(6) };
+      const id = nanoid(6);
+      console.log(`invokeAdd:[${id}]`);
+
+      const emptyColumn = { id };
       const newColumns = this.columns.concat(emptyColumn);
-      this.emitUpdate(newColumns, 'invokeAdd');
+      this.emitUpdate(newColumns);
     },
     // 呼叫更新欄位
-    invokeUpdate(id, newColumn) {
-      const newColumns = arrUpdateItemByKey(this.columns, 'id', id, newColumn);
-      this.emitUpdate(newColumns, 'invokeUpdate');
+    invokeUpdate(id, updateProps) {
+      console.log(`invokeUpdate:[${id}]`, updateProps);
+
+      const newColumns = arrUpdateItemByKey(this.columns, 'id', id, updateProps);
+      this.emitUpdate(newColumns);
     },
     // 呼叫刪除欄位
     invokeRemove(id) {
       // 確認刪除函式
       const allowFunc = () => {
+        console.log(`invokeRemove:[${id}]`);
+
         const newColumns = arrRemoveValueByKey(this.columns, 'id', id);
-        this.emitUpdate(newColumns, 'invokeRemove');
+        this.emitUpdate(newColumns);
       };
 
       const idx = this.columns.findIndex((c) => c.id === id);

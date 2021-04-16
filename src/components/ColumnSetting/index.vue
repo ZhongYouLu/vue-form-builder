@@ -82,7 +82,7 @@ export default /*#__PURE__*/ {
     // 欄位 - 條件設定
     condition: { type: Object, default: () => ({}) },
   },
-  emits: ['update'],
+  emits: ['update:column'],
   data() {
     return {
       currentTab: 'base',
@@ -165,7 +165,7 @@ export default /*#__PURE__*/ {
         c.condition?.display?.map((d) => {
           if (d.triggerID === this.id) {
             d.values = [];
-            // d.meet = null;
+            // d.state = null;
           }
         });
       });
@@ -189,10 +189,10 @@ export default /*#__PURE__*/ {
     },
   },
   methods: {
-    updateColumn(tab, val) {
-      // console.log(`updateColumn[${tab}]`, val);
-      this.column[tab] = val;
-      this.$emit('update', this.column.id, this.column);
+    updateColumn(tab, newTab) {
+      // console.log(`updateColumn[${tab}]`, newTab);
+      this.column[tab] = newTab;
+      this.$emit('update:column', this.column);
     },
     updateColumnTab(tab, targetKey, targetVal) {
       // console.log(`updateColumnTab[${tab}][${targetKey}]`, targetVal);

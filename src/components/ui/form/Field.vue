@@ -80,7 +80,7 @@ export default /*#__PURE__*/ {
         return this.value;
       },
       set(value) {
-        console.log('mutableValue', value);
+        // console.log('mutableValue', value);
         this.$emit('update:value', value);
       },
     },
@@ -129,10 +129,6 @@ export default /*#__PURE__*/ {
     //   immediate: true,
     // },
   },
-  created() {
-    console.log('Field', this.id, this.name != this.id && this.name);
-  },
-
   methods: {
     checkRule(name, value) {
       // 檢查 - 必填

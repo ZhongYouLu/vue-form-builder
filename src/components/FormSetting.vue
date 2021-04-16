@@ -1,7 +1,7 @@
 <template>
   <div class="form-setting">
     <Draggable :value="columns" @input="invokeUpdateColumns">
-      <Block v-for="(column, idx) in columns" :key="column.id" radius shadow>
+      <Block v-for="({ id, name, ...column }, idx) in columns" :key="id" radius shadow>
         <Card>
           <!-- Card Header -->
           <template #cardHeader>
@@ -9,28 +9,28 @@
               name="cardHeader"
               :idx="idx"
               :column="column"
-              :isOpen="collect[column.id].isOpen"
-              :toggleIsOpen="toggleIsOpen.bind(null, column.id)"
-              :isEditName="collect[column.id].isEditName"
-              :toggleIsEditName="toggleIsEditName.bind(null, column.id)"
+              :isOpen="collect[id].isOpen"
+              :toggleIsOpen="toggleIsOpen.bind(null, id)"
+              :isEditName="collect[id].isEditName"
+              :toggleIsEditName="toggleIsEditName.bind(null, id)"
             >
               <div class="drag">
                 <Icon icon="mdi:drag" />
                 <span>#{{ idx + 1 }}</span>
               </div>
               <div class="card__name">
-                <template v-if="collect[column.id].isEditName">
-                  <Field :value.sync="column.name" :placeholder="column.id" />
+                <template v-if="collect[id].isEditName">
+                  <Field :value="name" :placeholder="id" @update:value="updateColumn(id, { name: $event })" />
                 </template>
                 <template v-else>
-                  <div class="text-ellipsis">{{ column.name || `(${column.id})` }}</div>
+                  <div class="text-ellipsis">{{ name || `(${id})` }}</div>
                 </template>
                 <Button
                   type="flat"
                   shape="circle"
                   color="#fff"
-                  :icon="collect[column.id].isEditName ? 'ic:baseline-done-outline' : 'mi:edit-alt'"
-                  @click="toggleIsEditName(column.id)"
+                  :icon="collect[id].isEditName ? 'ic:baseline-done-outline' : 'mi:edit-alt'"
+                  @click="toggleIsEditName(id)"
                 />
               </div>
               <div class="card__controll">
@@ -38,16 +38,10 @@
                   type="flat"
                   shape="circle"
                   color="#fff"
-                  :icon="collect[column.id].isOpen ? 'mdi:eye-minus' : 'mdi:eye-settings'"
-                  @click="toggleIsOpen(column.id)"
+                  :icon="collect[id].isOpen ? 'mdi:eye-minus' : 'mdi:eye-settings'"
+                  @click="toggleIsOpen(id)"
                 />
-                <Button
-                  type="flat"
-                  shape="circle"
-                  color="#fff"
-                  icon="mdi:close-thick"
-                  @click="invokeRemove(column.id)"
-                />
+                <Button type="flat" shape="circle" color="#fff" icon="mdi:close-thick" @click="invokeRemove(id)" />
               </div>
             </slot>
           </template>
@@ -56,11 +50,13 @@
           <template #cardMain>
             <slot name="cardMain">
               <ColumnSetting
-                v-show="collect[column.id].isOpen"
+                v-show="collect[id].isOpen"
+                :id="id"
+                :name="name"
+                v-bind="column"
                 :idx="idx"
                 :columns="columns"
-                v-bind="column"
-                @update="invokeUpdate"
+                @update:column="updateColumn(id, $event)"
               >
                 <template v-for="(_, slot) in $scopedSlots" #[slot]="props">
                   <slot :name="slot" v-bind="props" />
@@ -99,6 +95,9 @@ export default /*#__PURE__*/ {
     invokeRemove: { type: Function, required: true },
   },
   methods: {
+    updateColumn(id, updateProps) {
+      this.invokeUpdate(id, updateProps);
+    },
     toggleIsOpen(columnId) {
       this.toggleCollect(columnId, 'isOpen');
     },
