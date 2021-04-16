@@ -16,7 +16,7 @@
     <template v-if="$props.srcMode === 'list'">
       <Block v-show="$props.options.length">
         <Draggable :value="$props.options" @input="update('options', $event)">
-          <div v-for="(option, idx) in $props.options" :key="option.id" class="x-input-group">
+          <div v-for="(option, idx) in $props.options" :key="option.id" class="x-form-item">
             <div class="drag"><Icon icon="mdi:drag" />{{ idx + 1 }}</div>
             <Field
               :value="option.text"
