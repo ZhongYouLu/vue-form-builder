@@ -14,11 +14,11 @@
     />-->
 
     <ConditionDisplay
+      :level="0"
       :children.sync="matubleDisplay"
       :columns-exclude-self="columnsExcludeSelf"
       :columns-obj-by-key="columnsObjByKey"
       :type-icons="typeIcons"
-      root
       @remove="removeDisplay"
     >
     </ConditionDisplay>
@@ -106,7 +106,7 @@ export default /*#__PURE__*/ {
       };
 
       // const idx = this.$props.display.findIndex((d) => d.id === id);
-      const showMsg = `確定刪22除顯示條件 #${id}?`;
+      const showMsg = `確定刪除顯示條件 #${id}?`;
 
       if (this.handleConfirm) {
         this.handleConfirm(showMsg, allowFunc);

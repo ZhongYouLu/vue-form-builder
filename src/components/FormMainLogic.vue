@@ -120,7 +120,7 @@ export default /*#__PURE__*/ {
           // 如果有條件
           if (c.condition) {
             // 顯示
-            c.condition.display = arrRemoveValuesByKey(c.condition.display, 'triggerId', deductIds);
+            c.condition.display = this.removeTriggerId(c.condition.display, deductIds);
           }
         });
       }
@@ -185,6 +185,21 @@ export default /*#__PURE__*/ {
     setCollect(columnId, key, val) {
       this.checkCollect(columnId, key);
       this.collect[columnId][key] = val;
+    },
+    removeTriggerId(arr, deductIds) {
+      if (!Array.isArray(arr)) return arr;
+      arr.map((d) => {
+        if (deductIds.includes(d.triggerId)) {
+          d.triggerId = null;
+          d.value = null;
+        }
+        if (d.children && d.children.length) {
+          d.children = this.removeTriggerId(d.children, deductIds);
+        }
+        return d;
+      });
+
+      return arr;
     },
   },
 };

@@ -12,7 +12,6 @@
       text-key="name"
       icon-key="type"
       multiple
-      searchable
       @update:value="$emit('update', 'requiredSync', $event)"
     />
     <FormItem
@@ -26,7 +25,6 @@
       text-key="name"
       icon-key="type"
       multiple
-      searchable
       no-drop
       disabled
     />
@@ -132,7 +130,6 @@ export default /*#__PURE__*/ {
             textKey: 'name',
             iconKey: 'type',
             clearable: true,
-            searchable: true,
           },
           msg: `[${name}] 與 [${sameAsName}] 不相符`,
         },
@@ -150,7 +147,6 @@ export default /*#__PURE__*/ {
               placeholder: '請選擇',
               options: this.localRegexOptions,
               clearable: true,
-              searchable: true,
               taggable: true,
               pushTags: true,
               createOption: (option) => ({ value: option, text: option }),
