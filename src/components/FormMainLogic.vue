@@ -120,7 +120,7 @@ export default /*#__PURE__*/ {
           // 如果有條件
           if (c.condition) {
             // 顯示
-            c.condition.display = arrRemoveValuesByKey(c.condition.display, 'triggerID', deductIds);
+            c.condition.display = arrRemoveValuesByKey(c.condition.display, 'triggerId', deductIds);
           }
         });
       }

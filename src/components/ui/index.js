@@ -6,4 +6,4 @@ export { default as Field } from './form/Field.vue';
 export { default as IconRow } from './IconRow.vue';
 export { default as Card } from './Card.vue';
 export { default as Block } from './Block.vue';
-export { default as Draggable } from './CustomDraggable.vue';
+export { default as Draggable } from './Draggable/CustomDraggable.vue';

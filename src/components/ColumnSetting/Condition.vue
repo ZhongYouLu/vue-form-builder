@@ -1,6 +1,6 @@
 <template>
   <!-- 條件設定 -->
-  <fieldset>
+  <Block tag="fieldset">
     <!-- <ConditionDisplay
       v-for="(d, idx) in $props.display"
       :key="d.id"
@@ -11,31 +11,29 @@
       :type-icons="typeIcons"
       @update="updateDisplay(d.id, ...arguments)"
       @remove="removeDisplay(d.id)"
-    />
-    <Button icon="mdi:plus" block @click="addDisplay" /> -->
+    />-->
 
-    <ul>
-      <ConditionDisplay
-        :item="display"
-        :columns-exclude-self="columnsExcludeSelf"
-        :columns-obj-by-key="columnsObjByKey"
-        :type-icons="typeIcons"
-        @make-folder="makeFolder"
-        @add-item="addItem"
-      ></ConditionDisplay>
-    </ul>
-  </fieldset>
+    <ConditionDisplay
+      :children.sync="matubleDisplay"
+      :columns-exclude-self="columnsExcludeSelf"
+      :columns-obj-by-key="columnsObjByKey"
+      :type-icons="typeIcons"
+      root
+      @remove="removeDisplay"
+    >
+    </ConditionDisplay>
+  </Block>
 </template>
 <script>
-import Button from '@/components/ui/Button';
+import Block from '@/components/ui/Block';
 import ConditionDisplay from '@/components/ColumnSetting/ConditionDisplay';
-import { nanoid } from '@/assets/js/helper.js';
+import { nanoid, arrRemoveValueByKey } from '@/assets/js/helper.js';
 import { typeIcons } from '@/assets/js/options.js';
 
 export default /*#__PURE__*/ {
   name: 'ColumnSettingCondition',
   components: {
-    Button,
+    Block,
     ConditionDisplay,
   },
   inject: ['handleConfirm'],
@@ -56,29 +54,8 @@ export default /*#__PURE__*/ {
     requiredSync: { type: Array, default: () => [] },
     // 顯示條件
     display: {
-      type: Object,
-      default: () => ({
-        name: 'My Tree',
-        children: [
-          { name: 'hello' },
-          { name: 'wat' },
-          {
-            name: 'child folder',
-            children: [
-              {
-                name: 'child folder',
-                children: [{ name: 'hello' }, { name: 'wat' }],
-              },
-              { name: 'hello' },
-              { name: 'wat' },
-              {
-                name: 'child folder',
-                children: [{ name: 'hello' }, { name: 'wat' }],
-              },
-            ],
-          },
-        ],
-      }),
+      type: Array,
+      default: () => [],
     },
   },
   emits: ['update', 'updateObj', 'updateArr', 'addArr', 'removeArr'],
@@ -95,21 +72,28 @@ export default /*#__PURE__*/ {
 
       return requiredCheck;
     },
+    matubleDisplay: {
+      get() {
+        return this.display;
+      },
+      set(val) {
+        this.$emit('update', 'display', val);
+      },
+    },
     typeIcons() {
       return typeIcons;
     },
   },
+  watch: {
+    display: {
+      handler: function (val) {
+        this.$emit('update', 'display', val);
+      },
+      deep: true,
+      immediate: true,
+    },
+  },
   methods: {
-    makeFolder: function (item) {
-      this.$set(item, 'children', []);
-      this.addItem(item);
-    },
-    addItem: function (item) {
-      item.children.push({
-        name: 'new stuff',
-      });
-    },
-
     addDisplay() {
       this.$emit('addArr', 'display', { id: nanoid(6) });
     },
@@ -121,8 +105,8 @@ export default /*#__PURE__*/ {
         this.$emit('removeArr', 'display', id);
       };
 
-      const idx = this.$props.display.findIndex((d) => d.id === id);
-      const showMsg = `確定刪除顯示條件 #${idx + 1}?`;
+      // const idx = this.$props.display.findIndex((d) => d.id === id);
+      const showMsg = `確定刪22除顯示條件 #${id}?`;
 
       if (this.handleConfirm) {
         this.handleConfirm(showMsg, allowFunc);
@@ -134,16 +118,11 @@ export default /*#__PURE__*/ {
 };
 </script>
 
-<style>
+<style lang="scss">
 .item {
   cursor: pointer;
 }
 .bold {
   font-weight: bold;
-}
-ul {
-  padding-left: 1em;
-  line-height: 1.5em;
-  list-style-type: dot;
 }
 </style>

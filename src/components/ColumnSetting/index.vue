@@ -163,8 +163,8 @@ export default /*#__PURE__*/ {
 
       this.columnsExcludeSelf.map((c) => {
         c.condition?.display?.map((d) => {
-          if (d.triggerID === this.id) {
-            d.values = [];
+          if (d.triggerId === this.id) {
+            d.value = [];
             // d.state = null;
           }
         });
@@ -180,7 +180,7 @@ export default /*#__PURE__*/ {
 
         this.columnsExcludeSelf.map((c) => {
           c.condition?.display?.map((d) => {
-            if (d.triggerID === this.id) {
+            if (d.triggerId === this.id) {
               d.values = arrRemoveValue(d.values, diff.id);
             }
           });
@@ -265,7 +265,7 @@ export default /*#__PURE__*/ {
 
 .column-setting {
   fieldset {
-    padding: $gap-lg;
+    padding: var(--hGap);
   }
 }
 </style>

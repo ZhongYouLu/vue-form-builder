@@ -1,6 +1,6 @@
 <template>
   <!-- 規則設定 -->
-  <fieldset>
+  <Block tag="fieldset">
     <!-- <legend>規則設定</legend> -->
     <FormItem
       :id="`[${id}]-requiredSync`"
@@ -55,10 +55,11 @@
         @update:value="$emit('updateObj', 'msg', k, $event)"
       />
     </div>
-  </fieldset>
+  </Block>
 </template>
 
 <script>
+import Block from '@/components/ui/Block';
 import FormItem from '@/components/ui/form/FormItem';
 import Button from '@/components/ui/Button';
 import { typeIcons, regexOptions } from '@/assets/js/options.js';
@@ -66,6 +67,7 @@ import { typeIcons, regexOptions } from '@/assets/js/options.js';
 export default /*#__PURE__*/ {
   name: 'ColumnSettingRule',
   components: {
+    Block,
     FormItem,
     Button,
   },

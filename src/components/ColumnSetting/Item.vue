@@ -1,6 +1,6 @@
 <template>
   <!-- 項目設定 -->
-  <fieldset>
+  <Block tag="fieldset">
     <!-- <legend>項目設定</legend> -->
     <FormItem
       :id="`[${id}]-src-mode`"
@@ -52,7 +52,7 @@
         @update:value="updateApi('valueKey', $event)"
       />
     </template>
-  </fieldset>
+  </Block>
 </template>
 
 <script>

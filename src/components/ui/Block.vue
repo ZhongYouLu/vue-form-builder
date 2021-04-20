@@ -1,22 +1,25 @@
 /* eslint-disable vue/no-mutating-props */
 <template>
-  <div class="x-block" :class="classes">
+  <component :is="tag" class="x-block" :class="classes">
     <slot />
-  </div>
+  </component>
 </template>
 
 <script>
 export default /*#__PURE__*/ {
   name: 'Block',
   props: {
-    shadow: { type: Boolean, required: false },
-    radius: { type: Boolean, required: false },
+    tag: { type: String, default: 'div' },
+    shadow: { type: Boolean, default: null },
+    radius: { type: Boolean, default: null },
+    border: { type: Boolean, default: null },
   },
   computed: {
     classes() {
       return {
-        'block--radius': this.radius,
-        'block--shadow': this.shadow,
+        'x-block--radius': this.radius,
+        'x-block--shadow': this.shadow,
+        'x-block--border': this.border,
       };
     },
   },
@@ -28,10 +31,10 @@ export default /*#__PURE__*/ {
 
 .x-block {
   overflow: hidden;
-  margin-bottom: $gap-lg;
+  margin-bottom: var(--hGap);
 
   &--radius {
-    border-radius: $border-radius;
+    border-radius: var(--borderRadius);
   }
 
   &--shadow {
@@ -42,5 +45,15 @@ export default /*#__PURE__*/ {
       box-shadow: $shadow-56;
     }
   }
+
+  &--border {
+    border: var(--borderWidth) solid var(--borderColor);
+  }
+}
+
+fieldset.x-block {
+  margin: 0;
+  padding: 0;
+  // border: none;
 }
 </style>

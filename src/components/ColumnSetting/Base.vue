@@ -1,6 +1,6 @@
 <template>
   <!-- 基本設定 -->
-  <fieldset>
+  <Block tag="fieldset">
     <!-- <legend>基本設定</legend> -->
     <FormItem
       v-for="(v, k) in fields"
@@ -14,16 +14,18 @@
         <slot :name="slot" v-bind="props" />
       </template>
     </FormItem>
-  </fieldset>
+  </Block>
 </template>
 
 <script>
+import Block from '@/components/ui/Block';
 import FormItem from '@/components/ui/form/FormItem';
 import { subTypeOptions } from '@/assets/js/options.js';
 
 export default /*#__PURE__*/ {
   name: 'ColumnSettingBase',
   components: {
+    Block,
     FormItem,
   },
   inheritAttrs: false,
