@@ -2,6 +2,7 @@
   <Draggable
     v-model="localValue"
     :tag="tag"
+    :group="group"
     :handle="`.${handleClass}`"
     :animation="animation"
     :ghost-class="ghostClass"
@@ -22,6 +23,7 @@ export default /*#__PURE__*/ {
     value: { type: Array, required: true },
     handleClass: { type: String, default: 'drag' },
     tag: { type: String, default: 'div' },
+    group: { type: Object, default: null },
     animation: { type: Number, default: 200 },
     ghostClass: { type: String, default: 'ghost' },
   },

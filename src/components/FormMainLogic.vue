@@ -193,8 +193,8 @@ export default /*#__PURE__*/ {
           d.triggerId = null;
           d.value = null;
         }
-        if (d.children && d.children.length) {
-          d.children = this.removeTriggerId(d.children, deductIds);
+        if (d.list && d.list.length) {
+          d.list = this.removeTriggerId(d.list, deductIds);
         }
         return d;
       });

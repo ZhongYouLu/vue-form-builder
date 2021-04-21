@@ -74,12 +74,13 @@ export default /*#__PURE__*/ {
   inject: ['handleConfirm'],
   inheritAttrs: false,
   props: {
+    // 識別碼
+    id: { type: String, required: true },
     // 排除自己的所有欄位群
     columnsExcludeSelf: { type: Array, required: true },
     // 所有欄位群 (obj by key)
     columnsObjByKey: { type: Object, required: true },
     //-----------
-    id: { type: String, required: true },
     // 資料來源模式
     srcMode: { validator: (value) => ['list', 'api'].includes(value), default: 'list' },
     // 顯示模式

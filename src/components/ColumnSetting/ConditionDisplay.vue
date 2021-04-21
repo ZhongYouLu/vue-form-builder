@@ -4,163 +4,124 @@
       <Icon icon="mdi:drag" />
       <span>{{ logicText }}</span>
     </div>
-    <component :is="root ? 'ul' : 'li'" :class="[root && 'folders', leaf ? 'is-leaf' : 'is-folder']" style="flex: 1">
-      <!-- Root -->
-      <template v-if="root">
-        <Draggable v-model="mutableChildren">
-          <ConditionDisplay
-            v-for="(child, _idx) in mutableChildren"
-            v-bind="$attrs"
-            :id="child.id"
-            :key="child.id"
-            :logic.sync="child.logic"
-            :state.sync="child.state"
-            :trigger-id.sync="child.triggerId"
-            :value.sync="child.value"
-            :children.sync="child.children"
-            :idx="_idx"
-            :level="level + 1"
-            :root-logic="rootLogic"
-            :type-icons="typeIcons"
-            :columns-obj-by-key="columnsObjByKey"
-            :columns-exclude-self="columnsExcludeSelf"
-            @remove="$emit('remove', child.id)"
-          >
-            <template v-for="(_, slot) in $scopedSlots" #[slot]="props">
-              <slot :name="slot" v-bind="props" />
-            </template>
-          </ConditionDisplay>
-        </Draggable>
-      </template>
-      <!-- Item -->
-      <template v-else>
-        <Block>
-          <div class="trigger-controll">
-            <Field
-              v-if="hasChildren"
-              :value="logic"
-              type="select"
-              placeholder="邏輯"
-              :options="logicOptions"
-              :searchable="false"
-              @update:value="$emit('update:logic', $event)"
-            />
-            <Field
-              :id="id"
-              :value="triggerId"
-              style="flex: 2"
-              type="select"
-              placeholder="監聽欄位"
-              :options="columnsExcludeSelf"
-              :icons="typeIcons"
-              text-key="name"
-              icon-key="type"
-              clearable
-              @update:value="$emit('update:trigger-id', $event)"
-            />
-            <Field
-              v-if="triggerId"
-              :value="state"
-              type="select"
-              :searchable="false"
-              :options="stateOptions"
-              @update:value="$emit('update:state', $event)"
-            />
-            <Button :icon="leaf ? 'mdi:toggle-switch-off' : 'mdi:toggle-switch'" type="flat" @click="toggleGroups" />
-            <Button icon="mdi:close-thick" type="flat" shape="circle" @click="$emit('remove', id)" />
-          </div>
-          <div v-if="triggerColumn" class="trigger-setting">
-            <template v-if="allowInputValues">
-              <template v-if="typeConstraint.needOptions">
-                <Field
-                  :value="value"
-                  required
-                  placeholder="請選擇條件 (可多選)"
-                  type="select"
-                  multiple
-                  :options="triggerColumn.item.options"
-                  :fuse-keys="['text']"
-                  @update:value="$emit('update:value', $event)"
-                />
-              </template>
-              <template v-else-if="typeConstraint.isNumber">
-                <Field
-                  :value="value"
-                  type="select"
-                  required
-                  multiple
-                  taggable
-                  placeholder="請輸入條件，按下 Enter 確認。 (可輸入多筆)"
-                  no-drop
-                  :close-on-select="false"
-                  :reduce="(option) => option"
-                  :create-option="(option) => ({ id: Number(option), text: thousandSeparatorFunc(option) })"
-                  @update:value="$emit('update:value', $event)"
-                />
-              </template>
-              <template v-else>
-                <Field
-                  :value="value"
-                  type="select"
-                  required
-                  multiple
-                  taggable
-                  placeholder="請輸入條件，按下 Enter 確認。 (可輸入多筆)"
-                  no-drop
-                  :close-on-select="false"
-                  :reduce="(option) => option"
-                  :get-option-label="(option) => option"
-                  :create-option="(option) => option"
-                  @update:value="$emit('update:value', $event)"
-                />
-              </template>
-            </template>
-            <template v-else-if="allowInputValue">
+    <component :is="root ? 'div' : 'li'" :class="leaf ? 'is-leaf' : 'is-folder'" style="flex: 1">
+      <Block v-if="!root">
+        <div class="trigger-controll">
+          <Field
+            v-if="hasList"
+            :value="logic"
+            type="select"
+            placeholder="邏輯"
+            :options="logicOptions"
+            :searchable="false"
+            @update:value="$emit('update:logic', $event)"
+          />
+          <Field
+            :id="id"
+            :value="triggerId"
+            style="flex: 2"
+            type="select"
+            placeholder="監聽欄位"
+            :options="columnsExcludeSelf"
+            :icons="typeIcons"
+            text-key="name"
+            icon-key="type"
+            clearable
+            @update:value="$emit('update:trigger-id', $event)"
+          />
+          <Field
+            v-if="triggerId"
+            :value="state"
+            type="select"
+            :searchable="false"
+            :options="stateOptions"
+            @update:value="$emit('update:state', $event)"
+          />
+          <Button :icon="leaf ? 'mdi:toggle-switch-off' : 'mdi:toggle-switch'" type="flat" @click="toggleGroups" />
+          <Button icon="mdi:close-thick" type="flat" shape="circle" @click="$emit('remove', id)" />
+        </div>
+        <div v-if="triggerColumn" class="trigger-setting">
+          <template v-if="allowInputValues">
+            <template v-if="typeConstraint.needOptions">
               <Field
-                v-if="typeConstraint.isText"
                 :value="value"
                 required
-                @update:value="$emit('update:value', $event)"
-              />
-              <Field
-                v-else-if="typeConstraint.isNumber"
-                :value="value"
-                required
-                type="number"
+                placeholder="請選擇條件 (可多選)"
+                type="select"
+                multiple
+                :options="triggerColumn.item.options"
+                :fuse-keys="['text']"
                 @update:value="$emit('update:value', $event)"
               />
             </template>
-          </div>
-        </Block>
-        <!-- Children -->
-        <ul v-if="hasChildren" class="sub-folders">
-          <Draggable v-model="mutableChildren">
-            <ConditionDisplay
-              v-for="(child, _idx) in mutableChildren"
-              v-bind="$attrs"
-              :id="child.id"
-              :key="child.id"
-              :logic.sync="child.logic"
-              :state.sync="child.state"
-              :trigger-id.sync="child.triggerId"
-              :value.sync="child.value"
-              :children.sync="child.children"
-              :idx="_idx"
-              :level="level + 1"
-              :root-logic="logic"
-              :type-icons="typeIcons"
-              :columns-obj-by-key="columnsObjByKey"
-              :columns-exclude-self="columnsExcludeSelf"
-              @remove="removeItem"
-            >
-              <template v-for="(_, slot) in $scopedSlots" #[slot]="props">
-                <slot :name="slot" v-bind="props" />
-              </template>
-            </ConditionDisplay>
-          </Draggable>
-        </ul>
-      </template>
-      <Button v-if="root || children" icon="mdi:plus" block type="dashed" @click="addItem" />
+            <template v-else-if="typeConstraint.isNumber">
+              <Field
+                :value="value"
+                type="select"
+                required
+                multiple
+                taggable
+                placeholder="請輸入條件，按下 Enter 確認。 (可輸入多筆)"
+                no-drop
+                :close-on-select="false"
+                :reduce="(option) => option"
+                :create-option="(option) => ({ id: Number(option), text: thousandSeparatorFunc(option) })"
+                @update:value="$emit('update:value', $event)"
+              />
+            </template>
+            <template v-else>
+              <Field
+                :value="value"
+                type="select"
+                required
+                multiple
+                taggable
+                placeholder="請輸入條件，按下 Enter 確認。 (可輸入多筆)"
+                no-drop
+                :close-on-select="false"
+                :reduce="(option) => option"
+                :get-option-label="(option) => option"
+                :create-option="(option) => option"
+                @update:value="$emit('update:value', $event)"
+              />
+            </template>
+          </template>
+          <template v-else-if="allowInputValue">
+            <Field v-if="typeConstraint.isText" :value="value" required @update:value="$emit('update:value', $event)" />
+            <Field
+              v-else-if="typeConstraint.isNumber"
+              :value="value"
+              required
+              type="number"
+              @update:value="$emit('update:value', $event)"
+            />
+          </template>
+        </div>
+      </Block>
+      <Draggable v-model="mutableList" tag="ul" :group="{ name: 'g1' }" :class="root ? 'folders' : 'sub-folders'">
+        <ColumnSettingConditionDisplay
+          v-for="(child, _idx) in mutableList"
+          v-bind="$attrs"
+          :id="child.id"
+          :key="child.id"
+          :logic.sync="child.logic"
+          :state.sync="child.state"
+          :trigger-id.sync="child.triggerId"
+          :value.sync="child.value"
+          :list.sync="child.list"
+          :idx="_idx"
+          :level="level + 1"
+          :root-logic="root ? rootLogic : logic"
+          :columns-obj-by-key="columnsObjByKey"
+          :columns-exclude-self="columnsExcludeSelf"
+          @remove="removeItem"
+        >
+          <template v-for="(_, slot) in $scopedSlots" #[slot]="props">
+            <slot :name="slot" v-bind="props" />
+          </template>
+        </ColumnSettingConditionDisplay>
+      </Draggable>
+      <Button v-if="root || list" icon="mdi:plus" block type="dashed" @click="addItem" />
     </component>
   </div>
 </template>
@@ -171,15 +132,13 @@ import Draggable from '@/components/ui/Draggable/CustomDraggable';
 import Field from '@/components/ui/form/Field';
 import Icon from '@/components/ui/Icon';
 import Button from '@/components/ui/Button';
-import { nanoid, arrRemoveValueByKey, arrUpdateItemByKey } from '@/assets/js/helper.js';
-
-import { thousandSeparator } from '@/assets/js/helper.js';
-import { getTypeConstraint } from '@/assets/js/options.js';
+import { nanoid, arrRemoveValueByKey, thousandSeparator } from '@/assets/js/helper.js';
+import { getTypeConstraint, typeIcons } from '@/assets/js/options.js';
 
 export default /*#__PURE__*/ {
   name: 'ColumnSettingConditionDisplay',
   components: {
-    ConditionDisplay: () => import('@/components/ColumnSetting/ConditionDisplay'),
+    // ConditionDisplay: () => import('@/components/ColumnSetting/ConditionDisplay'),
     Block,
     Draggable,
     Field,
@@ -190,7 +149,6 @@ export default /*#__PURE__*/ {
   props: {
     columnsExcludeSelf: { type: Array, required: true },
     columnsObjByKey: { type: Object, required: true },
-    typeIcons: { type: Object, required: true },
     //-----------
     id: { type: String, default: null },
     idx: { type: Number, default: null },
@@ -198,7 +156,7 @@ export default /*#__PURE__*/ {
     state: { type: String, default: null },
     value: { type: [String, Number, Array], default: null },
     logic: { validator: (value) => ['and', 'or'].includes(value), default: 'and' },
-    children: { type: Array, default: null },
+    list: { type: Array, default: null },
     // ------------------------
     level: { type: Number, default: 0 },
     rootLogic: { validator: (value) => ['and', 'or'].includes(value), default: 'and' },
@@ -213,19 +171,19 @@ export default /*#__PURE__*/ {
     root() {
       return this.level === 0;
     },
-    mutableChildren: {
+    mutableList: {
       get() {
-        return this.children || [];
+        return this.list || [];
       },
       set(val) {
-        this.$emit('update:children', val);
+        this.$emit('update:list', val);
       },
     },
     leaf() {
-      return !this.children;
+      return !this.list;
     },
-    hasChildren() {
-      return !this.leaf && !!this.children.length;
+    hasList() {
+      return !this.leaf && !!this.list.length;
     },
     triggerColumn() {
       return this.triggerId ? this.columnsObjByKey[this.triggerId] : null;
@@ -236,7 +194,9 @@ export default /*#__PURE__*/ {
       const trigger = this.triggerColumn;
       return getTypeConstraint(trigger.type, trigger.subType, trigger.base?.multiple);
     },
-
+    typeIcons() {
+      return typeIcons;
+    },
     logicOptions() {
       let options = [
         { id: 'and', text: 'And' },
@@ -326,7 +286,7 @@ export default /*#__PURE__*/ {
     },
     toggleGroups: function () {
       const allowFunc = () => {
-        this.mutableChildren = this.leaf ? [] : null;
+        this.mutableList = this.leaf ? [] : null;
       };
       const showMsg = `確定${this.leaf ? '轉為' : '取消'}群組?`;
 
@@ -337,16 +297,11 @@ export default /*#__PURE__*/ {
       }
     },
     addItem() {
-      this.mutableChildren.push({ id: nanoid(6) });
-    },
-    updateItem(id, newObj) {
-      newObj = arrUpdateItemByKey(this.mutableChildren, 'id', id, newObj);
-      console.log(id, this.mutableChildren, newObj);
-      this.mutableChildren = newObj;
+      this.mutableList.push({ id: nanoid(6) });
     },
     removeItem(id) {
       const allowFunc = () => {
-        this.mutableChildren = arrRemoveValueByKey(this.mutableChildren, 'id', id);
+        this.mutableList = arrRemoveValueByKey(this.mutableList, 'id', id);
       };
       const showMsg = `確定刪除顯示條件 #${id}?`;
 
