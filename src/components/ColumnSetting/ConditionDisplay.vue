@@ -303,7 +303,7 @@ export default /*#__PURE__*/ {
       const allowFunc = () => {
         this.mutableList = arrRemoveValueByKey(this.mutableList, 'id', id);
       };
-      const showMsg = `確定刪除顯示條件 #${id}?`;
+      const showMsg = `確定刪除顯示條件?`;
 
       if (this.handleConfirm) {
         this.handleConfirm(showMsg, allowFunc);

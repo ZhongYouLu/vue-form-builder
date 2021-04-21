@@ -47,6 +47,15 @@ export default /*#__PURE__*/ {
       },
     },
   },
+  watch: {
+    display: {
+      handler: function (val) {
+        this.$emit('update', 'display', val);
+      },
+      deep: true,
+      immediate: true,
+    },
+  },
 };
 </script>
 
