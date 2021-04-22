@@ -15,7 +15,6 @@
       @update:value="$emit('update', 'requiredSync', $event)"
     />
     <FormItem
-      v-if="requiredCheck.length"
       :id="`[${id}]-requiredCheck`"
       :value="requiredCheck"
       desc="被連動必填"
@@ -25,8 +24,8 @@
       text-key="name"
       icon-key="type"
       multiple
-      no-drop
-      disabled
+      @handle:selecting="handleRequiredCheck(1, $event)"
+      @handle:deselecting="handleRequiredCheck(0, $event)"
     />
     <hr class="dashed" />
     <div v-for="(v, k) in fields" :key="k" class="input-group">
@@ -60,8 +59,8 @@
 import Block from '@/components/ui/Block';
 import FormItem from '@/components/ui/form/FormItem';
 import Button from '@/components/ui/Button';
+import { arrRemoveValue } from '@/assets/js/helper.js';
 import { typeIcons, regexOptions } from '@/assets/js/options.js';
-
 export default /*#__PURE__*/ {
   name: 'ColumnSettingRule',
   components: {
@@ -186,7 +185,6 @@ export default /*#__PURE__*/ {
     // 自身必填檢查 (來自其他元素的 requiredSync)
     requiredCheck() {
       const requiredCheck = [];
-
       this.columnsExcludeSelf.forEach((c) => {
         if (c.rule?.requiredSync?.includes(this.id)) {
           requiredCheck.push(c.id);
@@ -197,6 +195,10 @@ export default /*#__PURE__*/ {
     },
   },
   created() {
+    this.$emit('init', {
+      requiredSync: this.requiredSync,
+    });
+
     this.setCollect(this.id, 'toggleMsg', {});
 
     if (this.regex && this.localRegexOptions.findIndex((option) => option.value === this.regex) === -1) {
@@ -216,6 +218,16 @@ export default /*#__PURE__*/ {
         ...this.toggleMsg,
         [k]: v !== undefined ? v : !this.toggleMsg[k],
       });
+    },
+    handleRequiredCheck(isAdd, { id }) {
+      const target = this.columnsObjByKey[id];
+      const requiredSync = target.rule?.requiredSync || [];
+
+      if (isAdd) {
+        target.rule.requiredSync = [...requiredSync, this.id];
+      } else {
+        target.rule.requiredSync = arrRemoveValue(requiredSync, this.id);
+      }
     },
   },
 };

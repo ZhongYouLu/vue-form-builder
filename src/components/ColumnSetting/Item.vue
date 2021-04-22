@@ -106,6 +106,12 @@ export default /*#__PURE__*/ {
       });
     },
   },
+  created() {
+    this.$emit('init', {
+      srcMode: this.srcMode,
+      options: this.options,
+    });
+  },
   methods: {
     update(key, val) {
       this.$emit('update', key, val);

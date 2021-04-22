@@ -20,11 +20,36 @@
       </template>
     </nav>
     <!-- Settings -->
-    <keep-alive>
+    <template v-for="tab in Object.keys(tabs)">
+      <component
+        :is="`setting-${tab}`"
+        v-if="tabs[tab].show"
+        v-show="tab === currentTab"
+        :id="id"
+        :key="`${id}-${tab}`"
+        :name="column.name"
+        :type-constraint="typeConstraint"
+        :columns-exclude-self="columnsExcludeSelf"
+        :columns-obj-by-key="columnsObjByKey"
+        v-bind="column[tab]"
+        @init="updateColumn(tab, $event)"
+        @update="updateColumnTab(tab, ...arguments)"
+        @updateObj="updateColumnTabObj(tab, ...arguments)"
+        @addArr="addColumnTabArr(tab, ...arguments)"
+        @updateArr="updateColumnTabArr(tab, ...arguments)"
+        @removeArr="removeColumnTabArr(tab, ...arguments)"
+      >
+        <template v-for="(_, slot) in $scopedSlots" #[slot]="props">
+          <slot :name="slot" v-bind="props" />
+        </template>
+      </component>
+    </template>
+    <!-- <keep-alive>
       <component
         :is="currentCmp.component"
         v-bind="currentCmp.props"
         v-show="tabs[currentTab].show"
+        @init="updateColumn(currentTab, $event)"
         @update="updateColumnTab(currentTab, ...arguments)"
         @updateObj="updateColumnTabObj(currentTab, ...arguments)"
         @addArr="addColumnTabArr(currentTab, ...arguments)"
@@ -35,7 +60,7 @@
           <slot :name="slot" v-bind="props" />
         </template>
       </component>
-    </keep-alive>
+    </keep-alive> -->
   </div>
 </template>
 
@@ -109,22 +134,22 @@ export default /*#__PURE__*/ {
         condition: { text: '條件', show: true },
       };
     },
-    currentCmp() {
-      const config = {
-        component: `setting-${this.currentTab}`,
-        props: {
-          id: this.column.id,
-          name: this.column.name,
-          typeConstraint: this.typeConstraint,
-          columnsExcludeSelf: this.columnsExcludeSelf,
-          columnsObjByKey: this.columnsObjByKey,
-          // -------------------------------------
-          ...this.column[this.currentTab],
-        },
-      };
+    // currentCmp() {
+    //   const config = {
+    //     component: `setting-${this.currentTab}`,
+    //     props: {
+    //       id: this.column.id,
+    //       name: this.column.name,
+    //       typeConstraint: this.typeConstraint,
+    //       columnsExcludeSelf: this.columnsExcludeSelf,
+    //       columnsObjByKey: this.columnsObjByKey,
+    //       // -------------------------------------
+    //       ...this.column[this.currentTab],
+    //     },
+    //   };
 
-      return config;
-    },
+    //   return config;
+    // },
     typeOptions() {
       return typeOptions;
     },
@@ -153,16 +178,7 @@ export default /*#__PURE__*/ {
         this.updateColumn('base', { ...this.column.base, subType: null });
       }
 
-      if (this.typeConstraint.needOptions) {
-        // 初始項目
-        if (!this.column.item.srcMode) {
-          this.updateColumn('item', {
-            ...this.column.item,
-            srcMode: 'list',
-            options: [],
-          });
-        }
-      } else {
+      if (!this.typeConstraint.needOptions) {
         if (this.currentTab === 'item') {
           this.currentTab = 'base';
         }

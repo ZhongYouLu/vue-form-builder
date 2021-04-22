@@ -23,8 +23,13 @@
     :append-to-body="true"
     :calculate-position="withPopper"
     @input="handleInput"
-    @option:selected="handleSelected"
     @option:created="handleCreated"
+    @option:selecting="tunnelEmit('handle:selecting', $event)"
+    @option:selected="tunnelEmit('handle:selected', $event)"
+    @option:deselecting="tunnelEmit('handle:deselecting', $event)"
+    @option:deselected="tunnelEmit('handle:deselected', $event)"
+    @search:focus="tunnelEmit('focus', $event)"
+    @search:blur="tunnelEmit('blur', $event)"
   >
     <template #search="{ attributes, events }">
       <input
@@ -35,8 +40,6 @@
         :required="required && !mutableValue"
         v-bind="attributes"
         v-on="events"
-        @focus="$emit('focus')"
-        @blur="$emit('blur')"
       />
     </template>
 
@@ -118,7 +121,15 @@ export default /*#__PURE__*/ {
     closeOnSelect: { type: Boolean, default: true }, // Close a dropdown when an option is chosen. Set to false to keep the dropdown open
     noDrop: { type: Boolean, default: false }, // Disable the dropdown entirely.
   },
-  emits: ['update:value', 'focus', 'blur'],
+  emits: [
+    'update:value',
+    'handle:selecting',
+    'handle:selected',
+    'handle:deselecting',
+    'handle:deselected',
+    'focus',
+    'blur',
+  ],
   data() {
     return {
       placement: 'bottom',
@@ -173,18 +184,27 @@ export default /*#__PURE__*/ {
     },
   },
   methods: {
+    tunnelEmit(event, ...payload) {
+      let vm = this;
+      while (vm && !vm.$listeners[event]) {
+        vm = vm.$parent;
+      }
+      if (vm) {
+        vm.$emit(event, ...payload);
+      } else {
+        // return console.error(`no target listener for event "${event}"`);
+      }
+    },
     handleInput(value) {
       // console.log('handleInput', value);
       this.mutableValue = value;
-    },
-    handleSelected(/*option*/) {
-      // console.log('handleSelected', option);
     },
     handleCreated(option) {
       // console.log('handleCreated', option);
       if (this.reactable) {
         this.mutableOptions.push(option);
       }
+      this.tunnelEmit('handle:created', option);
     },
     withPopper(dropdownList, component, { width }) {
       /**
