@@ -49,66 +49,29 @@ export default /*#__PURE__*/ {
   computed: {
     // 最終欄位群 (去除不必要的屬性)
     finalColumns() {
-      return this.columns.map((column) =>
-        Object.entries(column).reduce((acc, [k, v]) => {
-          if (isEmpty(v)) return acc;
-
-          if (k === 'rule') {
-            const { msg, ...newRule } = v;
-
-            if (msg) {
-              const newMsg = Object.entries(msg).reduce((acc, [k, v]) => {
-                if (v && newRule[k]) acc[k] = v;
-                return acc;
-              }, {});
-
-              if (!isEmpty(newMsg)) newRule['msg'] = newMsg;
-            }
-
-            v = newRule;
-          } else if (k === 'item') {
-            const { options, api, ...newItem } = v;
-
-            switch (newItem.srcMode) {
-              case 'list':
-                newItem['options'] = options;
-                break;
-              case 'api':
-                newItem['api'] = api;
-                break;
-            }
-
-            v = newItem;
-          } else if (k === 'condition') {
-            // TODO:
-            console.log('finalColumns computed: ', k, v);
-          }
-
-          if (!isEmpty(v)) acc[k] = v;
-
-          return acc;
-        }, {})
-      );
+      return this.columns.map((column) => this.processColumn(column));
     },
   },
-  // 監聽連動 [Side Effect]
   watch: {
-    columns(a, b) {
-      const diffIds = difference(
-        a.map((c) => c.id),
+    columns(after, before) {
+      // 增加的欄位IDs
+      const addIds = difference(
+        after.map((c) => c.id),
         Object.keys(this.collect)
       );
-      if (diffIds.length) {
-        diffIds.forEach((id) => this.$set(this.collect, id, {}));
+      if (addIds.length) {
+        // 初始集合，提供後續使用。
+        addIds.forEach((id) => this.$set(this.collect, id, {}));
       }
 
-      // 減少
+      // 減少的欄位IDs
       const deductIds = difference(
-        b.map((c) => c.id),
-        a.map((c) => c.id)
+        before.map((c) => c.id),
+        after.map((c) => c.id)
       );
       if (deductIds.length) {
-        a.forEach((c) => {
+        // 監聽連動 [Side Effect]
+        after.forEach((c) => {
           // 如果有規則
           if (c.rule) {
             // 連動必填
@@ -132,6 +95,7 @@ export default /*#__PURE__*/ {
       const cleanColumns = clearEmpties(newColumns);
       this.$emit('update:columns', cleanColumns || []);
     },
+    // -------------
     // 呼叫更新欄位群
     invokeUpdateColumns(newColumns) {
       console.log('invokeUpdateColumns', newColumns);
@@ -173,19 +137,82 @@ export default /*#__PURE__*/ {
         if (confirm(showMsg)) allowFunc();
       }
     },
+    // -------------
+    // 確保集合屬性存在
     checkCollect(columnId, key) {
       if (this.collect[columnId][key] === undefined) {
         this.$set(this.collect[columnId], key, null);
       }
     },
+    // 切換集合屬性
     toggleCollect(columnId, key) {
       this.checkCollect(columnId, key);
       this.collect[columnId][key] = !this.collect[columnId][key];
     },
+    // 設定集合屬性
     setCollect(columnId, key, val) {
       this.checkCollect(columnId, key);
       this.collect[columnId][key] = val;
     },
+    // -------------
+    // 處理欄位
+    processColumn(column) {
+      return Object.entries(column).reduce((acc, [k, v]) => {
+        if (isEmpty(v)) return acc;
+
+        switch (k) {
+          case 'rule':
+            v = this.processRule(v);
+            break;
+          case 'item':
+            v = this.processItem(v);
+            break;
+          case 'condition':
+            v = this.processCondition(v);
+            break;
+        }
+
+        if (!isEmpty(v)) acc[k] = v;
+
+        return acc;
+      }, {});
+    },
+    // 處理欄位的規則
+    processRule(rule) {
+      const { msg, ...newRule } = rule;
+
+      if (msg) {
+        const newMsg = Object.entries(msg).reduce((acc, [k, v]) => {
+          if (v && newRule[k]) acc[k] = v;
+          return acc;
+        }, {});
+
+        if (!isEmpty(newMsg)) newRule['msg'] = newMsg;
+      }
+
+      return newRule;
+    },
+    // 處理欄位的項目
+    processItem(item) {
+      const { options, api, ...newItem } = item;
+
+      switch (newItem.srcMode) {
+        case 'list':
+          newItem['options'] = options;
+          break;
+        case 'api':
+          newItem['api'] = api;
+          break;
+      }
+
+      return newItem;
+    },
+    // 處理欄位的條件
+    processCondition(condition) {
+      return condition;
+    },
+    // -------------
+    // 初始不存在的id
     removeTriggerId(arr, deductIds) {
       if (!Array.isArray(arr)) return arr;
       arr.map((d) => {

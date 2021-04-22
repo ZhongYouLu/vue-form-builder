@@ -50,7 +50,7 @@ import {
   arr2ObjByKey,
   arrUpdateItemByKey,
   arrRemoveItemByKey,
-  arrRemoveValue,
+  arrRemoveValues,
   difference,
 } from '@/assets/js/helper.js';
 
@@ -141,13 +141,20 @@ export default /*#__PURE__*/ {
   // 監聽連動 [Side Effect]
   watch: {
     type: function () {
-      if (this.currentTab === 'item' && !this.typeConstraint.needOptions) {
-        this.currentTab = 'base';
-      }
-
       this.initBaseDefaultValue();
 
+      this.columnsExcludeSelf.map((c) => {
+        if (c.condition?.display) {
+          c.condition.display = this.initConditionDisplayValue(c.condition.display);
+        }
+      });
+
+      if (!this.typeConstraint.isText) {
+        this.updateColumn('base', { ...this.column.base, subType: null });
+      }
+
       if (this.typeConstraint.needOptions) {
+        // 初始項目
         if (!this.column.item.srcMode) {
           this.updateColumn('item', {
             ...this.column.item,
@@ -155,35 +162,31 @@ export default /*#__PURE__*/ {
             options: [],
           });
         }
+      } else {
+        if (this.currentTab === 'item') {
+          this.currentTab = 'base';
+        }
       }
-
-      if (!this.typeConstraint.isText) {
-        this.updateColumn('base', { ...this.column.base, subType: null });
-      }
-
-      this.columnsExcludeSelf.map((c) => {
-        c.condition?.display?.map((d) => {
-          if (d.triggerId === this.id) {
-            d.value = [];
-            // d.state = null;
-          }
-        });
-      });
     },
     'base.multiple': function (multiple) {
       this.initBaseDefaultValue(!!multiple);
     },
-    'item.options': function (a, b) {
-      if (a?.length < b?.length || (!a && b)) {
-        const diff = difference(b, a || [])[0];
-        this.initBaseDefaultValue();
+    'item.options': function (after, before) {
+      if (after?.length < before?.length || (!after && before)) {
+        const deductOptions = difference(before, after || []);
+        const deductOptionIds = deductOptions.map((option) => option.id);
+
+        if (this.column.base?.defaultValue.some((value) => deductOptionIds.includes(value))) {
+          this.updateColumn('base', {
+            ...this.column.base,
+            defaultValue: arrRemoveValues(this.base.defaultValue, deductOptionIds),
+          });
+        }
 
         this.columnsExcludeSelf.map((c) => {
-          c.condition?.display?.map((d) => {
-            if (d.triggerId === this.id) {
-              d.values = arrRemoveValue(d.values, diff.id);
-            }
-          });
+          if (c.condition?.display) {
+            c.condition.display = this.removeConditionDisplayValue(c.condition.display, deductOptionIds);
+          }
         });
       }
     },
@@ -220,13 +223,41 @@ export default /*#__PURE__*/ {
       const newTarget = arrRemoveItemByKey(this.column[tab][targetKey], 'id', id);
       this.updateColumnTab(tab, targetKey, newTarget);
     },
-    //-------------
+    // -------------
     initBaseDefaultValue(multiple) {
       this.updateColumn('base', {
         ...this.column.base,
         multiple: multiple ? 1 : null,
         defaultValue: multiple ? [] : null,
       });
+    },
+    initConditionDisplayValue(arr) {
+      if (!Array.isArray(arr)) return arr;
+      arr.map((d) => {
+        if (d.triggerId === this.id) {
+          d.value = null;
+        }
+        if (d.list && d.list.length) {
+          d.list = this.initConditionDisplayValue(d.list);
+        }
+        return d;
+      });
+
+      return arr;
+    },
+    removeConditionDisplayValue(arr, targetIds) {
+      if (!Array.isArray(arr)) return arr;
+      arr.map((d) => {
+        if (d.triggerId === this.id) {
+          d.value = arrRemoveValues(d.value, targetIds);
+        }
+        if (d.list && d.list.length) {
+          d.list = this.removeConditionDisplayValue(d.list, targetIds);
+        }
+        return d;
+      });
+
+      return arr;
     },
   },
 };

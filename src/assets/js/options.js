@@ -10,7 +10,7 @@ export const typeConfig = {
   radio: { text: '單選框', icon: 'carbon:radio-button-checked' },
   checkbox: { text: '勾選框', icon: 'carbon:checkbox-checked' },
   select: { text: '下拉選單', icon: 'carbon:list' },
-  file: { text: '檔案', icon: 'ic:baseline-attach-file' },
+  // file: { text: '檔案', icon: 'ic:baseline-attach-file' },
 };
 export const typeOptions = obj2Arr(typeConfig, ['text', 'icon'], 'id');
 export const typeIcons = {
@@ -41,7 +41,7 @@ export const getTypeConstraint = (type, subType, isMultiple) => {
     isInput: ['text', 'number', 'date'].includes(type),
     needOptions: ['select', 'radio', 'checkbox'].includes(type),
     hasSubType: !!subType,
-    isMultiple: isMultiple,
+    isMultiple: !!isMultiple,
     filterSame: (columns) => columns.filter((c) => c.type === type),
   };
 };
