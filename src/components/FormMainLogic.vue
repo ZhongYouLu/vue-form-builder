@@ -19,7 +19,6 @@ import {
   arrUpdateItemByKey,
   arrRemoveValueByKey,
   arrRemoveValues,
-  arrRemoveValuesByKey,
   difference,
 } from '@/assets/js/helper.js';
 
@@ -179,7 +178,7 @@ export default /*#__PURE__*/ {
     },
     // 處理欄位的規則
     processRule(rule) {
-      const { msg, ...newRule } = rule;
+      const { msg, requiredSync, ...newRule } = rule;
 
       if (msg) {
         const newMsg = Object.entries(msg).reduce((acc, [k, v]) => {
@@ -190,18 +189,26 @@ export default /*#__PURE__*/ {
         if (!isEmpty(newMsg)) newRule['msg'] = newMsg;
       }
 
+      if (!isEmpty(requiredSync)) newRule['requiredSync'] = requiredSync;
+
       return newRule;
     },
     // 處理欄位的項目
     processItem(item) {
-      const { options, api, ...newItem } = item;
+      const { srcMode, options, api, ...newItem } = item;
 
-      switch (newItem.srcMode) {
+      switch (srcMode) {
         case 'list':
-          newItem['options'] = options;
+          if (!isEmpty(options)) {
+            newItem['srcMode'] = srcMode;
+            newItem['options'] = options;
+          }
           break;
         case 'api':
-          newItem['api'] = api;
+          if (!isEmpty(api)) {
+            newItem['srcMode'] = srcMode;
+            newItem['api'] = api;
+          }
           break;
       }
 
@@ -209,13 +216,34 @@ export default /*#__PURE__*/ {
     },
     // 處理欄位的條件
     processCondition(condition) {
-      return condition;
+      let { display, ...newCondition } = condition;
+      display = this.processDisplay(display);
+      if (!isEmpty(display)) newCondition['display'] = display;
+
+      return newCondition;
+    },
+    // 處理欄位的條件的顯示
+    processDisplay(arr) {
+      if (!Array.isArray(arr)) return arr;
+
+      const temp = arr.map((d) => {
+        if (d.triggerId) {
+          let { list, ...newD } = d;
+          list = this.processDisplay(list);
+          if (!isEmpty(list)) newD['list'] = list;
+
+          return newD;
+        }
+      });
+
+      return !isEmpty(temp) ? temp : null;
     },
     // -------------
     // 初始不存在的id
     removeTriggerId(arr, deductIds) {
       if (!Array.isArray(arr)) return arr;
-      arr.map((d) => {
+
+      return arr.map((d) => {
         if (deductIds.includes(d.triggerId)) {
           d.triggerId = null;
           d.value = null;
@@ -225,8 +253,6 @@ export default /*#__PURE__*/ {
         }
         return d;
       });
-
-      return arr;
     },
   },
 };

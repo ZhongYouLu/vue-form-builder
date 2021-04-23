@@ -5,7 +5,7 @@
     <FormItem
       :id="`[${id}]-requiredSync`"
       :value="$props.requiredSync"
-      desc="連動必填"
+      desc="連動必填..."
       type="select"
       :options="columnsExcludeSelf"
       :icons="typeIcons"
@@ -14,20 +14,20 @@
       multiple
       @update:value="$emit('update', 'requiredSync', $event)"
     />
+    <hr class="dashed" />
     <FormItem
-      :id="`[${id}]-requiredCheck`"
-      :value="requiredCheck"
-      desc="被連動必填"
+      :id="`[${id}]-requiredPassive`"
+      :value="requiredPassive"
+      desc="被...連動必填"
       type="select"
       :options="columnsExcludeSelf"
       :icons="typeIcons"
       text-key="name"
       icon-key="type"
       multiple
-      @handle:selecting="handleRequiredCheck(1, $event)"
-      @handle:deselecting="handleRequiredCheck(0, $event)"
+      @handle:selecting="handleRequiredPassive(1, $event)"
+      @handle:deselecting="handleRequiredPassive(0, $event)"
     />
-    <hr class="dashed" />
     <div v-for="(v, k) in fields" :key="k" class="input-group">
       <FormItem :id="`[${id}]-${k}`" v-bind="v.props" :value="$props[k]" @update:value="update(k, $event)">
         <template #text-right>
@@ -183,15 +183,15 @@ export default /*#__PURE__*/ {
       return this.collect[this.id]['toggleMsg'];
     },
     // 自身必填檢查 (來自其他元素的 requiredSync)
-    requiredCheck() {
-      const requiredCheck = [];
+    requiredPassive() {
+      const requiredPassive = [];
       this.columnsExcludeSelf.forEach((c) => {
         if (c.rule?.requiredSync?.includes(this.id)) {
-          requiredCheck.push(c.id);
+          requiredPassive.push(c.id);
         }
       });
 
-      return requiredCheck;
+      return requiredPassive;
     },
   },
   created() {
@@ -219,7 +219,7 @@ export default /*#__PURE__*/ {
         [k]: v !== undefined ? v : !this.toggleMsg[k],
       });
     },
-    handleRequiredCheck(isAdd, { id }) {
+    handleRequiredPassive(isAdd, { id }) {
       const target = this.columnsObjByKey[id];
       const requiredSync = target.rule?.requiredSync || [];
 

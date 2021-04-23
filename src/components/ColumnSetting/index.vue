@@ -192,7 +192,7 @@ export default /*#__PURE__*/ {
         const deductOptions = difference(before, after || []);
         const deductOptionIds = deductOptions.map((option) => option.id);
 
-        if (this.column.base?.defaultValue.some((value) => deductOptionIds.includes(value))) {
+        if (this.column.base?.defaultValue?.some((value) => deductOptionIds.includes(value))) {
           this.updateColumn('base', {
             ...this.column.base,
             defaultValue: arrRemoveValues(this.base.defaultValue, deductOptionIds),
