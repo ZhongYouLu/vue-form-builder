@@ -4,40 +4,22 @@
     <!-- <legend>規則設定</legend> -->
     <FormItem
       :id="`[${id}]-requiredSync`"
-      :value="$props.requiredSync"
+      :value="requiredSync"
       desc="連動必填..."
       type="select"
-      :options="columnsExcludeSelf"
+      :options="requiredSyncOptions"
       :icons="typeIcons"
       text-key="name"
       icon-key="type"
       multiple
-      @update:value="$emit('update', 'requiredSync', $event)"
+      @handle:selecting="handleRequiredSync(1, $event)"
+      @handle:deselecting="handleRequiredSync(0, $event)"
     />
     <hr class="dashed" />
-    <FormItem
-      :id="`[${id}]-requiredPassive`"
-      :value="requiredPassive"
-      desc="被...連動必填"
-      type="select"
-      :options="columnsExcludeSelf"
-      :icons="typeIcons"
-      text-key="name"
-      icon-key="type"
-      multiple
-      @handle:selecting="handleRequiredPassive(1, $event)"
-      @handle:deselecting="handleRequiredPassive(0, $event)"
-    />
     <div v-for="(v, k) in fields" :key="k" class="input-group">
       <FormItem :id="`[${id}]-${k}`" v-bind="v.props" :value="$props[k]" @update:value="update(k, $event)">
         <template #text-right>
-          <Button
-            v-show="$props[k]"
-            icon="mdi:ideogram-cjk-variant"
-            type="flat"
-            shape="circle"
-            @click="setToggleMsg(k)"
-          />
+          <Button icon="mdi:ideogram-cjk-variant" type="flat" shape="circle" @click="setToggleMsg(k)" />
         </template>
         <template v-for="(_, slot) in $scopedSlots" #[slot]="props">
           <slot :name="slot" v-bind="props" />
@@ -45,7 +27,7 @@
       </FormItem>
       <!-- Msg -->
       <FormItem
-        v-show="$props[k] && toggleMsg[k]"
+        v-show="toggleMsg[k]"
         :id="`[${id}]-${k}-msg`"
         :value="$props.msg[k]"
         :placeholder="v.msg"
@@ -84,8 +66,8 @@ export default /*#__PURE__*/ {
     //-----------
     // 規則提示
     msg: { type: Object, default: () => ({}) },
-    // 連動必填元素 (如果自身有值，其元素必填)
-    requiredSync: { type: Array, default: () => [] },
+    // 被其他欄位連動必填 (自身必填檢查)
+    requiredPassive: { type: Array, default: () => [] },
     // 必填
     required: { type: Number, default: null },
     // 與..相符
@@ -114,6 +96,20 @@ export default /*#__PURE__*/ {
         ? this.columnsObjByKey[this.sameAs].name || this.columnsObjByKey[this.sameAs].id
         : '';
 
+      /*
+
+      :id="`[${id}]-requiredPassive`"
+      :value="$props.requiredPassive"
+      desc="被...連動必填"
+      type="select"
+      :options="columnsExcludeSelf"
+      :icons="typeIcons"
+      text-key="name"
+      icon-key="type"
+      multiple
+      @update:value="$emit('update', 'requiredPassive', $event)"
+*/
+
       let temp = {
         required: {
           props: { desc: '是否必填', label: '必填', type: 'checkbox', yes: 1, no: null },
@@ -133,6 +129,24 @@ export default /*#__PURE__*/ {
           msg: `[${name}] 與 [${sameAsName}] 不相符`,
         },
       };
+
+      if (!this.required) {
+        temp = {
+          requiredPassive: {
+            props: {
+              desc: '被...連動必填',
+              type: 'select',
+              options: this.requiredPassiveOptions,
+              icons: this.typeIcons,
+              textKey: 'name',
+              iconKey: 'type',
+              multiple: true,
+            },
+            msg: `[${name}] 為必填。`,
+          },
+          ...temp,
+        };
+      }
 
       if (this.typeConstraint.isText && !this.typeConstraint.hasSubType) {
         temp = {
@@ -182,21 +196,36 @@ export default /*#__PURE__*/ {
     toggleMsg() {
       return this.collect[this.id]['toggleMsg'];
     },
-    // 自身必填檢查 (來自其他元素的 requiredSync)
-    requiredPassive() {
-      const requiredPassive = [];
+    requiredPassiveOptions() {
+      return this.required ? [] : this.columnsExcludeSelf;
+    },
+    requiredSyncOptions() {
+      return this.columnsExcludeSelf.filter((c) => {
+        return c.rule?.required ? !c.rule.required : true;
+      });
+    },
+    // 連動必填其他欄位 (如果自身有值，其元素必填)
+    requiredSync() {
+      const requiredSync = [];
       this.columnsExcludeSelf.forEach((c) => {
-        if (c.rule?.requiredSync?.includes(this.id)) {
-          requiredPassive.push(c.id);
+        if (c.rule?.requiredPassive?.includes(this.id)) {
+          requiredSync.push(c.id);
         }
       });
 
-      return requiredPassive;
+      return requiredSync;
+    },
+  },
+  watch: {
+    required(flag) {
+      if (flag) {
+        this.update('requiredPassive', []);
+      }
     },
   },
   created() {
     this.$emit('init', {
-      requiredSync: this.requiredSync,
+      requiredPassive: this.requiredPassive,
     });
 
     this.setCollect(this.id, 'toggleMsg', {});
@@ -219,14 +248,14 @@ export default /*#__PURE__*/ {
         [k]: v !== undefined ? v : !this.toggleMsg[k],
       });
     },
-    handleRequiredPassive(isAdd, { id }) {
+    handleRequiredSync(isAdd, { id }) {
       const target = this.columnsObjByKey[id];
-      const requiredSync = target.rule?.requiredSync || [];
+      const requiredPassive = target.rule?.requiredPassive || [];
 
       if (isAdd) {
-        target.rule.requiredSync = [...requiredSync, this.id];
+        target.rule.requiredPassive = [...requiredPassive, this.id];
       } else {
-        target.rule.requiredSync = arrRemoveValue(requiredSync, this.id);
+        target.rule.requiredPassive = arrRemoveValue(requiredPassive, this.id);
       }
     },
   },

@@ -73,8 +73,8 @@ export default /*#__PURE__*/ {
         after.forEach((c) => {
           // 如果有規則
           if (c.rule) {
-            // 連動必填
-            c.rule.requiredSync = arrRemoveValues(c.condition.requiredSync, deductIds);
+            // 被連動必填
+            c.rule.requiredPassive = arrRemoveValues(c.rule.requiredPassive, deductIds);
             // 與...相符
             if (deductIds.includes(c.rule.sameAs)) c.rule.sameAs = null;
           }
@@ -82,7 +82,7 @@ export default /*#__PURE__*/ {
           // 如果有條件
           if (c.condition) {
             // 顯示
-            c.condition.display = this.removeTriggerId(c.condition.display, deductIds);
+            c.condition.display = this.removeConditionDisplayTriggerId(c.condition.display, deductIds);
           }
         });
       }
@@ -178,7 +178,7 @@ export default /*#__PURE__*/ {
     },
     // 處理欄位的規則
     processRule(rule) {
-      const { msg, requiredSync, ...newRule } = rule;
+      const { msg, ...newRule } = rule;
 
       if (msg) {
         const newMsg = Object.entries(msg).reduce((acc, [k, v]) => {
@@ -188,8 +188,6 @@ export default /*#__PURE__*/ {
 
         if (!isEmpty(newMsg)) newRule['msg'] = newMsg;
       }
-
-      if (!isEmpty(requiredSync)) newRule['requiredSync'] = requiredSync;
 
       return newRule;
     },
@@ -240,7 +238,7 @@ export default /*#__PURE__*/ {
     },
     // -------------
     // 初始不存在的id
-    removeTriggerId(arr, deductIds) {
+    removeConditionDisplayTriggerId(arr, deductIds) {
       if (!Array.isArray(arr)) return arr;
 
       return arr.map((d) => {
@@ -249,7 +247,7 @@ export default /*#__PURE__*/ {
           d.value = null;
         }
         if (d.list && d.list.length) {
-          d.list = this.removeTriggerId(d.list, deductIds);
+          d.list = this.removeConditionDisplayTriggerId(d.list, deductIds);
         }
         return d;
       });

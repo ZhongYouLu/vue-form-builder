@@ -168,15 +168,19 @@ export default /*#__PURE__*/ {
     type: function () {
       this.initBaseDefaultValue();
 
+      if (!this.typeConstraint.isText) {
+        this.updateColumn('base', { ...this.column.base, subType: null });
+      }
+
+      this.updateColumn('rule', { ...this.column.rule, sameAs: null });
+
+      // 連動 [Side Effect]
       this.columnsExcludeSelf.map((c) => {
         if (c.condition?.display) {
           c.condition.display = this.initConditionDisplayValue(c.condition.display);
         }
+        if (c.rule?.sameAs === this.id) c.rule.sameAs = null;
       });
-
-      if (!this.typeConstraint.isText) {
-        this.updateColumn('base', { ...this.column.base, subType: null });
-      }
 
       if (!this.typeConstraint.needOptions) {
         if (this.currentTab === 'item') {
@@ -249,8 +253,10 @@ export default /*#__PURE__*/ {
     },
     initConditionDisplayValue(arr) {
       if (!Array.isArray(arr)) return arr;
-      arr.map((d) => {
+
+      return arr.map((d) => {
         if (d.triggerId === this.id) {
+          console.log('????');
           d.value = null;
         }
         if (d.list && d.list.length) {
@@ -258,22 +264,19 @@ export default /*#__PURE__*/ {
         }
         return d;
       });
-
-      return arr;
     },
-    removeConditionDisplayValue(arr, targetIds) {
+    removeConditionDisplayValue(arr, deductIds) {
       if (!Array.isArray(arr)) return arr;
-      arr.map((d) => {
+
+      return arr.map((d) => {
         if (d.triggerId === this.id) {
-          d.value = arrRemoveValues(d.value, targetIds);
+          d.value = arrRemoveValues(d.value, deductIds);
         }
         if (d.list && d.list.length) {
-          d.list = this.removeConditionDisplayValue(d.list, targetIds);
+          d.list = this.removeConditionDisplayValue(d.list, deductIds);
         }
         return d;
       });
-
-      return arr;
     },
   },
 };
