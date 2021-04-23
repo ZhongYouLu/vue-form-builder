@@ -20,7 +20,12 @@
               </div>
               <div class="card__name">
                 <template v-if="collect[id].isEditName">
-                  <Field :value="name" :placeholder="id" @update:value="updateColumn(id, { name: $event })" />
+                  <Field
+                    :ref="`editName-${id}`"
+                    :value="name"
+                    :placeholder="id"
+                    @update:value="updateColumn(id, { name: $event })"
+                  />
                 </template>
                 <template v-else>
                   <div class="text-ellipsis">{{ name || `(${id})` }}</div>
@@ -103,6 +108,13 @@ export default /*#__PURE__*/ {
     },
     toggleIsEditName(columnId) {
       this.toggleCollect(columnId, 'isEditName');
+
+      if (this.collect[columnId].isEditName) {
+        this.$nextTick(() => {
+          const refName = `editName-${columnId}`;
+          this.$refs[refName][0].$refs.input.focus();
+        });
+      }
     },
   },
 };
