@@ -191,6 +191,11 @@ export default /*#__PURE__*/ {
     'base.multiple': function (multiple) {
       this.initBaseDefaultValue(!!multiple);
     },
+    'rule.required': function (required) {
+      if (required) {
+        this.updateColumnTab('rule', 'requiredPassive', []);
+      }
+    },
     'item.options': function (after, before) {
       if (after?.length < before?.length || (!after && before)) {
         const deductOptions = difference(before, after || []);

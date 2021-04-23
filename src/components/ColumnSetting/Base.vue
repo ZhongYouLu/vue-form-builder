@@ -59,21 +59,21 @@ export default /*#__PURE__*/ {
   emits: ['update'],
   computed: {
     fields() {
-      let temp = {
+      let fields = {
         desc: { props: { desc: '欄位說明' } },
         subDesc: { props: { desc: '欄位子說明' } },
       };
 
       if (this.typeConstraint.isInput || this.typeConstraint.isSelect) {
-        temp['placeholder'] = { props: { desc: '提示文字' } };
+        fields['placeholder'] = { props: { desc: '提示文字' } };
       }
 
       if (!this.typeConstraint.isFile) {
-        temp['defaultValue'] = { props: { desc: '預設值' } };
+        fields['defaultValue'] = { props: { desc: '預設值' } };
       }
 
       if (this.typeConstraint.isText) {
-        temp['subType'] = {
+        fields['subType'] = {
           props: {
             desc: '欄位性質',
             placeholder: '預設: 文字',
@@ -86,14 +86,14 @@ export default /*#__PURE__*/ {
 
       // Change defalutValue.props.type
       if (this.typeConstraint.isNumber) {
-        temp.defaultValue.props.type = 'number';
+        fields.defaultValue.props.type = 'number';
       } else if (this.typeConstraint.isDate) {
-        temp.defaultValue.props.type = 'date';
+        fields.defaultValue.props.type = 'date';
       } else if (this.typeConstraint.isCheckbox && !this.typeConstraint.isMultiple) {
-        temp.defaultValue.props.type = 'checkbox';
+        fields.defaultValue.props.type = 'checkbox';
       } else if (this.typeConstraint.needOptions) {
-        temp.defaultValue.props = {
-          ...temp.defaultValue.props,
+        fields.defaultValue.props = {
+          ...fields.defaultValue.props,
           type: 'select',
           placeholder: '請選擇',
           options: this.columnsObjByKey[this.id].item?.options,
@@ -106,12 +106,12 @@ export default /*#__PURE__*/ {
       }
 
       if (this.typeConstraint.isCheckbox || this.typeConstraint.isSelect) {
-        temp['multiple'] = { props: { desc: '可複選', type: 'checkbox', label: '可複選' } };
+        fields['multiple'] = { props: { desc: '可複選', type: 'checkbox', label: '可複選' } };
       }
 
       if (this.typeConstraint.isInput) {
-        temp = {
-          ...temp,
+        fields = {
+          ...fields,
           // autocompleteSection: {
           //   props: {
           //     text: '自動完成區段',
@@ -134,7 +134,7 @@ export default /*#__PURE__*/ {
         };
       }
 
-      return temp;
+      return fields;
     },
   },
 };

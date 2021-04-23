@@ -299,7 +299,7 @@ $vs-dropdown-box-shadow: 0px 3px 6px 0px rgba(0, 0, 0, 0.5);
 .vs {
   &__search,
   &__search:focus {
-    margin: calc(var(--borderWidth) * -1) 0;
+    margin: 0;
     padding: var(--vGap) var(--hGap);
   }
   &__selected-options {
@@ -311,8 +311,14 @@ $vs-dropdown-box-shadow: 0px 3px 6px 0px rgba(0, 0, 0, 0.5);
     padding: 0 var(--vGap);
     margin: calc(var(--vGap) / 2) 0 calc(var(--vGap) / 2) var(--vGap);
 
+    .vs--single & {
+      position: absolute;
+      top: var(--borderWidth);
+      left: var(--borderWidth);
+    }
+
     .vs--single.vs--open & {
-      margin: calc(var(--borderWidth) * -1) 0;
+      margin: calc(var(--borderWidth) * -2) 0 0 calc(var(--borderWidth) * -1);
       padding: var(--vGap) var(--hGap);
     }
 

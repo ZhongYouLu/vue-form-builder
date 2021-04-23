@@ -1,14 +1,15 @@
 <template>
-  <div style="display: flex; align-items: flex-start">
-    <div v-if="!root" class="drag" style="padding: var(--vGap)">
+  <div class="condition-display">
+    <div v-if="!root" class="drag">
       <Icon icon="mdi:drag" />
       <span>{{ logicText }}</span>
     </div>
-    <component :is="root ? 'div' : 'li'" :class="leaf ? 'is-leaf' : 'is-folder'" style="flex: 1">
+    <component :is="root ? 'div' : 'li'" :class="leaf ? 'is-leaf' : 'is-folder'">
       <Block v-if="!root">
         <div class="trigger-controll">
           <Field
             v-if="hasList"
+            class="trigger-controll__logic"
             :value="logic"
             type="select"
             placeholder="邏輯"
@@ -17,9 +18,8 @@
             @update:value="$emit('update:logic', $event)"
           />
           <Field
-            :id="id"
+            class="trigger-controll__id"
             :value="triggerId"
-            style="flex: 2"
             type="select"
             placeholder="監聽欄位"
             :options="columnsExcludeSelf"
@@ -31,6 +31,7 @@
           />
           <Field
             v-if="triggerId"
+            class="trigger-controll__state"
             :value="state"
             type="select"
             :searchable="false"
@@ -42,49 +43,46 @@
         </div>
         <div v-if="triggerColumn" class="trigger-setting">
           <template v-if="allowInputValues">
-            <template v-if="typeConstraint.needOptions">
-              <Field
-                :value="value"
-                required
-                placeholder="請選擇條件 (可多選)"
-                type="select"
-                multiple
-                :options="triggerColumn.item.options"
-                :fuse-keys="['text']"
-                @update:value="$emit('update:value', $event)"
-              />
-            </template>
-            <template v-else-if="typeConstraint.isNumber">
-              <Field
-                :value="value"
-                type="select"
-                required
-                multiple
-                taggable
-                placeholder="請輸入條件，按下 Enter 確認。 (可輸入多筆)"
-                no-drop
-                :close-on-select="false"
-                :reduce="(option) => option"
-                :create-option="(option) => ({ id: Number(option), text: thousandSeparatorFunc(option) })"
-                @update:value="$emit('update:value', $event)"
-              />
-            </template>
-            <template v-else>
-              <Field
-                :value="value"
-                type="select"
-                required
-                multiple
-                taggable
-                placeholder="請輸入條件，按下 Enter 確認。 (可輸入多筆)"
-                no-drop
-                :close-on-select="false"
-                :reduce="(option) => option"
-                :get-option-label="(option) => option"
-                :create-option="(option) => option"
-                @update:value="$emit('update:value', $event)"
-              />
-            </template>
+            <Field
+              v-if="typeConstraint.needOptions"
+              :value="value"
+              required
+              placeholder="請選擇條件 (可多選)"
+              type="select"
+              multiple
+              :options="triggerColumn.item.options"
+              :fuse-keys="['text']"
+              @update:value="$emit('update:value', $event)"
+            />
+            <Field
+              v-else-if="typeConstraint.isNumber"
+              :value="value"
+              type="select"
+              required
+              multiple
+              taggable
+              placeholder="請輸入條件，按下 Enter 確認。 (可輸入多筆)"
+              no-drop
+              :close-on-select="false"
+              :reduce="(option) => option"
+              :create-option="(option) => ({ id: Number(option), text: thousandSeparatorFunc(option) })"
+              @update:value="$emit('update:value', $event)"
+            />
+            <Field
+              v-else
+              :value="value"
+              type="select"
+              required
+              multiple
+              taggable
+              placeholder="請輸入條件，按下 Enter 確認。 (可輸入多筆)"
+              no-drop
+              :close-on-select="false"
+              :reduce="(option) => option"
+              :get-option-label="(option) => option"
+              :create-option="(option) => option"
+              @update:value="$emit('update:value', $event)"
+            />
           </template>
           <template v-else-if="allowInputValue">
             <Field v-if="typeConstraint.isText" :value="value" required @update:value="$emit('update:value', $event)" />
@@ -100,7 +98,7 @@
       </Block>
       <Draggable v-model="mutableList" tag="ul" :group="{ name: 'g1' }" :class="root ? 'folders' : 'sub-folders'">
         <ColumnSettingConditionDisplay
-          v-for="(child, _idx) in mutableList"
+          v-for="child in mutableList"
           v-bind="$attrs"
           :id="child.id"
           :key="child.id"
@@ -109,7 +107,6 @@
           :trigger-id.sync="child.triggerId"
           :value.sync="child.value"
           :list.sync="child.list"
-          :idx="_idx"
           :level="level + 1"
           :root-logic="root ? rootLogic : logic"
           :columns-obj-by-key="columnsObjByKey"
@@ -151,7 +148,6 @@ export default /*#__PURE__*/ {
     columnsObjByKey: { type: Object, required: true },
     //-----------
     id: { type: String, default: null },
-    idx: { type: Number, default: null },
     triggerId: { type: String, default: null },
     state: { type: String, default: null },
     value: { type: [String, Number, Array], default: null },
@@ -161,7 +157,7 @@ export default /*#__PURE__*/ {
     level: { type: Number, default: 0 },
     rootLogic: { validator: (value) => ['and', 'or'].includes(value), default: 'and' },
   },
-  $emits: ['remove'],
+  $emits: ['update:list', 'remove'],
   data() {
     return {
       expanded: false,
@@ -329,22 +325,41 @@ ul {
   }
 }
 
-li {
-  &.is-leaf {
+.condition-display {
+  display: flex;
+  align-items: flex-start;
+
+  .drag {
+    padding: var(--vGap);
+  }
+
+  .is-leaf,
+  .is-folder {
+    flex: 1;
+  }
+
+  .is-leaf {
     padding: 0;
   }
-  &.is-folder {
+  .is-folder {
     padding: 1rem;
     margin-bottom: 1rem;
     border: 1px solid var(--borderColor);
   }
 }
 
-.trigger-controll,
-.trigger-setting {
+.trigger-controll {
   display: flex;
-  .x-field {
-    flex: 1;
+  &__logic {
+    flex: 2;
   }
+  &__id {
+    flex: 4;
+  }
+  &__state {
+    flex: 3;
+  }
+}
+.trigger-setting {
 }
 </style>

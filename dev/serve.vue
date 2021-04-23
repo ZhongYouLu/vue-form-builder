@@ -27,9 +27,9 @@
           <div>
             <FormDemo :columns="finalColumns" />
             <hr />
-            <code>
-              {{ finalColumns }}
-            </code>
+            <json-view :data="formJson.columns" :deep="0" />
+            <hr />
+            <json-view :data="finalColumns" closed />
           </div>
         </main>
       </FormMainLogic>
@@ -46,6 +46,7 @@ import Vue from 'vue';
 // === library ===
 // import { FormBuilder } from '@/entry/library/entry.esm';
 import { FormMainLogic, FormSetting, FormDemo, RecordControls } from '@/entry/library/entry.esm';
+import jsonView from 'vue-json-views';
 
 export default Vue.extend({
   name: 'ServeDev',
@@ -55,6 +56,7 @@ export default Vue.extend({
     FormSetting,
     FormDemo,
     RecordControls,
+    jsonView,
   },
   provide() {
     return {

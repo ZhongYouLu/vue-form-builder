@@ -1,12 +1,16 @@
 <template>
   <!-- 條件設定 -->
   <Block tag="fieldset">
+    <!-- <legend>條件設定</legend> -->
     <ConditionDisplay
       :level="0"
       :list.sync="matubleDisplay"
       :columns-exclude-self="columnsExcludeSelf"
       :columns-obj-by-key="columnsObjByKey"
     >
+      <template v-for="(_, slot) in $scopedSlots" #[slot]="props">
+        <slot :name="slot" v-bind="props" />
+      </template>
     </ConditionDisplay>
   </Block>
 </template>
@@ -20,7 +24,6 @@ export default /*#__PURE__*/ {
     Block,
     ConditionDisplay,
   },
-  inject: ['handleConfirm'],
   inheritAttrs: false,
   props: {
     // 識別碼
@@ -31,12 +34,9 @@ export default /*#__PURE__*/ {
     columnsObjByKey: { type: Object, required: true },
     //-----------
     // 顯示條件
-    display: {
-      type: Array,
-      default: () => [],
-    },
+    display: { type: Array, default: () => [] },
   },
-  emits: ['update'],
+  emits: ['init', 'update'],
   computed: {
     matubleDisplay: {
       get() {
@@ -47,23 +47,10 @@ export default /*#__PURE__*/ {
       },
     },
   },
-  watch: {
-    display: {
-      handler: function (val) {
-        this.$emit('update', 'display', val);
-      },
-      deep: true,
-      immediate: true,
-    },
+  created() {
+    this.$emit('init', {
+      display: this.display,
+    });
   },
 };
 </script>
-
-<style lang="scss">
-.item {
-  cursor: pointer;
-}
-.bold {
-  font-weight: bold;
-}
-</style>

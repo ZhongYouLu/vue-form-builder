@@ -21,6 +21,7 @@ import {
   arrRemoveValues,
   difference,
 } from '@/assets/js/helper.js';
+import { typeIcons, regexOptions } from '@/assets/js/options.js';
 
 export default /*#__PURE__*/ {
   name: 'FormMainLogic',
@@ -29,6 +30,8 @@ export default /*#__PURE__*/ {
       collect: this.collect,
       setCollect: this.setCollect,
       toggleCollect: this.toggleCollect,
+      regexOptions: this.mutableRegexOption,
+      typeIcons,
     };
   },
   inject: [
@@ -43,6 +46,7 @@ export default /*#__PURE__*/ {
   data() {
     return {
       collect: {},
+      localRegexOption: [...regexOptions],
     };
   },
   computed: {
@@ -50,52 +54,93 @@ export default /*#__PURE__*/ {
     finalColumns() {
       return this.columns.map((column) => this.processColumn(column));
     },
+    allRegexValue() {
+      return this.columns.reduce((acc, c) => {
+        if (c.rule?.regex) {
+          acc.push(c.rule.regex);
+        }
+        return acc;
+      }, []);
+    },
+    mutableRegexOption: {
+      get() {
+        return this.localRegexOption;
+      },
+      set(val) {
+        this.localRegexOption.push(val);
+      },
+    },
   },
   watch: {
-    columns(after, before) {
-      // 增加的欄位IDs
-      const addIds = difference(
-        after.map((c) => c.id),
-        Object.keys(this.collect)
-      );
-      if (addIds.length) {
-        // 初始集合，提供後續使用。
-        addIds.forEach((id) => this.$set(this.collect, id, {}));
+    columns: {
+      handler: function (after, before) {
+        this.watchColumns(after, before);
+      },
+      immediate: true,
+    },
+  },
+  created() {
+    this.updatRegexOption();
+  },
+  updated() {
+    this.updatRegexOption();
+  },
+  methods: {
+    // 監聽欄位群
+    watchColumns(after, before) {
+      if (after?.length !== before?.length) {
+        const afterIds = (after || []).map((c) => c.id);
+        const beforeIds = (before || []).map((c) => c.id);
+
+        // 增加的欄位IDs
+        const addIds = difference(afterIds, beforeIds);
+        if (addIds.length) {
+          // 初始集合，提供後續使用。
+          addIds.forEach((id) => {
+            if (!this.collect[id]) this.$set(this.collect, id, {});
+          });
+        }
+
+        // 減少的欄位IDs
+        const deductIds = difference(beforeIds, afterIds);
+        if (deductIds.length) {
+          // 監聽連動 [Side Effect]
+          after.forEach((c) => {
+            // 如果有規則
+            if (c.rule) {
+              // 被連動必填
+              c.rule.requiredPassive = arrRemoveValues(c.rule.requiredPassive, deductIds);
+              // 與...相符
+              if (deductIds.includes(c.rule.sameAs)) c.rule.sameAs = null;
+            }
+
+            // 如果有條件
+            if (c.condition) {
+              // 顯示
+              c.condition.display = this.removeConditionDisplayTriggerId(c.condition.display, deductIds);
+            }
+          });
+        }
       }
-
-      // 減少的欄位IDs
-      const deductIds = difference(
-        before.map((c) => c.id),
-        after.map((c) => c.id)
-      );
-      if (deductIds.length) {
-        // 監聽連動 [Side Effect]
-        after.forEach((c) => {
-          // 如果有規則
-          if (c.rule) {
-            // 被連動必填
-            c.rule.requiredPassive = arrRemoveValues(c.rule.requiredPassive, deductIds);
-            // 與...相符
-            if (deductIds.includes(c.rule.sameAs)) c.rule.sameAs = null;
-          }
-
-          // 如果有條件
-          if (c.condition) {
-            // 顯示
-            c.condition.display = this.removeConditionDisplayTriggerId(c.condition.display, deductIds);
-          }
+    },
+    updatRegexOption() {
+      if (this.allRegexValue) {
+        const addIds = difference(
+          this.allRegexValue,
+          this.mutableRegexOption.map((option) => option.id)
+        );
+        addIds.forEach((val) => {
+          this.mutableRegexOption.push({ id: val, text: val });
         });
       }
     },
-  },
-  methods: {
     // 更新欄位群
     emitUpdate(newColumns) {
       const cleanColumns = clearEmpties(newColumns);
       this.$emit('update:columns', cleanColumns || []);
     },
     // -------------
-    // 呼叫更新欄位群
+    // 呼叫更新欄位群 (For Draggable)
     invokeUpdateColumns(newColumns) {
       console.log('invokeUpdateColumns', newColumns);
       this.emitUpdate(newColumns);
@@ -103,7 +148,7 @@ export default /*#__PURE__*/ {
     // 呼叫新增欄位
     invokeAdd() {
       const id = nanoid(6);
-      console.log(`invokeAdd:[${id}]`);
+      console.log(`%c invokeAdd: ${id}`, 'color:blue;font-weight:bold');
 
       const emptyColumn = { id };
       const newColumns = this.columns.concat(emptyColumn);
@@ -111,7 +156,7 @@ export default /*#__PURE__*/ {
     },
     // 呼叫更新欄位
     invokeUpdate(id, updateProps) {
-      console.log(`invokeUpdate:[${id}]`, updateProps);
+      console.log(`%c invokeUpdate: ${id}`, 'color:orange');
 
       const newColumns = arrUpdateItemByKey(this.columns, 'id', id, updateProps);
       this.emitUpdate(newColumns);
@@ -120,7 +165,7 @@ export default /*#__PURE__*/ {
     invokeRemove(id) {
       // 確認刪除函式
       const allowFunc = () => {
-        console.log(`invokeRemove:[${id}]`);
+        console.log(`%c invokeRemove: ${id}`, 'color:red');
 
         const newColumns = arrRemoveValueByKey(this.columns, 'id', id);
         this.emitUpdate(newColumns);
@@ -130,7 +175,7 @@ export default /*#__PURE__*/ {
       const { name } = this.columns[idx];
       const showMsg = `確定刪除欄位 #${idx + 1} [${name || id}] ?`;
 
-      if (this.handleConfirm) {
+      if (typeof this.handleConfirm === 'function') {
         this.handleConfirm(showMsg, allowFunc);
       } else {
         if (confirm(showMsg)) allowFunc();
@@ -140,7 +185,10 @@ export default /*#__PURE__*/ {
     // 確保集合屬性存在
     checkCollect(columnId, key) {
       if (this.collect[columnId][key] === undefined) {
-        this.$set(this.collect[columnId], key, null);
+        this.collect[columnId] = {
+          ...this.collect[columnId],
+          [key]: null,
+        };
       }
     },
     // 切換集合屬性
@@ -224,17 +272,15 @@ export default /*#__PURE__*/ {
     processDisplay(arr) {
       if (!Array.isArray(arr)) return arr;
 
-      const temp = arr.map((d) => {
+      return arr.reduce((acc, d) => {
         if (d.triggerId) {
           let { list, ...newD } = d;
           list = this.processDisplay(list);
           if (!isEmpty(list)) newD['list'] = list;
-
-          return newD;
+          if (!isEmpty(newD)) acc.push(newD);
         }
-      });
-
-      return !isEmpty(temp) ? temp : null;
+        return acc;
+      }, []);
     },
     // -------------
     // 初始不存在的id
@@ -246,7 +292,7 @@ export default /*#__PURE__*/ {
           d.triggerId = null;
           d.value = null;
         }
-        if (d.list && d.list.length) {
+        if (d.list?.length) {
           d.list = this.removeConditionDisplayTriggerId(d.list, deductIds);
         }
         return d;

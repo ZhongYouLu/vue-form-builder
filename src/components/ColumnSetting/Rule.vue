@@ -42,7 +42,8 @@ import Block from '@/components/ui/Block';
 import FormItem from '@/components/ui/form/FormItem';
 import Button from '@/components/ui/Button';
 import { arrRemoveValue } from '@/assets/js/helper.js';
-import { typeIcons, regexOptions } from '@/assets/js/options.js';
+// import { typeIcons, regexOptions } from '@/assets/js/options.js';
+
 export default /*#__PURE__*/ {
   name: 'ColumnSettingRule',
   components: {
@@ -50,7 +51,7 @@ export default /*#__PURE__*/ {
     FormItem,
     Button,
   },
-  inject: ['collect', 'setCollect'],
+  inject: ['collect', 'setCollect', 'typeIcons', 'regexOptions'],
   inheritAttrs: false,
   props: {
     // 識別碼
@@ -84,11 +85,6 @@ export default /*#__PURE__*/ {
     most: { type: Number, default: null },
   },
   emits: ['update', 'updateObj'],
-  data() {
-    return {
-      localRegexOptions: regexOptions,
-    };
-  },
   computed: {
     fields() {
       const name = this.name || this.id;
@@ -96,23 +92,29 @@ export default /*#__PURE__*/ {
         ? this.columnsObjByKey[this.sameAs].name || this.columnsObjByKey[this.sameAs].id
         : '';
 
-      /*
+      let fields = {};
 
-      :id="`[${id}]-requiredPassive`"
-      :value="$props.requiredPassive"
-      desc="被...連動必填"
-      type="select"
-      :options="columnsExcludeSelf"
-      :icons="typeIcons"
-      text-key="name"
-      icon-key="type"
-      multiple
-      @update:value="$emit('update', 'requiredPassive', $event)"
-*/
+      if (!this.required) {
+        fields = {
+          requiredPassive: {
+            props: {
+              desc: '被...連動必填',
+              type: 'select',
+              options: this.requiredPassiveOptions,
+              icons: this.typeIcons,
+              textKey: 'name',
+              iconKey: 'type',
+              multiple: true,
+            },
+            msg: `[${name}] 為必填。`,
+          },
+        };
+      }
 
-      let temp = {
+      fields = {
+        ...fields,
         required: {
-          props: { desc: '是否必填', label: '必填', type: 'checkbox', yes: 1, no: null },
+          props: { desc: '是否必填', label: '必填', type: 'checkbox' },
           msg: `[${name}] 為必填。`,
         },
         sameAs: {
@@ -130,27 +132,9 @@ export default /*#__PURE__*/ {
         },
       };
 
-      if (!this.required) {
-        temp = {
-          requiredPassive: {
-            props: {
-              desc: '被...連動必填',
-              type: 'select',
-              options: this.requiredPassiveOptions,
-              icons: this.typeIcons,
-              textKey: 'name',
-              iconKey: 'type',
-              multiple: true,
-            },
-            msg: `[${name}] 為必填。`,
-          },
-          ...temp,
-        };
-      }
-
       if (this.typeConstraint.isText && !this.typeConstraint.hasSubType) {
-        temp = {
-          ...temp,
+        fields = {
+          ...fields,
           minimum: { props: { desc: '字元下限', type: 'number' }, msg: `[${name}] 最少 [:min] 個字。` },
           maximum: { props: { desc: '字元上限', type: 'number' }, msg: `[${name}] 最多 [:max] 個字。` },
           regex: {
@@ -158,40 +142,38 @@ export default /*#__PURE__*/ {
               desc: '驗證格式',
               type: 'select',
               placeholder: '請選擇',
-              options: this.localRegexOptions,
+              options: this.regexOptions,
               clearable: true,
               taggable: true,
               pushTags: true,
-              createOption: (option) => ({ value: option, text: option }),
+              reactable: true,
+              createOption: (option) => ({ id: option, text: option }),
               // getOptionLabel: (option) => option,
             },
             msg: `[${name}] 格式驗證失敗。`,
           },
         };
       } else if (this.typeConstraint.isNumber) {
-        temp = {
-          ...temp,
+        fields = {
+          ...fields,
           minimum: { props: { desc: '數字下限', type: 'number' }, msg: `[${name}] 最少 [:min]。` },
           maximum: { props: { desc: '數字上限', type: 'number' }, msg: `[${name}] 最多 [:max]。` },
         };
       } else if (this.typeConstraint.isDate) {
-        temp = {
-          ...temp,
+        fields = {
+          ...fields,
           minimum: { props: { desc: '日期下限', type: 'date' }, msg: `[${name}] 不得小於 [:min]。` },
           maximum: { props: { desc: '日期上限', type: 'date' }, msg: `[${name}] 不得大於 [:max]。` },
         };
       } else if (this.typeConstraint.isMultiple) {
-        temp = {
-          ...temp,
+        fields = {
+          ...fields,
           least: { props: { desc: '選擇數量下限', type: 'number' }, msg: `[${name}] 最少選 [:least] 個。` },
           most: { props: { desc: '選擇數量上限', type: 'number' }, msg: `[${name}] 最多選 [:most] 個。` },
         };
       }
 
-      return temp;
-    },
-    typeIcons() {
-      return typeIcons;
+      return fields;
     },
     toggleMsg() {
       return this.collect[this.id]['toggleMsg'];
@@ -204,35 +186,34 @@ export default /*#__PURE__*/ {
         return c.rule?.required ? !c.rule.required : true;
       });
     },
-    // 連動必填其他欄位 (如果自身有值，其元素必填)
+    // 連動必填其他欄位 (如果自身有值，其欄位必填)
     requiredSync() {
-      const requiredSync = [];
-      this.columnsExcludeSelf.forEach((c) => {
+      return this.columnsExcludeSelf.reduce((acc, c) => {
         if (c.rule?.requiredPassive?.includes(this.id)) {
-          requiredSync.push(c.id);
+          acc.push(c.id);
         }
-      });
-
-      return requiredSync;
-    },
-  },
-  watch: {
-    required(flag) {
-      if (flag) {
-        this.update('requiredPassive', []);
-      }
+        return acc;
+      }, []);
     },
   },
   created() {
     this.$emit('init', {
+      msg: this.msg,
       requiredPassive: this.requiredPassive,
+      required: this.required,
+      sameAs: this.sameAs,
+      minimum: this.minimum,
+      maximum: this.maximum,
+      regex: this.regex,
+      least: this.least,
+      most: this.most,
     });
 
     this.setCollect(this.id, 'toggleMsg', {});
 
-    if (this.regex && this.localRegexOptions.findIndex((option) => option.value === this.regex) === -1) {
-      this.localRegexOptions = this.localRegexOptions.concat({ value: this.regex, text: this.regex });
-    }
+    // if (this.regex && this.regexOptions.findIndex((option) => option.value === this.regex) === -1) {
+    //   this.regexOptions.push({ id: this.regex, text: this.regex });
+    // }
   },
   methods: {
     update(k, v) {

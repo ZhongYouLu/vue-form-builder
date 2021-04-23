@@ -52,7 +52,6 @@
               </div>
             </slot>
           </template>
-
           <!-- Card Main -->
           <template #cardMain>
             <slot name="cardMain">
@@ -113,15 +112,18 @@ export default /*#__PURE__*/ {
 
       if (this.collect[columnId].isEditName) {
         this.$nextTick(() => {
-          const refName = `editName-${columnId}`;
-          this.$refs[refName][0].$refs.input.focus();
+          const refEditName = this.$refs[`editName-${columnId}`][0];
+          if (refEditName) {
+            const inputEl = refEditName.$refs.input;
+            inputEl.focus();
+          }
         });
       }
     },
     handleEditNameEnter(columnId) {
-      const toggleEditNameBtn = this.$refs[`toggleEditNameBtn-${columnId}`][0];
-      if (toggleEditNameBtn) {
-        const btnEl = toggleEditNameBtn.$refs.btn;
+      const refToggleEditNameBtn = this.$refs[`toggleEditNameBtn-${columnId}`][0];
+      if (refToggleEditNameBtn) {
+        const btnEl = refToggleEditNameBtn.$refs.btn;
         btnEl.focus();
         btnEl.click();
       }
