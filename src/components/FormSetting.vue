@@ -25,13 +25,14 @@
                     :value="name"
                     :placeholder="id"
                     @update:value="updateColumn(id, { name: $event })"
-                    @handle:enter="toggleIsEditName(id)"
+                    @handle:enter="handleEditNameEnter(id)"
                   />
                 </template>
                 <template v-else>
                   <div class="text-ellipsis">{{ name || `(${id})` }}</div>
                 </template>
                 <Button
+                  :ref="`toggleEditNameBtn-${id}`"
                   type="flat"
                   shape="circle"
                   color="#fff"
@@ -115,6 +116,14 @@ export default /*#__PURE__*/ {
           const refName = `editName-${columnId}`;
           this.$refs[refName][0].$refs.input.focus();
         });
+      }
+    },
+    handleEditNameEnter(columnId) {
+      const toggleEditNameBtn = this.$refs[`toggleEditNameBtn-${columnId}`][0];
+      if (toggleEditNameBtn) {
+        const btnEl = toggleEditNameBtn.$refs.btn;
+        btnEl.focus();
+        btnEl.click();
       }
     },
   },
