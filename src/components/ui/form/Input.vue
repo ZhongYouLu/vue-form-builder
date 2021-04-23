@@ -114,7 +114,7 @@ export default /*#__PURE__*/ {
     },
     callInput: { type: Function, default: null },
   },
-  emits: ['update:value', 'focus', 'blur', 'submit'],
+  emits: ['update:value', 'focus', 'blur', 'submit', 'handle:enter'],
   data() {
     return {
       invalid: null,
@@ -202,6 +202,17 @@ export default /*#__PURE__*/ {
     },
   },
   methods: {
+    tunnelEmit(event, ...payload) {
+      let vm = this;
+      while (vm && !vm.$listeners[event]) {
+        vm = vm.$parent;
+      }
+      if (vm) {
+        vm.$emit(event, ...payload);
+      } else {
+        // return console.error(`no target listener for event "${event}"`);
+      }
+    },
     reset() {
       this.mutableValue = this.defaultvalue;
       this.invalid = false;
@@ -277,6 +288,7 @@ export default /*#__PURE__*/ {
         case 13: //Enter
           e.preventDefault();
           e.stopPropagation();
+          this.tunnelEmit('handle:enter', e);
           break;
         default:
           break;

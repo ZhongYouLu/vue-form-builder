@@ -25,6 +25,7 @@
                     :value="name"
                     :placeholder="id"
                     @update:value="updateColumn(id, { name: $event })"
+                    @handle:enter="toggleIsEditName(id)"
                   />
                 </template>
                 <template v-else>
