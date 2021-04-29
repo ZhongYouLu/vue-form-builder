@@ -29,7 +29,7 @@ const getters = {
   // 欄位群 (Array to Obj - By Key)
   columnsByKey: () => arr2ObjByKey(state.columns, 'id'),
   // 最終欄位群 (去除不必要的屬性)
-  finalColumns: () => deepCopy(processColumns(state.columns)),
+  finalColumns: () => processColumns(deepCopy(state.columns)),
 };
 
 // Mutations
@@ -130,9 +130,6 @@ const actions = {
     } else {
       if (confirm(showMsg)) allowFunc();
     }
-  },
-  processColumns(columns) {
-    return processColumns(columns);
   },
 };
 
