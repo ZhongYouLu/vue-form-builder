@@ -1,4 +1,3 @@
-/* eslint-disable vue/no-mutating-props */
 <template>
   <div>
     <form
@@ -27,12 +26,14 @@
             ...column.condition,
           }"
           :columns="columns"
-          :columns-obj-by-key="columnsObjByKey"
+          :columns-by-key="columnsByKey"
           :values="values"
           :value.sync="values[id]"
           :error.sync="errors[id]"
-          @focus="handleFocus"
-          @blur="handleBlur"
+          v-on="{
+            // focus: handleFocus,
+            // blur: handleBlur,
+          }"
         >
           <template v-for="(_, slot) in $scopedSlots" #[slot]="props">
             <slot :name="slot" v-bind="props" />
@@ -80,7 +81,7 @@ export default /*#__PURE__*/ {
     };
   },
   computed: {
-    columnsObjByKey() {
+    columnsByKey() {
       return arr2ObjByKey(this.columns, 'id');
     },
   },
@@ -105,7 +106,7 @@ export default /*#__PURE__*/ {
     reset() {
       this.invalid = false;
       this.$refs.formItem.forEach((el) => {
-        console.log(el);
+        el.$refs.field.$refs.input.reset();
       });
     },
     validity() {

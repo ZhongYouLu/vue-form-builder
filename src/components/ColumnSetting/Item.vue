@@ -10,19 +10,15 @@
       type="select"
       :options="sourceModeOptions"
       required
-      @update:value="update('srcMode', $event)"
+      @update:value="update(['srcMode'], $event)"
     />
     <hr class="dashed" />
     <template v-if="$props.srcMode === 'list'">
       <Block v-show="$props.options.length">
-        <Draggable :value="$props.options" @input="update('options', $event)">
+        <Draggable :value="$props.options" @input="update(['options'], $event)">
           <div v-for="(option, idx) in $props.options" :key="option.id" class="x-form-item">
             <div class="drag"><Icon icon="mdi:drag" />{{ idx + 1 }}</div>
-            <Field
-              :value="option.text"
-              :placeholder="`(${option.id})`"
-              @update:value="updateOption(option.id, 'text', $event)"
-            />
+            <Field :value.sync="option.text" :placeholder="`(${option.id})`" />
             <Button icon="mdi:close-thick" type="flat" shape="circle" @click="removeOption(option.id)" />
           </div>
         </Draggable>
@@ -30,27 +26,9 @@
       <Button icon="mdi:plus" type="dashed" block @click="addOption" />
     </template>
     <template v-else>
-      <FormItem
-        :id="`[${id}]-api-url`"
-        :value="$props.api.url"
-        desc="API URL"
-        required
-        @update:value="updateApi('url', $event)"
-      />
-      <FormItem
-        :id="`[${id}]-api-vk`"
-        :value="$props.api.textKey"
-        desc="Value Key"
-        required
-        @update:value="updateApi('textKey', $event)"
-      />
-      <FormItem
-        :id="`[${id}]-api-tk`"
-        :value="$props.api.valueKey"
-        desc="Text Key"
-        required
-        @update:value="updateApi('valueKey', $event)"
-      />
+      <FormItem :id="`[${id}]-api-url`" :value.sync="$props.api.url" desc="API URL" sub-type="url" required />
+      <FormItem :id="`[${id}]-api-vk`" :value.sync="$props.api.textKey" desc="Value Key" required />
+      <FormItem :id="`[${id}]-api-tk`" :value.sync="$props.api.valueKey" desc="Text Key" required />
     </template>
   </Block>
 </template>
@@ -58,7 +36,7 @@
 <script>
 import FormItem from '@/components/ui/form/FormItem';
 import { Button, Icon, Field, Block, Draggable } from '@/components/ui';
-import { nanoid } from '@/assets/js/helper.js';
+import { nanoid, arrRemoveValueByKey } from '@/assets/js/helper.js';
 import { convertOptions } from '@/assets/js/options.js';
 
 export default /*#__PURE__*/ {
@@ -76,10 +54,8 @@ export default /*#__PURE__*/ {
   props: {
     // 識別碼
     id: { type: String, required: true },
-    // 排除自己的所有欄位群
-    columnsExcludeSelf: { type: Array, required: true },
-    // 所有欄位群 (obj by key)
-    columnsObjByKey: { type: Object, required: true },
+    // Tab
+    tab: { type: String, required: true },
     //-----------
     // 資料來源模式
     srcMode: { validator: (value) => ['list', 'api'].includes(value), default: 'list' },
@@ -90,7 +66,7 @@ export default /*#__PURE__*/ {
     // API設定
     api: { type: Object, default: () => ({ url: '', textKey: '', valueKey: '' }) },
   },
-  emits: ['update', 'updateObj', 'updateArr', 'addArr', 'removeArr'],
+  emits: ['update'],
   computed: {
     sourceModeOptions() {
       return convertOptions({
@@ -107,35 +83,34 @@ export default /*#__PURE__*/ {
     },
   },
   created() {
-    this.$emit('init', {
+    this.$emit('update:column', this.id, [this.tab], {
       srcMode: this.srcMode,
       options: this.options,
+      api: this.api,
     });
   },
   methods: {
-    update(key, val) {
-      this.$emit('update', key, val);
-    },
-    updateApi(key, val) {
-      this.$emit('updateObj', 'api', key, val);
-    },
-    updateOption(id, key, val) {
-      this.$emit('updateArr', 'options', id, key, val);
+    update(path, val) {
+      this.$emit('update:column', this.id, [this.tab, ...path], val);
     },
     addOption() {
-      this.$emit('addArr', 'options', { id: nanoid(6), text: '' });
+      const newOptions = this.$props.options.concat({ id: nanoid(6), text: '' });
+      this.update(['options'], newOptions);
     },
     removeOption(id) {
+      const options = this.$props.options;
+
       // 確認刪除函式
       const allowFunc = () => {
-        this.$emit('removeArr', 'options', id);
+        const newOptions = arrRemoveValueByKey(options, 'id', id);
+        this.update(['options'], newOptions);
       };
 
-      const idx = this.$props.options.findIndex((option) => option.id === id);
-      const { text } = this.$props.options[idx];
+      const idx = options.findIndex((option) => option.id === id);
+      const { text } = options[idx];
       const showMsg = `確定刪除項目 #${idx + 1} [${text || id}] ?`;
 
-      if (this.handleConfirm) {
+      if (typeof this.handleConfirm === 'function') {
         this.handleConfirm(showMsg, allowFunc);
       } else {
         if (confirm(showMsg)) allowFunc();

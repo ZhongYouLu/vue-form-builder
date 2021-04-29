@@ -13,12 +13,14 @@
       :name="name || id"
       :required="!!required"
       :columns="columns"
-      :columns-obj-by-key="columnsObjByKey"
+      :columns-by-key="columnsByKey"
       :values="values"
       :value.sync="mutableValue"
       :error.sync="mutableError"
-      @focus="handleFocus"
-      @blur="handleBlur"
+      v-on="{
+        focus: handleFocus,
+        blur: handleBlur,
+      }"
     >
       <template v-for="(_, slot) in $scopedSlots" #[slot]="props">
         <slot :name="slot" v-bind="props" />
@@ -38,7 +40,7 @@ export default /*#__PURE__*/ {
   inheritAttrs: false,
   props: {
     columns: { type: Array, default: null },
-    columnsObjByKey: { type: Object, default: null },
+    columnsByKey: { type: Object, default: null },
     values: { type: Object, default: null },
     // ------------
     id: { type: String, required: true },

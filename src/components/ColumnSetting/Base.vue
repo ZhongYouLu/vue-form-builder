@@ -8,7 +8,7 @@
       :key="k"
       v-bind="v.props"
       :value="$props[k]"
-      @update:value="$emit('update', k, $event)"
+      @update:value="$emit('update:column', id, [tab, k], $event)"
     >
       <template v-for="(_, slot) in $scopedSlots" #[slot]="props">
         <slot :name="slot" v-bind="props" />
@@ -32,10 +32,12 @@ export default /*#__PURE__*/ {
   props: {
     // 識別碼
     id: { type: String, required: true },
+    // Tab
+    tab: { type: String, required: true },
     // 欄位屬性約束
     typeConstraint: { type: Object, required: true },
     // 所有欄位群 (obj by key)
-    columnsObjByKey: { type: Object, required: true },
+    columnsByKey: { type: Object, required: true },
     //-----------
     // 欄位說明
     desc: { type: String, default: null },
@@ -96,7 +98,7 @@ export default /*#__PURE__*/ {
           ...fields.defaultValue.props,
           type: 'select',
           placeholder: '請選擇',
-          options: this.columnsObjByKey[this.id].item?.options,
+          options: this.columnsByKey[this.id].item?.options,
           multiple: !!this.typeConstraint.isMultiple,
           clearable: true,
           taggable: true,

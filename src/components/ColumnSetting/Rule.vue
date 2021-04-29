@@ -17,9 +17,9 @@
     />
     <hr class="dashed" />
     <div v-for="(v, k) in fields" :key="k" class="input-group">
-      <FormItem :id="`[${id}]-${k}`" v-bind="v.props" :value="$props[k]" @update:value="update(k, $event)">
+      <FormItem :id="`[${id}]-${k}`" v-bind="v.props" :value="$props[k]" @update:value="updateRule([k], $event)">
         <template #text-right>
-          <Button icon="mdi:ideogram-cjk-variant" type="flat" shape="circle" @click="setToggleMsg(k)" />
+          <Button icon="mdi:ideogram-cjk-variant" type="flat" shape="circle" @click="toggleToggleMsg(k)" />
         </template>
         <template v-for="(_, slot) in $scopedSlots" #[slot]="props">
           <slot :name="slot" v-bind="props" />
@@ -31,7 +31,7 @@
         :id="`[${id}]-${k}-msg`"
         :value="$props.msg[k]"
         :placeholder="v.msg"
-        @update:value="$emit('updateObj', 'msg', k, $event)"
+        @update:value="updateRule(['msg', k], $event)"
       />
     </div>
   </Block>
@@ -41,8 +41,10 @@
 import Block from '@/components/ui/Block';
 import FormItem from '@/components/ui/form/FormItem';
 import Button from '@/components/ui/Button';
+import { getters as collectsGetters, mutations as collectsMutations } from '@/store/collects.js';
+
 import { arrRemoveValue } from '@/assets/js/helper.js';
-// import { typeIcons, regexOptions } from '@/assets/js/options.js';
+import { typeIcons, regexOptions } from '@/assets/js/options.js';
 
 export default /*#__PURE__*/ {
   name: 'ColumnSettingRule',
@@ -51,11 +53,12 @@ export default /*#__PURE__*/ {
     FormItem,
     Button,
   },
-  inject: ['collect', 'setCollect', 'typeIcons', 'regexOptions'],
   inheritAttrs: false,
   props: {
     // 識別碼
     id: { type: String, required: true },
+    // Tab
+    tab: { type: String, required: true },
     // 欄位名稱
     name: { type: String, required: true },
     // 欄位屬性約束
@@ -63,7 +66,7 @@ export default /*#__PURE__*/ {
     // 排除自己的所有欄位群
     columnsExcludeSelf: { type: Array, required: true },
     // 所有欄位群 (obj by key)
-    columnsObjByKey: { type: Object, required: true },
+    columnsByKey: { type: Object, required: true },
     //-----------
     // 規則提示
     msg: { type: Object, default: () => ({}) },
@@ -84,13 +87,18 @@ export default /*#__PURE__*/ {
     // 選擇數量上限 [多選框選項]
     most: { type: Number, default: null },
   },
-  emits: ['update', 'updateObj'],
+  emits: ['update'],
   computed: {
+    ...collectsGetters,
+    typeIcons() {
+      return typeIcons;
+    },
+    regexOptions() {
+      return regexOptions;
+    },
     fields() {
       const name = this.name || this.id;
-      const sameAsName = this.sameAs
-        ? this.columnsObjByKey[this.sameAs].name || this.columnsObjByKey[this.sameAs].id
-        : '';
+      const sameAsName = this.sameAs ? this.columnsByKey[this.sameAs].name || this.columnsByKey[this.sameAs].id : '';
 
       let fields = {};
 
@@ -176,7 +184,7 @@ export default /*#__PURE__*/ {
       return fields;
     },
     toggleMsg() {
-      return this.collect[this.id]['toggleMsg'];
+      return this.collects[this.id]['toggleMsg'];
     },
     requiredPassiveOptions() {
       return this.required ? [] : this.columnsExcludeSelf;
@@ -197,40 +205,24 @@ export default /*#__PURE__*/ {
     },
   },
   created() {
-    this.$emit('init', {
-      msg: this.msg,
-      requiredPassive: this.requiredPassive,
-      required: this.required,
-      sameAs: this.sameAs,
-      minimum: this.minimum,
-      maximum: this.maximum,
-      regex: this.regex,
-      least: this.least,
-      most: this.most,
-    });
-
-    this.setCollect(this.id, 'toggleMsg', {});
+    this.setCollect([this.id, 'toggleMsg']);
+    this.updateRule(['msg'], {});
+    this.updateRule(['requiredPassive'], []);
 
     // if (this.regex && this.regexOptions.findIndex((option) => option.value === this.regex) === -1) {
     //   this.regexOptions.push({ id: this.regex, text: this.regex });
     // }
   },
   methods: {
-    update(k, v) {
-      this.$emit('update', k, v);
-
-      if (this.toggleMsg[k] === undefined) {
-        this.setToggleMsg(k, false);
-      }
+    ...collectsMutations,
+    updateRule(path, val) {
+      this.$emit('update:column', this.id, [this.tab, ...path], val);
     },
-    setToggleMsg(k, v) {
-      this.setCollect(this.id, 'toggleMsg', {
-        ...this.toggleMsg,
-        [k]: v !== undefined ? v : !this.toggleMsg[k],
-      });
+    toggleToggleMsg(k) {
+      this.toggleCollect([this.id, 'toggleMsg', k]);
     },
     handleRequiredSync(isAdd, { id }) {
-      const target = this.columnsObjByKey[id];
+      const target = this.columnsByKey[id];
       const requiredPassive = target.rule?.requiredPassive || [];
 
       if (isAdd) {

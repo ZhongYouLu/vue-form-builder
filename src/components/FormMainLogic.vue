@@ -2,6 +2,7 @@
   <div>
     <slot
       :columns="columns"
+      :columnsByKey="columnsByKey"
       :finalColumns="finalColumns"
       :invokeUpdateColumns="invokeUpdateColumns"
       :invokeAdd="invokeAdd"
@@ -15,6 +16,7 @@
 import {
   nanoid,
   isEmpty,
+  arr2ObjByKey,
   clearEmpties,
   arrUpdateItemByKey,
   arrRemoveValueByKey,
@@ -54,13 +56,8 @@ export default /*#__PURE__*/ {
     finalColumns() {
       return this.columns.map((column) => this.processColumn(column));
     },
-    allRegexValue() {
-      return this.columns.reduce((acc, c) => {
-        if (c.rule?.regex) {
-          acc.push(c.rule.regex);
-        }
-        return acc;
-      }, []);
+    columnsByKey() {
+      return arr2ObjByKey(this.columns, 'id');
     },
     mutableRegexOption: {
       get() {
@@ -80,10 +77,10 @@ export default /*#__PURE__*/ {
     },
   },
   created() {
-    this.updatRegexOption();
+    this.updateRegexOption();
   },
   updated() {
-    this.updatRegexOption();
+    this.updateRegexOption();
   },
   methods: {
     // 監聽欄位群
@@ -123,10 +120,17 @@ export default /*#__PURE__*/ {
         }
       }
     },
-    updatRegexOption() {
-      if (this.allRegexValue) {
+    updateRegexOption() {
+      const allRegexValue = this.columns.reduce((acc, c) => {
+        if (c.rule?.regex) {
+          acc.push(c.rule.regex);
+        }
+        return acc;
+      }, []);
+
+      if (allRegexValue) {
         const addIds = difference(
-          this.allRegexValue,
+          allRegexValue,
           this.mutableRegexOption.map((option) => option.id)
         );
         addIds.forEach((val) => {

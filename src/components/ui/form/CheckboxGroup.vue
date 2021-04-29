@@ -111,7 +111,10 @@ export default /*#__PURE__*/ {
     },
     focus(idx) {
       if (idx == null || idx < 0 || idx > this.$refs.checkbox.length - 1) idx = 0;
-      this.$nextTick(() => this.$refs.checkbox[idx].focus());
+
+      if (this.$refs.checkbox[idx]) {
+        this.$nextTick(() => this.$refs.checkbox[idx].focus());
+      }
     },
     checkAll() {
       this.mutableValue = Object.keys(this.localValue).map((key) => key);
@@ -163,7 +166,7 @@ export default /*#__PURE__*/ {
 
       switch (this.errorType) {
         case 'min':
-          this.focus();
+          // this.focus();
           this.tips = `請至少選擇${this.localMin}項`;
           break;
         case 'max':

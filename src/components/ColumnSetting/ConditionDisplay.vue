@@ -109,7 +109,7 @@
           :list.sync="child.list"
           :level="level + 1"
           :root-logic="root ? rootLogic : logic"
-          :columns-obj-by-key="columnsObjByKey"
+          :columns-by-key="columnsByKey"
           :columns-exclude-self="columnsExcludeSelf"
           @remove="removeItem"
         >
@@ -145,7 +145,7 @@ export default /*#__PURE__*/ {
   inject: ['handleConfirm'],
   props: {
     columnsExcludeSelf: { type: Array, required: true },
-    columnsObjByKey: { type: Object, required: true },
+    columnsByKey: { type: Object, required: true },
     //-----------
     id: { type: String, default: null },
     triggerId: { type: String, default: null },
@@ -182,7 +182,7 @@ export default /*#__PURE__*/ {
       return !this.leaf && !!this.list.length;
     },
     triggerColumn() {
-      return this.triggerId ? this.columnsObjByKey[this.triggerId] : null;
+      return this.triggerId ? this.columnsByKey[this.triggerId] : null;
     },
     typeConstraint() {
       if (!this.triggerColumn) return null;
@@ -286,7 +286,7 @@ export default /*#__PURE__*/ {
       };
       const showMsg = `確定${this.leaf ? '轉為' : '取消'}群組?`;
 
-      if (this.handleConfirm) {
+      if (typeof this.handleConfirm === 'function') {
         this.handleConfirm(showMsg, allowFunc);
       } else {
         if (confirm(showMsg)) allowFunc();
@@ -301,7 +301,7 @@ export default /*#__PURE__*/ {
       };
       const showMsg = `確定刪除顯示條件?`;
 
-      if (this.handleConfirm) {
+      if (typeof this.handleConfirm === 'function') {
         this.handleConfirm(showMsg, allowFunc);
       } else {
         if (confirm(showMsg)) allowFunc();

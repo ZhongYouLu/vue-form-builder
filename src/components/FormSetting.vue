@@ -1,7 +1,7 @@
 <template>
   <div class="form-setting">
-    <Draggable :value="columns" @input="invokeUpdateColumns">
-      <Block v-for="({ id, name, ...column }, idx) in columns" :key="id" radius shadow>
+    <Draggable v-model="mutableColumns">
+      <Block v-for="({ id, name, ...column }, idx) in mutableColumns" :key="id" radius shadow>
         <Card>
           <!-- Card Header -->
           <template #cardHeader>
@@ -9,9 +9,9 @@
               name="cardHeader"
               :idx="idx"
               :column="column"
-              :isOpen="collect[id].isOpen"
+              :isOpen="collects[id].isOpen"
               :toggleIsOpen="toggleIsOpen.bind(null, id)"
-              :isEditName="collect[id].isEditName"
+              :isEditName="collects[id].isEditName"
               :toggleIsEditName="toggleIsEditName.bind(null, id)"
             >
               <div class="drag">
@@ -19,12 +19,12 @@
                 <span>#{{ idx + 1 }}</span>
               </div>
               <div class="card__name">
-                <template v-if="collect[id].isEditName">
+                <template v-if="collects[id].isEditName">
                   <Field
                     :ref="`editName-${id}`"
                     :value="name"
                     :placeholder="id"
-                    @update:value="updateColumn(id, { name: $event })"
+                    @update:value="setColumnById(id, ['name'], $event)"
                     @handle:enter="handleEditNameEnter(id)"
                   />
                 </template>
@@ -36,7 +36,7 @@
                   type="flat"
                   shape="circle"
                   color="#fff"
-                  :icon="collect[id].isEditName ? 'ic:baseline-done-outline' : 'mi:edit-alt'"
+                  :icon="collects[id].isEditName ? 'ic:baseline-done-outline' : 'mi:edit-alt'"
                   @click="toggleIsEditName(id)"
                 />
               </div>
@@ -45,10 +45,16 @@
                   type="flat"
                   shape="circle"
                   color="#fff"
-                  :icon="collect[id].isOpen ? 'mdi:eye-minus' : 'mdi:eye-settings'"
+                  :icon="collects[id].isOpen ? 'mdi:eye-minus' : 'mdi:eye-settings'"
                   @click="toggleIsOpen(id)"
                 />
-                <Button type="flat" shape="circle" color="#fff" icon="mdi:close-thick" @click="invokeRemove(id)" />
+                <Button
+                  type="flat"
+                  shape="circle"
+                  color="#fff"
+                  icon="mdi:close-thick"
+                  @click="handleRemoveColumn(id)"
+                />
               </div>
             </slot>
           </template>
@@ -56,13 +62,14 @@
           <template #cardMain>
             <slot name="cardMain">
               <ColumnSetting
-                v-show="collect[id].isOpen"
+                v-show="collects[id].isOpen"
                 :id="id"
                 :name="name"
                 v-bind="column"
                 :idx="idx"
-                :columns="columns"
-                @update:column="updateColumn(id, $event)"
+                :columns="mutableColumns"
+                :columns-by-key="columnsByKey"
+                @update:column="setColumnById(...arguments)"
               >
                 <template v-for="(_, slot) in $scopedSlots" #[slot]="props">
                   <slot :name="slot" v-bind="props" />
@@ -73,13 +80,19 @@
         </Card>
       </Block>
     </Draggable>
-    <Button icon="mdi:plus" type="dashed" block @click="invokeAdd" />
+    <Button icon="mdi:plus" type="dashed" block @click="addColumn" />
   </div>
 </template>
 
 <script>
 import { Draggable, Block, Card, Button, Icon, Field } from '@/components/ui';
 import ColumnSetting from '@/components/ColumnSetting';
+import {
+  getters as columnsGetters,
+  mutations as columnsMutations,
+  actions as columnsActions,
+} from '@/store/columns.js';
+import { getters as collectsGetters, mutations as collectsMutations } from '@/store/collects.js';
 
 export default /*#__PURE__*/ {
   name: 'FormSetting',
@@ -92,25 +105,21 @@ export default /*#__PURE__*/ {
     Field,
     ColumnSetting,
   },
-  inject: ['collect', 'toggleCollect'],
-  props: {
-    columns: { type: Array, required: true },
-    invokeUpdateColumns: { type: Function, required: true },
-    invokeAdd: { type: Function, required: true },
-    invokeUpdate: { type: Function, required: true },
-    invokeRemove: { type: Function, required: true },
+  computed: {
+    ...columnsGetters,
+    ...collectsGetters,
   },
   methods: {
-    updateColumn(id, updateProps) {
-      this.invokeUpdate(id, updateProps);
-    },
+    ...columnsMutations,
+    ...columnsActions,
+    ...collectsMutations,
     toggleIsOpen(columnId) {
-      this.toggleCollect(columnId, 'isOpen');
+      this.toggleCollect([columnId, 'isOpen']);
     },
     toggleIsEditName(columnId) {
-      this.toggleCollect(columnId, 'isEditName');
+      this.toggleCollect([columnId, 'isEditName']);
 
-      if (this.collect[columnId].isEditName) {
+      if (this.collects[columnId].isEditName) {
         this.$nextTick(() => {
           const refEditName = this.$refs[`editName-${columnId}`][0];
           if (refEditName) {

@@ -9,7 +9,7 @@
       type="select"
       :options="typeOptions"
       required
-      @update:value="updateColumn('type', $event)"
+      @update:value="update(['type'], $event)"
     />
     <!-- Tabs -->
     <nav class="tabs">
@@ -28,39 +28,18 @@
         :id="id"
         :key="`${id}-${tab}`"
         :name="column.name"
+        :tab="tab"
         :type-constraint="typeConstraint"
+        :columns-by-key="columnsByKey"
         :columns-exclude-self="columnsExcludeSelf"
-        :columns-obj-by-key="columnsObjByKey"
         v-bind="column[tab]"
-        @init="updateColumn(tab, $event)"
-        @update="updateColumnTab(tab, ...arguments)"
-        @updateObj="updateColumnTabObj(tab, ...arguments)"
-        @addArr="addColumnTabArr(tab, ...arguments)"
-        @updateArr="updateColumnTabArr(tab, ...arguments)"
-        @removeArr="removeColumnTabArr(tab, ...arguments)"
+        @update:column="updateColumn(...arguments)"
       >
         <template v-for="(_, slot) in $scopedSlots" #[slot]="props">
           <slot :name="slot" v-bind="props" />
         </template>
       </component>
     </template>
-    <!-- <keep-alive>
-      <component
-        :is="currentCmp.component"
-        v-bind="currentCmp.props"
-        v-show="tabs[currentTab].show"
-        @init="updateColumn(currentTab, $event)"
-        @update="updateColumnTab(currentTab, ...arguments)"
-        @updateObj="updateColumnTabObj(currentTab, ...arguments)"
-        @addArr="addColumnTabArr(currentTab, ...arguments)"
-        @updateArr="updateColumnTabArr(currentTab, ...arguments)"
-        @removeArr="removeColumnTabArr(currentTab, ...arguments)"
-      >
-        <template v-for="(_, slot) in $scopedSlots" #[slot]="props">
-          <slot :name="slot" v-bind="props" />
-        </template>
-      </component>
-    </keep-alive> -->
   </div>
 </template>
 
@@ -71,13 +50,7 @@ import SettingItem from '@/components/ColumnSetting/Item';
 import SettingRule from '@/components/ColumnSetting/Rule';
 import SettingCondition from '@/components/ColumnSetting/Condition';
 import { typeOptions, getTypeConstraint } from '@/assets/js/options.js';
-import {
-  arr2ObjByKey,
-  arrUpdateItemByKey,
-  arrRemoveItemByKey,
-  arrRemoveValues,
-  difference,
-} from '@/assets/js/helper.js';
+import { arrUpdateItemByKey, arrRemoveValueByKey, arrRemoveValues, difference } from '@/assets/js/helper.js';
 
 export default /*#__PURE__*/ {
   name: 'ColumnSetting',
@@ -91,6 +64,7 @@ export default /*#__PURE__*/ {
   props: {
     idx: { type: Number, required: true },
     columns: { type: Array, required: true },
+    columnsByKey: { type: Object, required: true },
     //-----------
     // 識別碼
     id: { type: String, required: true },
@@ -134,22 +108,6 @@ export default /*#__PURE__*/ {
         condition: { text: '條件', show: true },
       };
     },
-    // currentCmp() {
-    //   const config = {
-    //     component: `setting-${this.currentTab}`,
-    //     props: {
-    //       id: this.column.id,
-    //       name: this.column.name,
-    //       typeConstraint: this.typeConstraint,
-    //       columnsExcludeSelf: this.columnsExcludeSelf,
-    //       columnsObjByKey: this.columnsObjByKey,
-    //       // -------------------------------------
-    //       ...this.column[this.currentTab],
-    //     },
-    //   };
-
-    //   return config;
-    // },
     typeOptions() {
       return typeOptions;
     },
@@ -157,31 +115,26 @@ export default /*#__PURE__*/ {
       return getTypeConstraint(this.type, this.base.subType, this.base.multiple);
     },
     columnsExcludeSelf() {
-      return arrRemoveItemByKey(this.columns, 'id', this.id);
-    },
-    columnsObjByKey() {
-      return arr2ObjByKey(this.columns, 'id');
+      return arrRemoveValueByKey(this.columns, 'id', this.id);
     },
   },
   // 監聽連動 [Side Effect]
   watch: {
     type: function () {
       this.initBaseDefaultValue();
-
       if (!this.typeConstraint.isText) {
-        this.updateColumn('base', { ...this.column.base, subType: null });
+        this.update(['base', 'subType'], null);
       }
-
-      this.updateColumn('rule', { ...this.column.rule, sameAs: null });
-
+      this.update(['rule', 'sameAs'], null);
       // 連動 [Side Effect]
       this.columnsExcludeSelf.map((c) => {
         if (c.condition?.display) {
-          c.condition.display = this.initConditionDisplayValue(c.condition.display);
+          this.updateColumn(c.id, ['condition', 'display'], this.initConditionDisplayValue(c.condition.display));
         }
-        if (c.rule?.sameAs === this.id) c.rule.sameAs = null;
+        if (c.rule?.sameAs === this.id) {
+          this.updateColumn(c.id, ['rule', 'sameAs'], null);
+        }
       });
-
       if (!this.typeConstraint.needOptions) {
         if (this.currentTab === 'item') {
           this.currentTab = 'base';
@@ -193,7 +146,7 @@ export default /*#__PURE__*/ {
     },
     'rule.required': function (required) {
       if (required) {
-        this.updateColumnTab('rule', 'requiredPassive', []);
+        this.update(['rule', 'requiredPassive'], []);
       }
     },
     'item.options': function (after, before) {
@@ -201,67 +154,44 @@ export default /*#__PURE__*/ {
         const deductOptions = difference(before, after || []);
         const deductOptionIds = deductOptions.map((option) => option.id);
 
-        if (this.column.base?.defaultValue?.some((value) => deductOptionIds.includes(value))) {
-          this.updateColumn('base', {
-            ...this.column.base,
-            defaultValue: arrRemoveValues(this.base.defaultValue, deductOptionIds),
-          });
+        if (this.column.base?.defaultValue) {
+          console.log(this.column.base.defaultValue);
+          if (Array.isArray(this.column.base.defaultValue)) {
+            if (this.column.base.defaultValue.some((value) => deductOptionIds.includes(value))) {
+              this.update(['base', 'defaultValue'], arrRemoveValues(this.base.defaultValue, deductOptionIds));
+            }
+          } else if (deductOptionIds.includes(this.column.base.defaultValue)) {
+            this.update(['base', 'defaultValue'], null);
+          }
         }
-
         this.columnsExcludeSelf.map((c) => {
           if (c.condition?.display) {
-            c.condition.display = this.removeConditionDisplayValue(c.condition.display, deductOptionIds);
+            this.updateColumn(
+              c.id,
+              ['condition', 'display'],
+              this.removeConditionDisplayValue(c.condition.display, deductOptionIds)
+            );
           }
         });
       }
     },
   },
   methods: {
-    updateColumn(tab, newTab) {
-      // console.log(`updateColumn[${tab}]`, newTab);
-      this.column[tab] = newTab;
-      this.$emit('update:column', this.column);
+    updateColumn(id, path, val) {
+      this.$emit('update:column', id, path, val);
     },
-    updateColumnTab(tab, targetKey, targetVal) {
-      // console.log(`updateColumnTab[${tab}][${targetKey}]`, targetVal);
-      const newTab = { ...this.column[tab], [targetKey]: targetVal };
-      this.updateColumn(tab, newTab);
+    update(path, val) {
+      this.updateColumn(this.id, path, val);
     },
-    updateColumnTabObj(tab, targetKey, k, v) {
-      // console.log(`updateColumnTabObj[${tab}][${targetKey}][${k}]`, v);
-      const newTarget = { ...this.column[tab][targetKey], [k]: v };
-      this.updateColumnTab(tab, targetKey, newTarget);
-    },
-    addColumnTabArr(tab, targetKey, v) {
-      // console.log(`addColumnTabArr[${tab}][${targetKey}]`, v);
-      const target = this.column[tab][targetKey];
-      const newTarget = target ? [...target, v] : [v];
-      this.updateColumnTab(tab, targetKey, newTarget);
-    },
-    updateColumnTabArr(tab, targetKey, id, k, v) {
-      // console.log(`updateColumnTabArr[${tab}][${targetKey}][${id}][${k}]`, v);
-      const newTarget = arrUpdateItemByKey(this.column[tab][targetKey], 'id', id, { [k]: v });
-      this.updateColumnTab(tab, targetKey, newTarget);
-    },
-    removeColumnTabArr(tab, targetKey, id) {
-      // console.log(`removeColumnTabArr[${tab}][${targetKey}]`, id);
-      const newTarget = arrRemoveItemByKey(this.column[tab][targetKey], 'id', id);
-      this.updateColumnTab(tab, targetKey, newTarget);
-    },
-    // -------------
     initBaseDefaultValue(multiple) {
-      this.updateColumn('base', {
-        ...this.column.base,
-        multiple: multiple ? 1 : null,
-        defaultValue: multiple ? [] : null,
-      });
+      this.update(['base', 'multiple'], multiple ? 1 : null);
+      this.update(['base', 'defaultValue'], multiple ? [] : null);
     },
     initConditionDisplayValue(arr) {
       if (!Array.isArray(arr)) return arr;
 
       return arr.map((d) => {
         if (d.triggerId === this.id) {
-          console.log('????');
           d.value = null;
         }
         if (d.list && d.list.length) {

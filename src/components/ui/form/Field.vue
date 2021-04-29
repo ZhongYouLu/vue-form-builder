@@ -39,7 +39,7 @@ export default /*#__PURE__*/ {
   inheritAttrs: false,
   props: {
     columns: { type: Array, default: null },
-    columnsObjByKey: { type: Object, default: null },
+    columnsByKey: { type: Object, default: null },
     values: { type: Object, default: null },
     // ------------
     id: { type: String, default: null },
@@ -80,7 +80,6 @@ export default /*#__PURE__*/ {
         return this.value;
       },
       set(value) {
-        // console.log('mutableValue', value);
         this.$emit('update:value', value);
       },
     },
@@ -171,14 +170,14 @@ export default /*#__PURE__*/ {
       }
 
       // 檢查 - 與..相符
-      if (this.columnsObjByKey && this.sameAs && this.columnsObjByKey[this.sameAs]) {
+      if (this.columnsByKey && this.sameAs && this.columnsByKey[this.sameAs]) {
         if (
           // 如果同類型
-          this.columnsObjByKey[this.id].type === this.columnsObjByKey[this.sameAs].type &&
+          this.columnsByKey[this.id].type === this.columnsByKey[this.sameAs].type &&
           // 且相符
           value !== this.values[this.sameAs]
         ) {
-          const sameAs = this.columnsObjByKey[this.sameAs];
+          const sameAs = this.columnsByKey[this.sameAs];
           const sameAsName = sameAs.name || sameAs.id;
 
           this.errorMsg = (this.msg.sameAs || `[${name}] 與 [[:sameAs]] 不相符`).replace('[:sameAs]', sameAsName);

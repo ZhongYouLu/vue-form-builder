@@ -3,41 +3,7 @@
   <div class="x-input" :disabled="disabled" :invalid="invalid" :block="block" :multi="multi">
     <Tips type="error" :tabindex="disabled ? -1 : null" :dir="errordir" :tips="tips" :show="showTips">
       <Icon v-if="icon" class="x-input__pre" :icon="icon" />
-      <template v-if="true">
-        <textarea
-          v-if="multi"
-          ref="input"
-          v-model="mutableValue"
-          v-bind="bindAttrs"
-          @focus="handleFocus"
-          @blur="handleBlur"
-          @input="handleInput"
-          @keydown="handleKeydown"
-          @keyup="handleKeyup"
-        />
-        <input
-          v-else-if="type === 'number'"
-          ref="input"
-          v-model.number="mutableValue"
-          v-bind="bindAttrs"
-          @focus="handleFocus"
-          @blur="handleBlur"
-          @input="handleInput"
-          @keydown="handleKeydown"
-          @keyup="handleKeyup"
-        />
-        <input
-          v-else
-          ref="input"
-          v-model.trim="mutableValue"
-          v-bind="bindAttrs"
-          @focus="handleFocus"
-          @blur="handleBlur"
-          @input="handleInput"
-          @keydown="handleKeydown"
-          @keyup="handleKeyup"
-        />
-      </template>
+      <component :is="multi ? 'textarea' : 'input'" ref="input" v-bind="bindAttrs" v-on="bindEvents" />
       <label v-if="label && !icon" class="x-input__label">{{ label }}</label>
       <template v-if="!multi">
         <div v-if="type === 'number'" class="x-input__right x-input__right--number">
@@ -131,6 +97,11 @@ export default /*#__PURE__*/ {
         return this.value;
       },
       set(val) {
+        if (val) {
+          val = val.trim();
+          if (this.type === 'number') val = Number(val);
+        }
+
         this.$emit('update:value', val !== '' ? val : null);
       },
     },
@@ -165,6 +136,7 @@ export default /*#__PURE__*/ {
         id: this.id,
         name: this.name,
         type: this.localType,
+        value: this.mutableValue,
         class: this.classes,
         placeholder: this.label || this.placeholder,
         minlength: this.minlength,
@@ -193,9 +165,20 @@ export default /*#__PURE__*/ {
 
       return temp;
     },
+    bindEvents() {
+      return {
+        input: this.handleInput,
+        keydown: this.handleKeydown,
+        keyup: this.handleKeyup,
+        focus: this.handleFocus,
+        blur: this.handleBlur,
+      };
+    },
   },
   watch: {
-    mutableValue: function () {
+    mutableValue(val) {
+      this.$refs.input.value = val;
+
       this.$nextTick(() => {
         this.checkValidity();
       });
@@ -283,6 +266,20 @@ export default /*#__PURE__*/ {
 
       return !this.invalid;
     },
+    handleInput(e) {
+      e.stopPropagation();
+
+      this.mutableValue = e.target.value;
+
+      if (this.debounce) {
+        this.inputTimer && clearTimeout(this.inputTimer);
+        this.inputTimer = setTimeout(() => {
+          this.callInput && this.callInput(this.value);
+        }, this.debounce);
+      } else {
+        this.callInput && this.callInput(this.value);
+      }
+    },
     handleKeydown(e) {
       switch (e.keyCode) {
         case 13: //Enter
@@ -310,23 +307,13 @@ export default /*#__PURE__*/ {
           break;
       }
     },
-    handleInput(e) {
-      e.stopPropagation();
-
-      if (this.debounce) {
-        this.inputTimer && clearTimeout(this.inputTimer);
-        this.inputTimer = setTimeout(() => {
-          this.callInput && this.callInput(this.value);
-        }, this.debounce);
-      } else {
-        this.callInput && this.callInput(this.value);
-      }
-    },
     handleFocus(e) {
       // this.checkValidity();
       this.$emit('focus', e);
     },
     handleBlur(e) {
+      this.$refs.input.value = this.mutableValue;
+
       this.checkValidity();
       this.$emit('blur', e);
     },
@@ -342,11 +329,11 @@ export default /*#__PURE__*/ {
     },
     invokeAdd() {
       this.$refs.input.stepUp();
-      this.mutableValue = Number(this.$refs.input.value);
+      this.mutableValue = this.$refs.input.value;
     },
     invokeSub() {
       this.$refs.input.stepDown();
-      this.mutableValue = Number(this.$refs.input.value);
+      this.mutableValue = this.$refs.input.value;
     },
   },
 };
