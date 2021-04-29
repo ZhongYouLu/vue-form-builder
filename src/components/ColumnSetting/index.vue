@@ -9,7 +9,7 @@
       type="select"
       :options="typeOptions"
       required
-      @update:value="update(['type'], $event)"
+      @update:value="updateColumn(['type'], $event)"
     />
     <!-- Tabs -->
     <nav class="tabs">
@@ -28,12 +28,12 @@
         :id="id"
         :key="`${id}-${tab}`"
         :name="column.name"
+        v-bind="column[tab]"
         :tab="tab"
         :type-constraint="typeConstraint"
         :columns-by-key="columnsByKey"
         :columns-exclude-self="columnsExcludeSelf"
-        v-bind="column[tab]"
-        @update:column="updateColumn(...arguments)"
+        @update:column="updateColumnById(...arguments)"
       >
         <template v-for="(_, slot) in $scopedSlots" #[slot]="props">
           <slot :name="slot" v-bind="props" />
@@ -49,8 +49,9 @@ import SettingBase from '@/components/ColumnSetting/Base';
 import SettingItem from '@/components/ColumnSetting/Item';
 import SettingRule from '@/components/ColumnSetting/Rule';
 import SettingCondition from '@/components/ColumnSetting/Condition';
+import { getters as collectsGetters, mutations as collectsMutations } from '@/store/collects.js';
 import { typeOptions, getTypeConstraint } from '@/assets/js/options.js';
-import { arrUpdateItemByKey, arrRemoveValueByKey, arrRemoveValues, difference } from '@/assets/js/helper.js';
+import { arrRemoveValueByKey, arrRemoveValues, difference } from '@/assets/js/helper.js';
 
 export default /*#__PURE__*/ {
   name: 'ColumnSetting',
@@ -82,12 +83,8 @@ export default /*#__PURE__*/ {
     condition: { type: Object, default: () => ({}) },
   },
   emits: ['update:column'],
-  data() {
-    return {
-      currentTab: 'base',
-    };
-  },
   computed: {
+    ...collectsGetters,
     column() {
       return {
         id: this.id,
@@ -108,11 +105,19 @@ export default /*#__PURE__*/ {
         condition: { text: '條件', show: true },
       };
     },
+    currentTab: {
+      get() {
+        return this.collects[this.id].currentTab;
+      },
+      set(tab) {
+        this.setCollect([this.id, 'currentTab'], tab);
+      },
+    },
     typeOptions() {
       return typeOptions;
     },
     typeConstraint() {
-      return getTypeConstraint(this.type, this.base.subType, this.base.multiple);
+      return getTypeConstraint(this.type);
     },
     columnsExcludeSelf() {
       return arrRemoveValueByKey(this.columns, 'id', this.id);
@@ -120,72 +125,82 @@ export default /*#__PURE__*/ {
   },
   // 監聽連動 [Side Effect]
   watch: {
-    type: function () {
-      this.initBaseDefaultValue();
-      if (!this.typeConstraint.isText) {
-        this.update(['base', 'subType'], null);
+    typeConstraint: function (after, before) {
+      if (!after.needOptions && this.currentTab === 'item') {
+        this.currentTab = 'base';
       }
-      this.update(['rule', 'sameAs'], null);
-      // 連動 [Side Effect]
+
+      // 移除 [與...相符](sameAs)
+      this.updateColumn(['rule', 'sameAs'], null);
       this.columnsExcludeSelf.map((c) => {
-        if (c.condition?.display) {
-          this.updateColumn(c.id, ['condition', 'display'], this.initConditionDisplayValue(c.condition.display));
-        }
         if (c.rule?.sameAs === this.id) {
-          this.updateColumn(c.id, ['rule', 'sameAs'], null);
+          this.updateColumnById(c.id, ['rule', 'sameAs'], null);
         }
       });
-      if (!this.typeConstraint.needOptions) {
-        if (this.currentTab === 'item') {
-          this.currentTab = 'base';
-        }
+
+      // 非文字框，移除 [欄位性質](subType)
+      if (!after.isText) {
+        this.updateColumn(['base', 'subType'], null);
       }
+
+      // 不可多選，移除 [可複選](multiple)
+      if (!after.canMultiple) {
+        this.updateColumn(['base', 'multiple'], null);
+      }
+
+      // TODO: Checkbox & is't multiple , doesn't init defaultValue
+      if (!after.needOptions || !before.needOptions) {
+        this.initDefaultValue(null);
+        this.columnsExcludeSelf.map((c) => {
+          if (c.condition?.display) {
+            this.initConditionDisplayValue(c.condition.display);
+          }
+        });
+      }
+
+      // 連動 [Side Effect]
     },
     'base.multiple': function (multiple) {
-      this.initBaseDefaultValue(!!multiple);
+      this.initDefaultValue(multiple);
     },
     'rule.required': function (required) {
       if (required) {
-        this.update(['rule', 'requiredPassive'], []);
+        this.updateColumn(['rule', 'requiredPassive'], []);
       }
     },
-    'item.options': function (after, before) {
-      if (after?.length < before?.length || (!after && before)) {
-        const deductOptions = difference(before, after || []);
-        const deductOptionIds = deductOptions.map((option) => option.id);
+    'item.options': function (after = [], before = []) {
+      if (after.length < before.length) {
+        const deductOptionIds = difference(before, after).map((option) => option.id);
 
         if (this.column.base?.defaultValue) {
-          console.log(this.column.base.defaultValue);
-          if (Array.isArray(this.column.base.defaultValue)) {
-            if (this.column.base.defaultValue.some((value) => deductOptionIds.includes(value))) {
-              this.update(['base', 'defaultValue'], arrRemoveValues(this.base.defaultValue, deductOptionIds));
-            }
-          } else if (deductOptionIds.includes(this.column.base.defaultValue)) {
-            this.update(['base', 'defaultValue'], null);
+          if (!this.base.multiple && deductOptionIds.includes(this.column.base.defaultValue)) {
+            this.updateColumn(['base', 'defaultValue'], null);
+          } else if (this.column.base.defaultValue.some((value) => deductOptionIds.includes(value))) {
+            this.updateColumn(['base', 'defaultValue'], arrRemoveValues(this.base.defaultValue, deductOptionIds));
           }
         }
+
         this.columnsExcludeSelf.map((c) => {
           if (c.condition?.display) {
-            this.updateColumn(
-              c.id,
-              ['condition', 'display'],
-              this.removeConditionDisplayValue(c.condition.display, deductOptionIds)
-            );
+            this.removeConditionDisplayValue(c.condition.display, deductOptionIds);
           }
         });
       }
     },
   },
+  created() {
+    if (!this.currentTab) this.currentTab = 'base';
+  },
   methods: {
-    updateColumn(id, path, val) {
+    ...collectsMutations,
+    updateColumnById(id, path, val) {
       this.$emit('update:column', id, path, val);
     },
-    update(path, val) {
-      this.updateColumn(this.id, path, val);
+    updateColumn(path, val) {
+      this.updateColumnById(this.id, path, val);
     },
-    initBaseDefaultValue(multiple) {
-      this.update(['base', 'multiple'], multiple ? 1 : null);
-      this.update(['base', 'defaultValue'], multiple ? [] : null);
+    initDefaultValue(multiple) {
+      this.updateColumn(['base', 'defaultValue'], multiple ? [] : null);
     },
     initConditionDisplayValue(arr) {
       if (!Array.isArray(arr)) return arr;
@@ -194,7 +209,7 @@ export default /*#__PURE__*/ {
         if (d.triggerId === this.id) {
           d.value = null;
         }
-        if (d.list && d.list.length) {
+        if (Array.isArray(d.list) && d.list.length) {
           d.list = this.initConditionDisplayValue(d.list);
         }
         return d;
@@ -207,7 +222,7 @@ export default /*#__PURE__*/ {
         if (d.triggerId === this.id) {
           d.value = arrRemoveValues(d.value, deductIds);
         }
-        if (d.list && d.list.length) {
+        if (Array.isArray(d.list) && d.list.length) {
           d.list = this.removeConditionDisplayValue(d.list, deductIds);
         }
         return d;

@@ -100,9 +100,8 @@ export default /*#__PURE__*/ {
         return acc;
       }, []);
     },
-
     typeConstraint() {
-      return getTypeConstraint(this.type, this.subType, this.multiple);
+      return getTypeConstraint(this.type);
     },
   },
   watch: {

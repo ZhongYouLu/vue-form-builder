@@ -91,7 +91,7 @@ export default /*#__PURE__*/ {
         fields.defaultValue.props.type = 'number';
       } else if (this.typeConstraint.isDate) {
         fields.defaultValue.props.type = 'date';
-      } else if (this.typeConstraint.isCheckbox && !this.typeConstraint.isMultiple) {
+      } else if (this.typeConstraint.isCheckbox && !this.multiple) {
         fields.defaultValue.props.type = 'checkbox';
       } else if (this.typeConstraint.needOptions) {
         fields.defaultValue.props = {
@@ -99,7 +99,7 @@ export default /*#__PURE__*/ {
           type: 'select',
           placeholder: '請選擇',
           options: this.columnsByKey[this.id].item?.options,
-          multiple: !!this.typeConstraint.isMultiple,
+          multiple: !!this.multiple,
           clearable: true,
           taggable: true,
           pushTags: true,
@@ -107,7 +107,7 @@ export default /*#__PURE__*/ {
         };
       }
 
-      if (this.typeConstraint.isCheckbox || this.typeConstraint.isSelect) {
+      if (this.typeConstraint.canMultiple) {
         fields['multiple'] = { props: { desc: '可複選', type: 'checkbox', label: '可複選' } };
       }
 

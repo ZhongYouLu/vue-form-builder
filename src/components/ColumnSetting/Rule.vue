@@ -140,7 +140,7 @@ export default /*#__PURE__*/ {
         },
       };
 
-      if (this.typeConstraint.isText && !this.typeConstraint.hasSubType) {
+      if (this.typeConstraint.isText && !this.columnsByKey[this.id].base.subType) {
         fields = {
           ...fields,
           minimum: { props: { desc: '字元下限', type: 'number' }, msg: `[${name}] 最少 [:min] 個字。` },
@@ -173,7 +173,7 @@ export default /*#__PURE__*/ {
           minimum: { props: { desc: '日期下限', type: 'date' }, msg: `[${name}] 不得小於 [:min]。` },
           maximum: { props: { desc: '日期上限', type: 'date' }, msg: `[${name}] 不得大於 [:max]。` },
         };
-      } else if (this.typeConstraint.isMultiple) {
+      } else if (this.columnsByKey[this.id].base?.multiple) {
         fields = {
           ...fields,
           least: { props: { desc: '選擇數量下限', type: 'number' }, msg: `[${name}] 最少選 [:least] 個。` },

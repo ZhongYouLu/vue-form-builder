@@ -30,18 +30,21 @@ export const subTypeConfig = {
 };
 export const subTypeOptions = obj2Arr(subTypeConfig, ['text', 'icon'], 'id');
 
-export const getTypeConstraint = (type, subType, isMultiple) => {
-  return {
+export const getTypeConstraint = (type) => {
+  const base = {
     isText: type === 'text',
     isNumber: type === 'number',
     isDate: type === 'date',
+    isRadio: type === 'radio',
     isCheckbox: type === 'checkbox',
     isSelect: type === 'select',
     isFile: type === 'file',
-    isInput: ['text', 'number', 'date'].includes(type),
-    needOptions: ['select', 'radio', 'checkbox'].includes(type),
-    hasSubType: !!subType,
-    isMultiple: !!isMultiple,
+  };
+  return {
+    ...base,
+    isInput: base.isText || base.isNumber || base.isDate,
+    needOptions: base.isSelect || base.isCheckbox || base.isRadio,
+    canMultiple: base.isSelect || base.isCheckbox,
     filterSame: (columns) => columns.filter((c) => c.type === type),
   };
 };

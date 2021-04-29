@@ -45,10 +45,10 @@
           <template v-if="allowInputValues">
             <Field
               v-if="typeConstraint.needOptions"
-              :value="value"
-              required
               placeholder="請選擇條件 (可多選)"
+              :value="value"
               type="select"
+              required
               multiple
               :options="triggerColumn.item.options"
               :fuse-keys="['text']"
@@ -56,12 +56,12 @@
             />
             <Field
               v-else-if="typeConstraint.isNumber"
+              placeholder="請輸入條件，按下 Enter 確認。 (可輸入多筆)"
               :value="value"
               type="select"
               required
               multiple
               taggable
-              placeholder="請輸入條件，按下 Enter 確認。 (可輸入多筆)"
               no-drop
               :close-on-select="false"
               :reduce="(option) => option"
@@ -70,12 +70,12 @@
             />
             <Field
               v-else
+              placeholder="請輸入條件，按下 Enter 確認。 (可輸入多筆)"
               :value="value"
               type="select"
               required
               multiple
               taggable
-              placeholder="請輸入條件，按下 Enter 確認。 (可輸入多筆)"
               no-drop
               :close-on-select="false"
               :reduce="(option) => option"
@@ -185,10 +185,7 @@ export default /*#__PURE__*/ {
       return this.triggerId ? this.columnsByKey[this.triggerId] : null;
     },
     typeConstraint() {
-      if (!this.triggerColumn) return null;
-
-      const trigger = this.triggerColumn;
-      return getTypeConstraint(trigger.type, trigger.subType, trigger.base?.multiple);
+      return this.triggerColumn ? getTypeConstraint(this.triggerColumn.type) : null;
     },
     typeIcons() {
       return typeIcons;
