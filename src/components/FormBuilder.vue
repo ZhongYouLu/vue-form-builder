@@ -1,6 +1,12 @@
 <template>
   <div class="form-builder">
-    <RecordControls v-model="mutableColumns" :record-name="`formBuilder-${id}`" :record-limit="5" immediate />
+    <RecordControls
+      v-model="mutableColumns"
+      :record-name="`formBuilder-${id}`"
+      :record-limit="10"
+      immediate
+      @record:removed="mutableColumns = []"
+    />
     <h1>Form ID: {{ id }}</h1>
     <main class="form-builder__main">
       <FormSetting>
