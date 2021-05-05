@@ -1,6 +1,5 @@
 <template>
   <div id="app">
-    {{ formJson.columns }}
     <FormBuilder :id="formJson.id" :columns.sync="formJson.columns" />
   </div>
 </template>

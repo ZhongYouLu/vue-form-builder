@@ -4,7 +4,7 @@
       <Checkbox
         v-for="(option, idx) in options"
         :key="option[valueKey]"
-        ref="checkbox"
+        ref="el"
         :idx="idx"
         :name="name"
         :label="option[textKey] || option[valueKey]"
@@ -110,10 +110,10 @@ export default /*#__PURE__*/ {
       this.showTips = null;
     },
     focus(idx) {
-      if (idx == null || idx < 0 || idx > this.$refs.checkbox.length - 1) idx = 0;
+      if (idx == null || idx < 0 || idx > this.$refs.el.length - 1) idx = 0;
 
-      if (this.$refs.checkbox[idx]) {
-        this.$nextTick(() => this.$refs.checkbox[idx].focus());
+      if (this.$refs.el[idx]) {
+        this.$nextTick(() => this.$refs.el[idx].focus());
       }
     },
     checkAll() {
@@ -140,8 +140,8 @@ export default /*#__PURE__*/ {
 
       // 項目必填
       if (this.requiredValue.length) {
-        for (let i = 0, checkbox; (checkbox = this.$refs.checkbox[i]); i++) {
-          if (!checkbox.checkValidity()) {
+        for (let i = 0, el; (el = this.$refs.el[i]); i++) {
+          if (!el.checkValidity()) {
             this.errorType = 'item-required';
             return false;
           }

@@ -86,7 +86,7 @@ export default /*#__PURE__*/ {
     this.$emit('update:column', this.id, [this.tab], {
       srcMode: this.srcMode,
       options: this.options,
-      api: this.api,
+      // api: this.api,
     });
   },
   methods: {

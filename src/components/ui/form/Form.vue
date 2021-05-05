@@ -106,7 +106,7 @@ export default /*#__PURE__*/ {
     reset() {
       this.invalid = false;
       this.$refs.formItem.forEach((el) => {
-        el.$refs.field.$refs.input.reset();
+        el.$refs.field.$refs.el.reset();
       });
     },
     validity() {

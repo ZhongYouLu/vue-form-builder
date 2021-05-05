@@ -3,7 +3,7 @@
     <component
       :is="componentName"
       :id="id"
-      ref="input"
+      ref="el"
       :name="name || id"
       v-bind="$attrs"
       :type="subType || type"

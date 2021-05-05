@@ -82,6 +82,7 @@ export default /*#__PURE__*/ {
             type: 'select',
             options: subTypeOptions,
             clearable: true,
+            fuseKeys: ['id', 'text'],
           },
         };
       }

@@ -22,13 +22,17 @@ export const instantiateSetState = (rootObj) => {
 };
 
 export const instantiateGetState = (rootObj) => {
-  return ({ objectPath } = {}) => {
+  return ({ objectPath, upsert = true } = {}) => {
     if (objectPath === undefined) return rootObj;
     if (objectPath && Array.isArray(objectPath) && objectPath.length) {
       const navigate = [...objectPath.slice(0, -1)];
       const valueObj = navigate.reduce((obj, prop) => {
         if (obj[prop] === undefined) {
-          console.error(`getState: property '${prop}' doesn't exist`);
+          if (upsert) {
+            Vue.set(obj, prop, {});
+          } else {
+            console.error(`getState: property '${prop}' doesn't exist`);
+          }
         }
         return obj[prop];
       }, rootObj);

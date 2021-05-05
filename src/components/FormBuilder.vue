@@ -3,7 +3,7 @@
     <RecordControls
       v-model="mutableColumns"
       :record-name="`formBuilder-${id}`"
-      :record-limit="10"
+      :record-limit="5"
       immediate
       @record:removed="mutableColumns = []"
     />
@@ -14,12 +14,13 @@
           <slot :name="slot" v-bind="props" />
         </template>
       </FormSetting>
+      <FormDemo :columns="finalColumns" />
       <div>
-        <FormDemo :columns="finalColumns" />
+        sync: {{ JSON.stringify(columns) === JSON.stringify(mutableColumns) }}
         <hr />
-        <JsonView :data="mutableColumns" :deep="0" />
+        <JsonView :data="mutableColumns" :deep="5" />
         <hr />
-        <JsonView :data="finalColumns" :deep="0" />
+        <JsonView :data="finalColumns" :deep="5" />
       </div>
     </main>
   </div>
@@ -33,6 +34,7 @@ import JsonView from 'vue-json-views';
 
 import { tunnelEmit } from '@/store/helper';
 import { getters as columnsGetters } from '@/store/columns.js';
+
 export default /*#__PURE__*/ {
   name: 'FormBuilder',
   components: {
@@ -43,7 +45,7 @@ export default /*#__PURE__*/ {
   },
   props: {
     id: { type: String, required: true },
-    columns: { type: Array, required: true },
+    columns: { type: Array, default: () => [] },
   },
   emits: ['update:columns'],
   computed: {
@@ -51,14 +53,8 @@ export default /*#__PURE__*/ {
     finalColumns: columnsGetters.finalColumns,
   },
   watch: {
-    mutableColumns: {
-      handler: function (val) {
-        // TODO:
-        console.log('update:columns');
-        tunnelEmit(this, 'update:columns', val);
-      },
-      // deep: true,
-      // immediate: true,
+    mutableColumns(columns) {
+      tunnelEmit(this, 'update:columns', columns);
     },
   },
 };
@@ -71,7 +67,7 @@ export default /*#__PURE__*/ {
 
     & > * {
       padding: var(--vGap);
-      width: 50%;
+      width: 33%;
     }
   }
 }

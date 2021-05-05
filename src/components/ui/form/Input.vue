@@ -3,7 +3,7 @@
   <div class="x-input" :disabled="disabled" :invalid="invalid" :block="block" :multi="multi">
     <Tips type="error" :tabindex="disabled ? -1 : null" :dir="errordir" :tips="tips" :show="showTips">
       <Icon v-if="icon" class="x-input__pre" :icon="icon" />
-      <component :is="multi ? 'textarea' : 'input'" ref="input" v-bind="bindAttrs" v-on="bindEvents" />
+      <component :is="multi ? 'textarea' : 'input'" ref="el" v-bind="bindAttrs" v-on="bindEvents" />
       <label v-if="label && !icon" class="x-input__label">{{ label }}</label>
       <template v-if="!multi">
         <div v-if="type === 'number'" class="x-input__right x-input__right--number">
@@ -177,7 +177,7 @@ export default /*#__PURE__*/ {
   },
   watch: {
     mutableValue(val) {
-      this.$refs.input.value = val;
+      this.$refs.el.value = val;
 
       this.$nextTick(() => {
         this.checkValidity();
@@ -203,12 +203,12 @@ export default /*#__PURE__*/ {
       this.showTips = null;
     },
     focus() {
-      this.$nextTick(() => this.$refs.input.focus());
+      this.$nextTick(() => this.$refs.el.focus());
     },
     // 是否有效
     validity() {
       // base (default)
-      if (!this.$refs.input.checkValidity()) {
+      if (!this.$refs.el.checkValidity()) {
         this.errorType = null;
         return false;
       }
@@ -249,9 +249,9 @@ export default /*#__PURE__*/ {
          * valueMissing: 有設置 required 屬性，但沒有值
          */
 
-        const inputEl = this.$refs.input;
-        // if (inputEl.validity.valueMissing) {
-        //   this.tips = inputEl.validationMessage;
+        const el = this.$refs.el;
+        // if (el.validity.valueMissing) {
+        //   this.tips = el.validationMessage;
         // }
 
         switch (this.errorType) {
@@ -259,7 +259,7 @@ export default /*#__PURE__*/ {
             this.tips = this.customValidity.tips;
             break;
           default:
-            this.tips = this.errortips || inputEl.validationMessage;
+            this.tips = this.errortips || el.validationMessage;
             break;
         }
       }
@@ -312,7 +312,7 @@ export default /*#__PURE__*/ {
       this.$emit('focus', e);
     },
     handleBlur(e) {
-      this.$refs.input.value = this.mutableValue;
+      this.$refs.el.value = this.mutableValue;
 
       this.checkValidity();
       this.$emit('blur', e);
@@ -328,12 +328,12 @@ export default /*#__PURE__*/ {
       console.log('invokePass');
     },
     invokeAdd() {
-      this.$refs.input.stepUp();
-      this.mutableValue = this.$refs.input.value;
+      this.$refs.el.stepUp();
+      this.mutableValue = this.$refs.el.value;
     },
     invokeSub() {
-      this.$refs.input.stepDown();
-      this.mutableValue = this.$refs.input.value;
+      this.$refs.el.stepDown();
+      this.mutableValue = this.$refs.el.value;
     },
   },
 };

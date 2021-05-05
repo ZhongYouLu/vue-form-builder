@@ -13,6 +13,8 @@ import {
   deepCopy,
 } from '@/assets/js/helper.js';
 
+import { getTypeConstraint } from '@/assets/js/options.js';
+
 const state = Vue.observable({ columns: [] });
 
 // Getters
@@ -56,9 +58,17 @@ const mutations = {
   // 設置欄位 (欄位ID, 物件路徑, 值, 更新或插入)
   setColumnById(id, objectPath, value = {}, upsert = true) {
     const column = state.columns.find((c) => c.id === id);
+
     if (column) {
       const setColumn = instantiateSetState(column);
+      const getColumn = instantiateGetState(column);
+
+      const before = deepCopy(getColumn({ objectPath }));
       setColumn({ objectPath, value, upsert });
+      const after = getColumn({ objectPath });
+
+      const targetProp = objectPath.join('.');
+      actions.handleUpdateColumnProp(column, targetProp, after, before);
     }
   },
 };
@@ -131,6 +141,92 @@ const actions = {
       if (confirm(showMsg)) allowFunc();
     }
   },
+  handleUpdateColumnProp(column, targetProp, after, before) {
+    switch (targetProp) {
+      case 'type': {
+        const typeConstraint = getTypeConstraint(after);
+        console.log('type', after, before);
+
+        // 基本設定
+        if (column.base) {
+          // 重置 [欄位性質]
+          if (column.base.subType && !typeConstraint.isText) {
+            column.base.subType = null;
+          }
+          // 重置 [可複選]
+          if (column.base.multiple && !typeConstraint.canMultiple) {
+            column.base.multiple = null;
+          }
+          // 重置 [預設值] (Array or Other)
+          if (column.base.defaultValue) {
+            column.base.defaultValue = column.base.multiple ? [] : null;
+          }
+        }
+
+        // 規則設定
+        if (column.rule) {
+          // 重置 [與..相符]
+          if (column.rule.sameAs) {
+            column.rule.sameAs = null;
+          }
+        }
+
+        // 連動其他欄位
+        state.columns.map((c) => {
+          if (c.rule?.sameAs === column.id) {
+            c.rule.sameAs = null;
+          }
+          if (c.condition?.display) {
+            initConditionDisplayValue(c.condition.display, column.id);
+          }
+        });
+
+        break;
+      }
+      case 'base.multiple': {
+        if (after !== before) {
+          column.base.defaultValue = after ? [] : null;
+        }
+        break;
+      }
+      case 'rule.required': {
+        if (after) column.rule.requiredPassive = [];
+        break;
+      }
+      case 'item.options': {
+        const afterIds = (after || []).map((c) => c.id);
+        const beforeIds = (before || []).map((c) => c.id);
+        const addIds = difference(afterIds, beforeIds); // 增加的欄位IDs
+        const deductIds = difference(beforeIds, afterIds); // 減少的欄位IDs
+        // console.log('item.options', addIds, deductIds);
+
+        // 有增加的IDs
+        if (addIds.length) {
+        }
+
+        // 有減少的IDs
+        if (deductIds.length) {
+          const baseDefaultValue = column.base?.defaultValue;
+          if (baseDefaultValue) {
+            if (column.base.multiple && baseDefaultValue.some((value) => deductIds.includes(value))) {
+              column.base.defaultValue = arrRemoveValues(baseDefaultValue, deductIds);
+            } else if (deductIds.includes(baseDefaultValue)) {
+              column.base.defaultValue = null;
+            }
+          }
+
+          state.columns.map((c) => {
+            if (c.condition?.display) {
+              removeConditionDisplayValue(c.condition.display, column.id, deductIds);
+            }
+          });
+        }
+        break;
+      }
+      default:
+        break;
+    }
+  },
 };
 
 export default state.columns;
@@ -166,16 +262,21 @@ const processColumns = (function () {
   const processRule = (rule) => {
     const { msg, ...newRule } = rule;
 
+    const cleanRule = Object.entries(newRule).reduce((acc, [k, v]) => {
+      if (!isEmpty(v)) acc[k] = v;
+      return acc;
+    }, {});
+
     if (msg) {
       const newMsg = Object.entries(msg).reduce((acc, [k, v]) => {
-        if (v && newRule[k]) acc[k] = v;
+        if (v && cleanRule[k]) acc[k] = v;
         return acc;
       }, {});
 
-      if (!isEmpty(newMsg)) newRule['msg'] = newMsg;
+      if (!isEmpty(newMsg)) cleanRule['msg'] = newMsg;
     }
 
-    return newRule;
+    return cleanRule;
   };
   // 處理欄位的項目
   const processItem = (item) => {
@@ -235,6 +336,34 @@ const removeConditionDisplayTriggerId = (arr, deductIds) => {
     }
     if (Array.isArray(d.list) && d.list.length) {
       d.list = removeConditionDisplayTriggerId(d.list, deductIds);
+    }
+    return d;
+  });
+};
+
+const initConditionDisplayValue = (arr, triggerId) => {
+  if (!Array.isArray(arr)) return arr;
+
+  return arr.map((d) => {
+    if (d.triggerId === triggerId) {
+      d.value = null;
+    }
+    if (Array.isArray(d.list) && d.list.length) {
+      d.list = initConditionDisplayValue(d.list, triggerId);
+    }
+    return d;
+  });
+};
+
+const removeConditionDisplayValue = (arr, triggerId, deductIds) => {
+  if (!Array.isArray(arr)) return arr;
+
+  return arr.map((d) => {
+    if (d.triggerId === triggerId) {
+      d.value = arrRemoveValues(d.value, deductIds);
+    }
+    if (Array.isArray(d.list) && d.list.length) {
+      d.list = removeConditionDisplayValue(d.list, triggerId, deductIds);
     }
     return d;
   });

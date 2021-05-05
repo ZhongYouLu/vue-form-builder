@@ -4,7 +4,7 @@
       <Radio
         v-for="(option, idx) in options"
         :key="option[valueKey]"
-        ref="radio"
+        ref="el"
         :idx="idx"
         :name="name"
         :label="option[textKey] || option[valueKey]"
@@ -93,8 +93,11 @@ export default /*#__PURE__*/ {
       this.showTips = null;
     },
     focus(idx) {
-      if (idx == null || idx < 0 || idx > this.$refs.radio.length - 1) idx = 0;
-      this.$nextTick(() => this.$refs.radio[idx].focus());
+      if (idx == null || idx < 0 || idx > this.$refs.el.length - 1) idx = 0;
+
+      if (this.$refs.el[idx]) {
+        this.$nextTick(() => this.$refs.el[idx].focus());
+      }
     },
     validity() {
       this.errorType = null;

@@ -10,18 +10,19 @@
     :selectable="invokeSelectable"
     :reduce="invokeReduce"
     :get-option-label="invokeGetOptionLabel"
-    :reset-on-options-change="resetOnOptionsChange"
     :clearable="clearable"
     :searchable="searchable"
     :filterable="filterable"
     :filter="fuseSearch"
     :taggable="taggable"
     :push-tags="pushTags"
-    :create-option="invokeCreatedOption"
+    :create-option="invokeCreateOption"
     :close-on-select="closeOnSelect"
     :no-drop="noDrop"
     :append-to-body="true"
     :calculate-position="withPopper"
+    :handle-option-change="handleOptionChange"
+    :reset-on-options-change="invokeResetOnOptionsChange"
     @input="handleInput"
     @option:created="handleCreated"
     @option:selecting="tunnelEmit('handle:selecting', $event)"
@@ -34,7 +35,7 @@
     <template #search="{ attributes, events }">
       <input
         :id="id"
-        ref="input"
+        ref="el"
         :name="name"
         class="vs__search"
         :required="required && !mutableValue"
@@ -74,10 +75,11 @@
 
 <script>
 import VueSelect from 'vue-select';
+// import VueSelect from '@/assets/js/vue-select';
 import IconRow from '@/components/ui/IconRow';
 import Fuse from 'fuse.js';
 import { createPopper } from '@popperjs/core';
-import { nanoid } from '@/assets/js/helper.js';
+import { nanoid, difference } from '@/assets/js/helper.js';
 
 export default /*#__PURE__*/ {
   name: 'FieldSelect',
@@ -147,6 +149,14 @@ export default /*#__PURE__*/ {
     mutableOptions() {
       return this.options;
     },
+    invokeResetOnOptionsChange(newOptions, oldOptions, selectedValue) {
+      if (this.resetOnOptionsChange !== null) return this.resetOnOptionsChange;
+
+      return () => {
+        console.log(newOptions, oldOptions, selectedValue);
+        return true;
+      };
+    },
     invokeSelectable() {
       if (this.selectable !== null) return this.selectable;
       // multiple
@@ -166,7 +176,7 @@ export default /*#__PURE__*/ {
       // default
       return (option) => option[this.textKey] || `(${option[this.valueKey]})`;
     },
-    invokeCreatedOption() {
+    invokeCreateOption() {
       if (this.createOption !== null) return this.createOption;
       // default
       return (option) => ({ [this.valueKey]: nanoid(6), [this.textKey]: option });
@@ -176,7 +186,7 @@ export default /*#__PURE__*/ {
 
       return (options, search) => {
         const fuse = new Fuse(options, {
-          keys: this.fuseKeys ? this.fuseKeys : [this.valueKey, this.textKey],
+          keys: this.fuseKeys ? this.fuseKeys : [this.textKey],
           shouldSort: true,
         });
         return search.length ? fuse.search(search).map(({ item }) => item) : fuse.list;
@@ -184,6 +194,15 @@ export default /*#__PURE__*/ {
     },
   },
   methods: {
+    handleOptionChange(newOptions, oldOptions, pushedTags) {
+      const afterIds = newOptions.map((c) => c.id);
+      const beforeIds = oldOptions.map((c) => c.id);
+      const deductIds = difference(beforeIds, afterIds); // 減少的欄位IDs
+
+      if (deductIds.length) {
+        console.log('pushedTags', pushedTags);
+      }
+    },
     tunnelEmit(event, ...payload) {
       let vm = this;
       while (vm && !vm.$listeners[event]) {
@@ -194,6 +213,20 @@ export default /*#__PURE__*/ {
       } else {
         // return console.error(`no target listener for event "${event}"`);
       }
+    },
+    filter(options, search) {
+      return options.filter((option) => {
+        let label = this.invokeGetOptionLabel(option);
+        if (typeof label === 'number') {
+          label = label.toString();
+        }
+        return this.filterBy(option, label, search);
+      });
+    },
+    filterBy(option, label, search) {
+      console.log(option.text.toLowerCase().indexOf(search.toLowerCase()) > -1);
+      return option.text.toLowerCase().indexOf(search.toLowerCase()) > -1;
+      // return (label || '').toLowerCase().indexOf(search.toLowerCase()) > -1;
     },
     handleInput(value) {
       // console.log('handleInput', value);

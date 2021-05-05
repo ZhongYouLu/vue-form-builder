@@ -1,84 +1,64 @@
 <template>
   <div class="form-setting">
     <Draggable v-model="mutableColumns">
-      <Block v-for="({ id, name, ...column }, idx) in mutableColumns" :key="id" radius shadow>
-        <Card>
-          <!-- Card Header -->
-          <template #cardHeader>
-            <slot
-              name="cardHeader"
-              :idx="idx"
-              :column="column"
-              :isOpen="collects[id].isOpen"
-              :toggleIsOpen="toggleIsOpen.bind(null, id)"
-              :isEditName="collects[id].isEditName"
-              :toggleIsEditName="toggleIsEditName.bind(null, id)"
-            >
-              <div class="drag">
-                <Icon icon="mdi:drag" />
-                <span>#{{ idx + 1 }}</span>
-              </div>
-              <div class="card__name">
-                <template v-if="collects[id].isEditName">
-                  <Field
-                    :ref="`editName-${id}`"
-                    :value="name"
-                    :placeholder="id"
-                    @update:value="setColumnById(id, ['name'], $event)"
-                    @handle:enter="handleEditNameEnter(id)"
+      <TransitionGroup>
+        <Block v-for="(column, idx) in mutableColumns" :key="column.id" radius shadow>
+          <Card>
+            <!-- Card Header -->
+            <template #cardHeader>
+              <slot name="cardHeader" :idx="idx" :column="column">
+                <div class="drag">
+                  <Icon icon="mdi:drag" />
+                  <span>#{{ idx + 1 }}</span>
+                </div>
+                <div class="card__name">
+                  <template v-if="collects[column.id].isEditName">
+                    <Field
+                      :ref="`editName-${column.id}`"
+                      :value="column.name"
+                      :placeholder="column.id"
+                      block
+                      @update:value="setColumnById(column.id, ['name'], $event)"
+                      @handle:enter="handleEditNameEnter(column.id)"
+                    />
+                  </template>
+                  <template v-else>
+                    <div class="text-ellipsis">{{ column.name || `(${column.id})` }}</div>
+                  </template>
+                  <Button
+                    :ref="`toggleEditNameBtn-${column.id}`"
+                    :icon="collects[column.id].isEditName ? 'ic:baseline-done-outline' : 'mi:edit-alt'"
+                    v-bind="headerBtnProps"
+                    @click="toggleIsEditName(column.id)"
                   />
-                </template>
-                <template v-else>
-                  <div class="text-ellipsis">{{ name || `(${id})` }}</div>
-                </template>
-                <Button
-                  :ref="`toggleEditNameBtn-${id}`"
-                  type="flat"
-                  shape="circle"
-                  color="#fff"
-                  :icon="collects[id].isEditName ? 'ic:baseline-done-outline' : 'mi:edit-alt'"
-                  @click="toggleIsEditName(id)"
-                />
-              </div>
-              <div class="card__controll">
-                <Button
-                  type="flat"
-                  shape="circle"
-                  color="#fff"
-                  :icon="collects[id].isOpen ? 'mdi:eye-minus' : 'mdi:eye-settings'"
-                  @click="toggleIsOpen(id)"
-                />
-                <Button
-                  type="flat"
-                  shape="circle"
-                  color="#fff"
-                  icon="mdi:close-thick"
-                  @click="handleRemoveColumn(id)"
-                />
-              </div>
-            </slot>
-          </template>
-          <!-- Card Main -->
-          <template #cardMain>
-            <slot name="cardMain">
-              <ColumnSetting
-                v-show="collects[id].isOpen"
-                :id="id"
-                :name="name"
-                v-bind="column"
-                :idx="idx"
-                :columns="mutableColumns"
-                :columns-by-key="columnsByKey"
-                @update:column="setColumnById(...arguments)"
-              >
-                <template v-for="(_, slot) in $scopedSlots" #[slot]="props">
-                  <slot :name="slot" v-bind="props" />
-                </template>
-              </ColumnSetting>
-            </slot>
-          </template>
-        </Card>
-      </Block>
+                </div>
+                <div class="card__controll">
+                  <Button
+                    :icon="collects[column.id].isOpen ? 'mdi:eye-minus' : 'mdi:eye-settings'"
+                    v-bind="headerBtnProps"
+                    @click="toggleIsOpen(column.id)"
+                  />
+                  <Button icon="mdi:close-thick" v-bind="headerBtnProps" @click="handleRemoveColumn(column.id)" />
+                </div>
+              </slot>
+            </template>
+            <!-- Card Main -->
+            <template #cardMain>
+              <slot name="cardMain" :column="column">
+                <ColumnSetting
+                  v-show="collects[column.id].isOpen"
+                  v-bind="{ ...column, columns: mutableColumns, columnsByKey }"
+                  @update:column="setColumnById(...arguments)"
+                >
+                  <template v-for="(_, slot) in $scopedSlots" #[slot]="props">
+                    <slot :name="slot" v-bind="props" />
+                  </template>
+                </ColumnSetting>
+              </slot>
+            </template>
+          </Card>
+        </Block>
+      </TransitionGroup>
     </Draggable>
     <Button icon="mdi:plus" type="dashed" block @click="addColumn" />
   </div>
@@ -86,6 +66,8 @@
 
 <script>
 import { Draggable, Block, Card, Button, Icon, Field } from '@/components/ui';
+import TransitionGroup from '@/components/ui/TransitionGroup/Fade';
+
 import ColumnSetting from '@/components/ColumnSetting';
 import {
   getters as columnsGetters,
@@ -104,10 +86,18 @@ export default /*#__PURE__*/ {
     Icon,
     Field,
     ColumnSetting,
+    TransitionGroup,
   },
   computed: {
     ...columnsGetters,
     ...collectsGetters,
+    headerBtnProps() {
+      return {
+        type: 'flat',
+        shape: 'circle',
+        color: '#fff',
+      };
+    },
   },
   methods: {
     ...columnsMutations,
@@ -121,12 +111,15 @@ export default /*#__PURE__*/ {
 
       if (this.collects[columnId].isEditName) {
         this.$nextTick(() => {
-          const refEditName = this.$refs[`editName-${columnId}`][0];
-          if (refEditName) {
-            const inputEl = refEditName.$refs.input;
-            inputEl.focus();
-          }
+          this.handleEditNameFocus(columnId);
         });
+      }
+    },
+    handleEditNameFocus(columnId) {
+      const refEditName = this.$refs[`editName-${columnId}`][0];
+      if (refEditName) {
+        const inputEl = refEditName.$refs.el;
+        inputEl.focus();
       }
     },
     handleEditNameEnter(columnId) {

@@ -4,7 +4,7 @@
       <label>
         <input
           :id="id"
-          ref="radio"
+          ref="el"
           v-model="checked"
           :name="name"
           type="checkbox"
@@ -82,10 +82,10 @@ export default /*#__PURE__*/ {
     this.resetSlot();
   },
   updated() {
-    this.$refs.radio.checked = this.checked;
+    this.$refs.el.checked = this.checked;
   },
   mounted() {
-    this.$refs.radio.checked = this.checked;
+    this.$refs.el.checked = this.checked;
   },
   methods: {
     resetSlot() {
@@ -100,10 +100,10 @@ export default /*#__PURE__*/ {
       this.showTips = null;
     },
     focus() {
-      this.$nextTick(() => this.$refs.radio.focus());
+      this.$nextTick(() => this.$refs.el.focus());
     },
     validity() {
-      return this.$refs.radio.checkValidity();
+      return this.$refs.el.checkValidity();
     },
     checkValidity() {
       if (this.novalidate || this.disabled) {
@@ -117,7 +117,7 @@ export default /*#__PURE__*/ {
         this.focus();
         this.invalid = true;
         this.showTips = true;
-        this.tips = this.errortips || this.$refs.radio?.validationMessage;
+        this.tips = this.errortips || this.$refs.el?.validationMessage;
       }
 
       return !this.invalid;
@@ -139,7 +139,7 @@ export default /*#__PURE__*/ {
     },
     handleBlur(e) {
       e.stopPropagation();
-      if (getComputedStyle(this.$refs.radio).zIndex == 2) {
+      if (getComputedStyle(this.$refs.el).zIndex == 2) {
         this.isfocus = true;
       } else {
         this.isfocus = false;

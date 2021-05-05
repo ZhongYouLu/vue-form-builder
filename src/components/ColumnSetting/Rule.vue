@@ -60,7 +60,7 @@ export default /*#__PURE__*/ {
     // Tab
     tab: { type: String, required: true },
     // 欄位名稱
-    name: { type: String, required: true },
+    name: { type: String, default: null },
     // 欄位屬性約束
     typeConstraint: { type: Object, required: true },
     // 排除自己的所有欄位群
@@ -140,7 +140,7 @@ export default /*#__PURE__*/ {
         },
       };
 
-      if (this.typeConstraint.isText && !this.columnsByKey[this.id].base.subType) {
+      if (this.typeConstraint.isText && !this.columnsByKey[this.id].base?.subType) {
         fields = {
           ...fields,
           minimum: { props: { desc: '字元下限', type: 'number' }, msg: `[${name}] 最少 [:min] 個字。` },

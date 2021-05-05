@@ -4,7 +4,7 @@
       <label>
         <input
           :id="id"
-          ref="checkbox"
+          ref="el"
           v-model="checked"
           :name="name"
           type="checkbox"
@@ -73,11 +73,11 @@ export default /*#__PURE__*/ {
     },
     indeterminate: {
       get() {
-        return this.$refs.checkbox?.indeterminate;
+        return this.$refs.el?.indeterminate;
       },
       set(flag) {
-        const checkbox = this.$refs.checkbox;
-        if (checkbox) checkbox.indeterminate = !!flag;
+        const el = this.$refs.el;
+        if (el) el.indeterminate = !!flag;
       },
     },
   },
@@ -91,10 +91,10 @@ export default /*#__PURE__*/ {
     this.resetSlot();
   },
   updated() {
-    this.$refs.checkbox.checked = this.checked;
+    this.$refs.el.checked = this.checked;
   },
   mounted() {
-    this.$refs.checkbox.checked = this.checked;
+    this.$refs.el.checked = this.checked;
   },
   methods: {
     resetSlot() {
@@ -109,13 +109,13 @@ export default /*#__PURE__*/ {
       this.showTips = null;
     },
     focus() {
-      this.$nextTick(() => this.$refs.checkbox.focus());
+      this.$nextTick(() => this.$refs.el.focus());
     },
     setIndeterminate(flag) {
       this.indeterminate = flag;
     },
     validity() {
-      return this.$refs.checkbox.checkValidity();
+      return this.$refs.el.checkValidity();
     },
     checkValidity() {
       if (this.novalidate || this.disabled) {
@@ -129,7 +129,7 @@ export default /*#__PURE__*/ {
         this.focus();
         this.invalid = true;
         this.showTips = true;
-        this.tips = this.errortips || this.$refs.checkbox?.validationMessage;
+        this.tips = this.errortips || this.$refs.el?.validationMessage;
       }
 
       return !this.invalid;
@@ -151,7 +151,7 @@ export default /*#__PURE__*/ {
     },
     handleBlur(e) {
       e.stopPropagation();
-      if (getComputedStyle(this.$refs.checkbox).zIndex == 2) {
+      if (getComputedStyle(this.$refs.el).zIndex == 2) {
         this.isfocus = true;
       } else {
         this.isfocus = false;
