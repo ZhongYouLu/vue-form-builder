@@ -17,7 +17,7 @@
 
 <script>
 import FormItem from '@/components/ui/form/FormItem';
-import SlideFadeTransitionGroup from '@/components/ui/TransitionGroup/SlideFade';
+import SlideFadeTransitionGroup from '@/components/ui/transition-group/SlideFade';
 import { subTypeOptions } from '@/assets/js/options.js';
 
 export default /*#__PURE__*/ {

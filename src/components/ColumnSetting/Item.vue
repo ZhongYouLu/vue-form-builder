@@ -36,7 +36,7 @@
 <script>
 import FormItem from '@/components/ui/form/FormItem';
 import { Button, Icon, Field, Block, Draggable } from '@/components/ui';
-import SlideFadeTransitionGroup from '@/components/ui/TransitionGroup/SlideFade';
+import SlideFadeTransitionGroup from '@/components/ui/transition-group/SlideFade';
 import { nanoid, arrRemoveValueByKey } from '@/assets/js/helper.js';
 import { convertOptions } from '@/assets/js/options.js';
 

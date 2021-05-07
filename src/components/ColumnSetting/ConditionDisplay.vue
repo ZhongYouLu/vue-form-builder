@@ -131,7 +131,7 @@ import Draggable from '@/components/ui/Draggable/CustomDraggable';
 import Field from '@/components/ui/form/Field';
 import Icon from '@/components/ui/Icon';
 import Button from '@/components/ui/Button';
-import SlideFadeTransitionGroup from '@/components/ui/TransitionGroup/SlideFade';
+import SlideFadeTransitionGroup from '@/components/ui/transition-group/SlideFade';
 import { nanoid, arrRemoveValueByKey, thousandSeparator } from '@/assets/js/helper.js';
 import { getTypeConstraint, typeIcons } from '@/assets/js/options.js';
 
