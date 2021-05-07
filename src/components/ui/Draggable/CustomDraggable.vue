@@ -1,5 +1,5 @@
 <template>
-  <Draggable v-model="mutableValue" :tag="tag" v-bind="dragOptions" noTransitionOnDrag @start="onStart" @end="onEnd">
+  <Draggable v-model="mutableValue" :tag="tag" v-bind="dragOptions" @start="onStart" @end="onEnd">
     <slot />
   </Draggable>
 </template>
@@ -16,16 +16,17 @@ export default /*#__PURE__*/ {
     value: { type: Array, required: true },
     tag: { type: String, default: 'div' },
     group: { type: [String, Object], default: null }, // 相同的組之間可以相互拖曳
-    ghostClass: { type: String, default: 'ghost' }, // 佔位符樣式
     handle: { type: String, default: '.drag' }, // 可拖曳樣式
     filter: { type: String, default: null }, // 不可拖曳樣式
     animation: { type: Number, default: 200 },
+    ghostClass: { type: String, default: 'ghost' }, // 佔位符樣式
+    chosenClass: { type: String, default: null },
+    dragClass: { type: String, default: null },
   },
   emits: ['input'],
   data() {
     return {
       drag: false,
-      transitionMode: false,
     };
   },
   computed: {
@@ -42,14 +43,19 @@ export default /*#__PURE__*/ {
         animation: this.animation,
         group: this.group,
         ghostClass: this.ghostClass,
+        chosenClass: this.chosenClass,
+        dragClass: this.dragClass,
         disabled: false,
         handle: this.handle,
         filter: this.filter,
       };
     },
   },
-  mounted() {
-    this.transitionMode = this.isTransition(this.$slots.default);
+  created() {
+    this.processTransition(this.$slots.default);
+  },
+  beforeUpdate() {
+    this.processTransition(this.$slots.default);
   },
   methods: {
     onStart() {
@@ -58,7 +64,7 @@ export default /*#__PURE__*/ {
     onEnd() {
       this.drag = false;
     },
-    isTransition(slots) {
+    processTransition(slots) {
       if (!slots || slots.length !== 1) {
         return false;
       }
@@ -66,10 +72,13 @@ export default /*#__PURE__*/ {
       if (!componentOptions) {
         return false;
       }
-      return this.isTransitionName(componentOptions.tag);
+
+      if (this.isTransitionName(componentOptions.tag)) {
+        componentOptions.tag = 'transition-group';
+      }
     },
     isTransitionName(name) {
-      return ['transition-group', 'TransitionGroup'].includes(name);
+      return name.match(/(transition-group|TransitionGroup)/);
     },
   },
 };
@@ -86,10 +95,6 @@ export default /*#__PURE__*/ {
   &:hover {
     background-color: lighten($color-gray-dark, 30);
   }
-}
-
-.no-move {
-  transition: transform 0s;
 }
 
 .ghost {

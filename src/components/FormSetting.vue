@@ -1,7 +1,7 @@
 <template>
   <div class="form-setting">
     <Draggable v-model="mutableColumns">
-      <TransitionGroup>
+      <SlideFadeTransitionGroup>
         <Block v-for="(column, idx) in mutableColumns" :key="column.id" radius shadow>
           <Card>
             <!-- Card Header -->
@@ -45,20 +45,22 @@
             <!-- Card Main -->
             <template #cardMain>
               <slot name="cardMain" :column="column">
-                <ColumnSetting
-                  v-show="collects[column.id].isOpen"
-                  v-bind="{ ...column, columns: mutableColumns, columnsByKey }"
-                  @update:column="setColumnById(...arguments)"
-                >
-                  <template v-for="(_, slot) in $scopedSlots" #[slot]="props">
-                    <slot :name="slot" v-bind="props" />
-                  </template>
-                </ColumnSetting>
+                <ExpandTransition>
+                  <ColumnSetting
+                    v-show="collects[column.id].isOpen"
+                    v-bind="{ ...column, columns: mutableColumns, columnsByKey }"
+                    @update:column="setColumnById(...arguments)"
+                  >
+                    <template v-for="(_, slot) in $scopedSlots" #[slot]="props">
+                      <slot :name="slot" v-bind="props" />
+                    </template>
+                  </ColumnSetting>
+                </ExpandTransition>
               </slot>
             </template>
           </Card>
         </Block>
-      </TransitionGroup>
+      </SlideFadeTransitionGroup>
     </Draggable>
     <Button icon="mdi:plus" type="dashed" block @click="addColumn" />
   </div>
@@ -66,8 +68,8 @@
 
 <script>
 import { Draggable, Block, Card, Button, Icon, Field } from '@/components/ui';
-import TransitionGroup from '@/components/ui/TransitionGroup/Fade';
-
+import SlideFadeTransitionGroup from '@/components/ui/TransitionGroup/SlideFade';
+import ExpandTransition from '@/components/ui/Transition/Expand';
 import ColumnSetting from '@/components/ColumnSetting';
 import {
   getters as columnsGetters,
@@ -86,7 +88,8 @@ export default /*#__PURE__*/ {
     Icon,
     Field,
     ColumnSetting,
-    TransitionGroup,
+    SlideFadeTransitionGroup,
+    ExpandTransition,
   },
   computed: {
     ...columnsGetters,
@@ -136,6 +139,13 @@ export default /*#__PURE__*/ {
 
 <style lang="scss">
 @import '@/assets/scss/utils.scss';
+
+fieldset.x-block {
+  margin: 0;
+  padding: var(--hGap);
+  overflow: hidden;
+  position: relative;
+}
 
 .card {
   &__name {

@@ -1,7 +1,5 @@
 <template>
-  <!-- 基本設定 -->
-  <Block tag="fieldset">
-    <!-- <legend>基本設定</legend> -->
+  <SlideFadeTransitionGroup>
     <FormItem
       v-for="(v, k) in fields"
       :id="`[${id}]-${k}`"
@@ -14,19 +12,19 @@
         <slot :name="slot" v-bind="props" />
       </template>
     </FormItem>
-  </Block>
+  </SlideFadeTransitionGroup>
 </template>
 
 <script>
-import Block from '@/components/ui/Block';
 import FormItem from '@/components/ui/form/FormItem';
+import SlideFadeTransitionGroup from '@/components/ui/TransitionGroup/SlideFade';
 import { subTypeOptions } from '@/assets/js/options.js';
 
 export default /*#__PURE__*/ {
   name: 'ColumnSettingBase',
   components: {
-    Block,
     FormItem,
+    SlideFadeTransitionGroup,
   },
   inheritAttrs: false,
   props: {

@@ -16,6 +16,9 @@
 <script>
 export default /*#__PURE__*/ {
   name: 'Card',
+  props: {
+    open: { type: Boolean, default: false },
+  },
   computed: {
     hasHeader() {
       return !!this.$slots.cardHeader || !!this.$scopedSlots.cardHeader;

@@ -1,7 +1,5 @@
 <template>
-  <!-- 項目設定 -->
-  <Block tag="fieldset">
-    <!-- <legend>項目設定</legend> -->
+  <div>
     <FormItem
       :id="`[${id}]-src-mode`"
       :value="$props.srcMode"
@@ -16,11 +14,13 @@
     <template v-if="$props.srcMode === 'list'">
       <Block v-show="$props.options.length">
         <Draggable :value="$props.options" @input="update(['options'], $event)">
-          <div v-for="(option, idx) in $props.options" :key="option.id" class="x-form-item">
-            <div class="drag"><Icon icon="mdi:drag" />{{ idx + 1 }}</div>
-            <Field :value.sync="option.text" :placeholder="`(${option.id})`" />
-            <Button icon="mdi:close-thick" type="flat" shape="circle" @click="removeOption(option.id)" />
-          </div>
+          <SlideFadeTransitionGroup>
+            <div v-for="(option, idx) in $props.options" :key="option.id" class="x-form-item">
+              <div class="drag"><Icon icon="mdi:drag" />{{ idx + 1 }}</div>
+              <Field :value.sync="option.text" :placeholder="`(${option.id})`" />
+              <Button icon="mdi:close-thick" type="flat" shape="circle" @click="removeOption(option.id)" />
+            </div>
+          </SlideFadeTransitionGroup>
         </Draggable>
       </Block>
       <Button icon="mdi:plus" type="dashed" block @click="addOption" />
@@ -30,12 +30,13 @@
       <FormItem :id="`[${id}]-api-vk`" :value.sync="$props.api.textKey" desc="Value Key" required />
       <FormItem :id="`[${id}]-api-tk`" :value.sync="$props.api.valueKey" desc="Text Key" required />
     </template>
-  </Block>
+  </div>
 </template>
 
 <script>
 import FormItem from '@/components/ui/form/FormItem';
 import { Button, Icon, Field, Block, Draggable } from '@/components/ui';
+import SlideFadeTransitionGroup from '@/components/ui/TransitionGroup/SlideFade';
 import { nanoid, arrRemoveValueByKey } from '@/assets/js/helper.js';
 import { convertOptions } from '@/assets/js/options.js';
 
@@ -48,6 +49,7 @@ export default /*#__PURE__*/ {
     Field,
     Block,
     Draggable,
+    SlideFadeTransitionGroup,
   },
   inject: ['handleConfirm'],
   inheritAttrs: false,

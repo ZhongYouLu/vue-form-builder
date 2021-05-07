@@ -1,7 +1,5 @@
 <template>
-  <!-- 條件設定 -->
-  <Block tag="fieldset">
-    <!-- <legend>條件設定</legend> -->
+  <div>
     <ConditionDisplay
       :level="0"
       :list.sync="matubleDisplay"
@@ -12,16 +10,14 @@
         <slot :name="slot" v-bind="props" />
       </template>
     </ConditionDisplay>
-  </Block>
+  </div>
 </template>
 <script>
-import Block from '@/components/ui/Block';
 import ConditionDisplay from '@/components/ColumnSetting/ConditionDisplay';
 
 export default /*#__PURE__*/ {
   name: 'ColumnSettingCondition',
   components: {
-    Block,
     ConditionDisplay,
   },
   inheritAttrs: false,

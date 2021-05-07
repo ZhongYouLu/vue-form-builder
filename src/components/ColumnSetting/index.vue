@@ -12,35 +12,63 @@
       required
       @update:value="updateColumnById(id, ['type'], $event)"
     />
-    <template v-if="type">
-      <!-- Tabs -->
-      <nav class="tabs">
-        <template v-for="(tab, tabKey) in tabs">
-          <div v-show="tab.show" :key="tabKey" :class="['tabs__item', { active: currentTab === tabKey }]">
-            <span @click="currentTab = tabKey"> {{ tab.text }}</span>
-          </div>
-        </template>
-      </nav>
-      <!-- Settings -->
-      <component
-        :is="`setting-${currentTab}`"
-        v-bind="{
-          id,
-          name,
-          ...$props[currentTab],
-          //------------
-          tab: currentTab,
-          typeConstraint,
-          columnsByKey,
-          columnsExcludeSelf,
-        }"
-        @update:column="updateColumnById(...arguments)"
-      >
-        <template v-for="(_, slot) in $scopedSlots" #[slot]="props">
-          <slot :name="slot" v-bind="props" />
-        </template>
-      </component>
-    </template>
+    <FadeTransition>
+      <div v-if="type">
+        <!-- Tabs -->
+        <nav class="tabs">
+          <template v-for="(tab, tabKey, idx) in tabs">
+            <div v-show="tab.show" :key="tabKey" :class="['tabs__item', { active: currentTab === tabKey }]">
+              <span @click="switchTab(tabKey, idx)"> {{ tab.text }}</span>
+            </div>
+          </template>
+        </nav>
+        <!-- Settings -->
+        <Block tag="fieldset">
+          <SliderGroupTransition :back="sliderBack">
+            <div v-for="tab in Object.keys(tabs)" v-show="tab === currentTab" :key="tab">
+              <component
+                :is="`setting-${tab}`"
+                v-bind="{
+                  id,
+                  name,
+                  ...$props[tab],
+                  //------------
+                  tab: tab,
+                  typeConstraint,
+                  columnsByKey,
+                  columnsExcludeSelf,
+                }"
+                @update:column="updateColumnById(...arguments)"
+              >
+                <template v-for="(_, slot) in $scopedSlots" #[slot]="props">
+                  <slot :name="slot" v-bind="props" />
+                </template>
+              </component>
+            </div>
+          </SliderGroupTransition>
+          <!-- <SliderTransition :back="sliderBack">
+          <component
+            :is="`setting-${currentTab}`"
+            v-bind="{
+              id,
+              name,
+              ...$props[currentTab],
+              //------------
+              tab: currentTab,
+              typeConstraint,
+              columnsByKey,
+              columnsExcludeSelf,
+            }"
+            @update:column="updateColumnById(...arguments)"
+          >
+            <template v-for="(_, slot) in $scopedSlots" #[slot]="props">
+              <slot :name="slot" v-bind="props" />
+            </template>
+          </component>
+        </SliderTransition> -->
+        </Block>
+      </div>
+    </FadeTransition>
   </div>
 </template>
 
@@ -50,6 +78,10 @@ import SettingBase from '@/components/ColumnSetting/Base';
 import SettingItem from '@/components/ColumnSetting/Item';
 import SettingRule from '@/components/ColumnSetting/Rule';
 import SettingCondition from '@/components/ColumnSetting/Condition';
+import Block from '@/components/ui/Block';
+import FadeTransition from '@/components/ui/Transition/Fade';
+import SliderTransition from '@/components/ui/Transition/Slider';
+import SliderGroupTransition from '@/components/ui/TransitionGroup/Slider';
 import { getters as collectsGetters, mutations as collectsMutations } from '@/store/collects.js';
 import { typeOptions, getTypeConstraint } from '@/assets/js/options.js';
 import { arrRemoveValueByKey } from '@/assets/js/helper.js';
@@ -62,6 +94,10 @@ export default /*#__PURE__*/ {
     SettingItem,
     SettingRule,
     SettingCondition,
+    Block,
+    FadeTransition,
+    SliderTransition,
+    SliderGroupTransition,
   },
   props: {
     columns: { type: Array, required: true },
@@ -83,6 +119,12 @@ export default /*#__PURE__*/ {
     condition: { type: Object, default: () => ({}) },
   },
   emits: ['update:column'],
+  data() {
+    return {
+      sliderBack: false,
+      tempTabIdx: -1,
+    };
+  },
   computed: {
     ...collectsGetters,
     tabs() {
@@ -127,12 +169,22 @@ export default /*#__PURE__*/ {
     updateColumnById(id, path, val) {
       this.$emit('update:column', id, path, val);
     },
+    switchTab(tab, idx) {
+      this.sliderBack = idx < this.tempTabIdx;
+      this.tempTabIdx = idx;
+
+      this.currentTab = tab;
+    },
   },
 };
 </script>
 
 <style lang="scss">
 @import '@/assets/scss/utils.scss';
+
+// .column-setting {
+//   padding: $gap-lg;
+// }
 
 .tabs {
   display: flex;
@@ -159,12 +211,6 @@ export default /*#__PURE__*/ {
       color: $color-gray-dark;
       cursor: pointer;
     }
-  }
-}
-
-.column-setting {
-  fieldset {
-    padding: var(--hGap);
   }
 }
 </style>

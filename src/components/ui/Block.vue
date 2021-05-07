@@ -10,16 +10,16 @@ export default /*#__PURE__*/ {
   name: 'Block',
   props: {
     tag: { type: String, default: 'div' },
-    shadow: { type: Boolean, default: null },
-    radius: { type: Boolean, default: null },
     border: { type: Boolean, default: null },
+    radius: { type: Boolean, default: null },
+    shadow: { type: Boolean, default: null },
   },
   computed: {
     classes() {
       return {
+        'x-block--border': this.border,
         'x-block--radius': this.radius,
         'x-block--shadow': this.shadow,
-        'x-block--border': this.border,
       };
     },
   },
@@ -33,6 +33,10 @@ export default /*#__PURE__*/ {
   overflow: hidden;
   margin-bottom: var(--hGap);
 
+  &--border {
+    border: var(--borderWidth) solid var(--borderColor);
+  }
+
   &--radius {
     border-radius: var(--borderRadius);
   }
@@ -45,15 +49,5 @@ export default /*#__PURE__*/ {
       box-shadow: $shadow-56;
     }
   }
-
-  &--border {
-    border: var(--borderWidth) solid var(--borderColor);
-  }
-}
-
-fieldset.x-block {
-  margin: 0;
-  padding: 0;
-  // border: none;
 }
 </style>

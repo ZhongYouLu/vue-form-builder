@@ -97,26 +97,28 @@
         </div>
       </Block>
       <Draggable v-model="mutableList" tag="ul" :group="{ name: 'g1' }" :class="root ? 'folders' : 'sub-folders'">
-        <ColumnSettingConditionDisplay
-          v-for="child in mutableList"
-          v-bind="$attrs"
-          :id="child.id"
-          :key="child.id"
-          :logic.sync="child.logic"
-          :state.sync="child.state"
-          :trigger-id.sync="child.triggerId"
-          :value.sync="child.value"
-          :list.sync="child.list"
-          :level="level + 1"
-          :root-logic="root ? rootLogic : logic"
-          :columns-by-key="columnsByKey"
-          :columns-exclude-self="columnsExcludeSelf"
-          @remove="removeItem"
-        >
-          <template v-for="(_, slot) in $scopedSlots" #[slot]="props">
-            <slot :name="slot" v-bind="props" />
-          </template>
-        </ColumnSettingConditionDisplay>
+        <SlideFadeTransitionGroup>
+          <ColumnSettingConditionDisplay
+            v-for="child in mutableList"
+            v-bind="$attrs"
+            :id="child.id"
+            :key="child.id"
+            :logic.sync="child.logic"
+            :state.sync="child.state"
+            :trigger-id.sync="child.triggerId"
+            :value.sync="child.value"
+            :list.sync="child.list"
+            :level="level + 1"
+            :root-logic="root ? rootLogic : logic"
+            :columns-by-key="columnsByKey"
+            :columns-exclude-self="columnsExcludeSelf"
+            @remove="removeItem"
+          >
+            <template v-for="(_, slot) in $scopedSlots" #[slot]="props">
+              <slot :name="slot" v-bind="props" />
+            </template>
+          </ColumnSettingConditionDisplay>
+        </SlideFadeTransitionGroup>
       </Draggable>
       <Button v-if="root || list" icon="mdi:plus" block type="dashed" @click="addItem" />
     </component>
@@ -129,6 +131,7 @@ import Draggable from '@/components/ui/Draggable/CustomDraggable';
 import Field from '@/components/ui/form/Field';
 import Icon from '@/components/ui/Icon';
 import Button from '@/components/ui/Button';
+import SlideFadeTransitionGroup from '@/components/ui/TransitionGroup/SlideFade';
 import { nanoid, arrRemoveValueByKey, thousandSeparator } from '@/assets/js/helper.js';
 import { getTypeConstraint, typeIcons } from '@/assets/js/options.js';
 
@@ -141,6 +144,7 @@ export default /*#__PURE__*/ {
     Field,
     Icon,
     Button,
+    SlideFadeTransitionGroup,
   },
   inject: ['handleConfirm'],
   props: {

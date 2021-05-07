@@ -70,7 +70,7 @@ export default /*#__PURE__*/ {
     block: { type: Boolean, default: null },
     errortips: { type: String, default: null },
     errordir: { type: String, default: 'top' },
-    debounce: { type: Number, default: null },
+    debounce: { type: Number, default: 50 },
     customValidity: {
       type: Object,
       default: () => ({
@@ -269,11 +269,10 @@ export default /*#__PURE__*/ {
     handleInput(e) {
       e.stopPropagation();
 
-      this.mutableValue = e.target.value;
-
       if (this.debounce) {
         this.inputTimer && clearTimeout(this.inputTimer);
         this.inputTimer = setTimeout(() => {
+          this.mutableValue = e.target.value;
           this.callInput && this.callInput(this.value);
         }, this.debounce);
       } else {

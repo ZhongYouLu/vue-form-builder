@@ -1,7 +1,5 @@
 <template>
-  <!-- 規則設定 -->
-  <Block tag="fieldset">
-    <!-- <legend>規則設定</legend> -->
+  <div>
     <FormItem
       :id="`[${id}]-requiredSync`"
       :value="requiredSync"
@@ -34,11 +32,10 @@
         @update:value="updateRule(['msg', k], $event)"
       />
     </div>
-  </Block>
+  </div>
 </template>
 
 <script>
-import Block from '@/components/ui/Block';
 import FormItem from '@/components/ui/form/FormItem';
 import Button from '@/components/ui/Button';
 import { getters as collectsGetters, mutations as collectsMutations } from '@/store/collects.js';
@@ -49,7 +46,6 @@ import { typeIcons, regexOptions } from '@/assets/js/options.js';
 export default /*#__PURE__*/ {
   name: 'ColumnSettingRule',
   components: {
-    Block,
     FormItem,
     Button,
   },
@@ -205,6 +201,7 @@ export default /*#__PURE__*/ {
     },
   },
   created() {
+    console.log('created');
     this.setCollect([this.id, 'toggleMsg']);
     this.updateRule(['msg'], {});
     this.updateRule(['requiredPassive'], []);

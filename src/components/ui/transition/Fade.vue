@@ -14,7 +14,7 @@ export default /*#__PURE__*/ {
 <style>
 .fade-enter-active,
 .fade-leave-active {
-  transition: opacity 0.3s;
+  transition: opacity 0.3s ease-out;
 }
 
 .fade-enter,
