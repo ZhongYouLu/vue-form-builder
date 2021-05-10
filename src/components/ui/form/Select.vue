@@ -64,7 +64,7 @@
         查無
         <em>{{ search }}</em> 相關.
       </template>
-      <em v-else style="opacity: 0.5">開始嘗試搜尋欄位</em>
+      <em v-else style="opacity: 0.5">{{ searchPlaceholder }}</em>
     </template>
 
     <template v-for="(_, slot) in $scopedSlots" #[slot]="props">
@@ -122,6 +122,8 @@ export default /*#__PURE__*/ {
     // ---------------------------------------------
     closeOnSelect: { type: Boolean, default: true }, // Close a dropdown when an option is chosen. Set to false to keep the dropdown open
     noDrop: { type: Boolean, default: false }, // Disable the dropdown entirely.
+    // ---------------------------------------------
+    searchPlaceholder: { type: String, default: '開始嘗試搜尋欄位' },
   },
   emits: [
     'update:value',

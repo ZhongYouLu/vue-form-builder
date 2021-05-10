@@ -97,12 +97,13 @@ export default /*#__PURE__*/ {
           ...fields.defaultValue.props,
           type: 'select',
           placeholder: '請選擇',
+          searchPlaceholder: '開始嘗試搜尋項目',
           options: this.columnsByKey[this.id].item?.options,
           multiple: !!this.multiple,
           clearable: true,
-          taggable: true,
-          pushTags: true,
-          reactable: true,
+          // taggable: true,
+          // pushTags: true,
+          // reactable: true,
         };
       }
 
