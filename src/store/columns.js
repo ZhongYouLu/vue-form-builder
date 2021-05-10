@@ -15,7 +15,10 @@ import {
 
 import { getTypeConstraint } from '@/assets/js/options.js';
 
-const state = Vue.observable({ columns: [] });
+const state = Vue.observable({ columns: [], columnsByKey: {} });
+
+const setColumn = {};
+const getColumn = {};
 
 // Getters
 const getters = {
@@ -29,7 +32,10 @@ const getters = {
     },
   },
   // 欄位群 (Array to Obj - By Key)
-  columnsByKey: () => arr2ObjByKey(state.columns, 'id'),
+  columnsByKey: () => {
+    state.columnsByKey = arr2ObjByKey(state.columns, 'id');
+    return state.columnsByKey;
+  },
   // 最終欄位群 (去除不必要的屬性)
   finalColumns: () => processColumns(deepCopy(state.columns)),
 };
@@ -57,15 +63,15 @@ const mutations = {
   },
   // 設置欄位 (欄位ID, 物件路徑, 值, 更新或插入)
   setColumnById(id, objectPath, value = {}, upsert = true) {
-    const column = state.columns.find((c) => c.id === id);
+    const column = state.columnsByKey[id];
 
     if (column) {
-      const setColumn = instantiateSetState(column);
-      const getColumn = instantiateGetState(column);
+      if (!setColumn[id]) setColumn[id] = instantiateSetState(column);
+      if (!getColumn[id]) getColumn[id] = instantiateGetState(column);
 
-      const before = deepCopy(getColumn({ objectPath }));
-      setColumn({ objectPath, value, upsert });
-      const after = getColumn({ objectPath });
+      const before = deepCopy(getColumn[id]({ objectPath }));
+      setColumn[id]({ objectPath, value, upsert });
+      const after = getColumn[id]({ objectPath });
 
       const targetProp = objectPath.join('.');
       actions.handleUpdateColumnProp(column, targetProp, after, before);
