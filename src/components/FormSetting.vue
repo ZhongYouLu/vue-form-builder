@@ -72,10 +72,10 @@
 </template>
 
 <script>
-import ColumnSetting from '@/components/ColumnSetting';
 import { Draggable, Block, Card, Button, Icon, Field } from '@/components/ui';
 import SlideFadeTransitionGroup from '@/components/ui/transition-group/SlideFade';
 import ExpandTransition from '@/components/ui/transition/Expand';
+import ColumnSetting from '@/components/ColumnSetting';
 import { getters as collectsGetters, mutations as collectsMutations } from '@/store/collects.js';
 
 export default /*#__PURE__*/ {
