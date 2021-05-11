@@ -47,6 +47,8 @@ export default /*#__PURE__*/ {
     placeholder: { type: String, default: null },
     // 預設值
     defaultValue: { type: [String, Number, Boolean, Array], default: null },
+    // 勾選框文字
+    label: { type: String, default: null },
     // 欄位性質
     subType: { type: String, default: null },
     // 可複選
@@ -107,6 +109,10 @@ export default /*#__PURE__*/ {
           // pushTags: true,
           // reactable: true,
         };
+      }
+
+      if (this.typeConstraint.isCheckbox && !this.multiple) {
+        fields['label'] = { props: { desc: '勾選文字' } };
       }
 
       if (this.typeConstraint.canMultiple) {

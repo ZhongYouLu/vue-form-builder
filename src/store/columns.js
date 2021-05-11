@@ -175,7 +175,11 @@ const actions = {
           }
           // 重置 [預設值] (Array or Other)
           if (column.base.defaultValue) {
-            column.base.defaultValue = column.base.multiple ? [] : null;
+            if (column.base.multiple) {
+              Vue.set(column.base, 'defaultValue', []);
+            } else {
+              column.base.defaultValue = null;
+            }
           }
         }
 
@@ -201,7 +205,11 @@ const actions = {
       }
       case 'base.multiple': {
         if (after !== before) {
-          column.base.defaultValue = after ? [] : null;
+          if (after) {
+            Vue.set(column.base, 'defaultValue', []);
+          } else {
+            column.base.defaultValue = null;
+          }
         }
         break;
       }

@@ -141,28 +141,22 @@ export default /*#__PURE__*/ {
           ...fields,
           minimum: { props: { desc: '字元下限', type: 'number' }, msg: `[${name}] 最少 [:min] 個字。` },
           maximum: { props: { desc: '字元上限', type: 'number' }, msg: `[${name}] 最多 [:max] 個字。` },
-        };
-
-        if (!this.columnsByKey[this.id].base?.subType) {
-          fields = {
-            ...fields,
-            regex: {
-              props: {
-                desc: '驗證格式',
-                type: 'select',
-                placeholder: '請選擇',
-                options: this.regexOptions,
-                clearable: true,
-                taggable: true,
-                pushTags: true,
-                reactable: true,
-                createOption: (option) => ({ id: option, text: option }),
-                // getOptionLabel: (option) => option,
-              },
-              msg: `[${name}] 格式驗證失敗。`,
+          regex: {
+            props: {
+              desc: '驗證格式',
+              type: 'select',
+              placeholder: '請選擇',
+              options: this.regexOptions,
+              clearable: true,
+              taggable: true,
+              pushTags: true,
+              reactable: true,
+              createOption: (option) => ({ id: option, text: option }),
+              // getOptionLabel: (option) => option,
             },
-          };
-        }
+            msg: `[${name}] 格式驗證失敗。`,
+          },
+        };
       } else if (this.typeConstraint.isNumber) {
         fields = {
           ...fields,
