@@ -15,15 +15,11 @@ import {
 } from '@/assets/js/helper.js';
 import { getTypeConstraint } from '@/assets/js/options.js';
 
-const _getColumn = {};
-const _setColumn = {};
 const useColumn = (column) => {
-  const id = column.id;
-  if (!_getColumn[id]) _getColumn[id] = instantiateGetState(column);
-  if (!_setColumn[id]) _setColumn[id] = instantiateSetState(column);
+  const getColumn = instantiateGetState(column);
+  const setColumn = instantiateSetState(column);
 
-  console.log('useColumn', id);
-  return [_getColumn[id], _setColumn[id]];
+  return [getColumn, setColumn];
 };
 
 // State
@@ -161,6 +157,8 @@ const actions = {
   },
   handleUpdateColumnProp(column, objectPath, after, before) {
     const targetProp = getObjPathArr(objectPath).join('.');
+    console.log(targetProp, after, before);
+
     switch (targetProp) {
       case 'type': {
         const typeConstraint = getTypeConstraint(after);
