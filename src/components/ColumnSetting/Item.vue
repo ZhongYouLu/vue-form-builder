@@ -8,12 +8,12 @@
       type="select"
       :options="sourceModeOptions"
       required
-      @update:value="update(['srcMode'], $event)"
+      @update:value="updateItem(['srcMode'], $event)"
     />
     <hr class="dashed" />
     <template v-if="$props.srcMode === 'list'">
       <Block v-show="$props.options.length">
-        <Draggable :value="$props.options" @input="update(['options'], $event)">
+        <Draggable :value="$props.options" @input="updateItem(['options'], $event)">
           <SlideFadeTransitionGroup>
             <div v-for="(option, idx) in $props.options" :key="option.id" class="x-form-item">
               <div class="drag"><Icon icon="mdi:drag" />{{ idx + 1 }}</div>
@@ -68,7 +68,7 @@ export default /*#__PURE__*/ {
     // API設定
     api: { type: Object, default: () => ({ url: '', textKey: '', valueKey: '' }) },
   },
-  emits: ['update'],
+  emits: ['update:column'],
   computed: {
     sourceModeOptions() {
       return convertOptions({
@@ -85,19 +85,19 @@ export default /*#__PURE__*/ {
     },
   },
   created() {
-    this.$emit('update:column', this.id, [this.tab], {
-      srcMode: this.srcMode,
-      options: this.options,
-      // api: this.api,
-    });
+    this.updateItem(['srcMode'], this.srcMode);
+    this.updateItem(['options'], this.options);
   },
   methods: {
-    update(path, val) {
-      this.$emit('update:column', this.id, [this.tab, ...path], val);
+    updateColumnById(id, path, val) {
+      this.$emit('update:column', id, path, val);
+    },
+    updateItem(path, val) {
+      this.updateColumnById(this.id, [this.tab, ...path], val);
     },
     addOption() {
       const newOptions = this.$props.options.concat({ id: nanoid(6), text: '' });
-      this.update(['options'], newOptions);
+      this.updateItem(['options'], newOptions);
     },
     removeOption(id) {
       const options = this.$props.options;
@@ -105,7 +105,7 @@ export default /*#__PURE__*/ {
       // 確認刪除函式
       const allowFunc = () => {
         const newOptions = arrRemoveValueByKey(options, 'id', id);
-        this.update(['options'], newOptions);
+        this.updateItem(['options'], newOptions);
       };
 
       const idx = options.findIndex((option) => option.id === id);

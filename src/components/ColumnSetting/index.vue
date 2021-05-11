@@ -2,14 +2,16 @@
 <template>
   <div class="column-setting">
     <FormItem
-      :id="`[${id}]-type`"
-      :value="type"
-      desc="欄位屬性"
-      placeholder="請選擇屬性"
-      type="select"
-      :options="typeOptions"
-      :fuse-keys="['id', 'text']"
-      required
+      v-bind="{
+        id: `[${id}]-type`,
+        value: type,
+        desc: '欄位屬性',
+        placeholder: '請選擇屬性',
+        type: 'select',
+        options: typeOptions,
+        fuseKeys: ['id', 'text'],
+        required: true,
+      }"
       @update:value="updateColumnById(id, ['type'], $event)"
     />
     <FadeTransition>
@@ -17,7 +19,7 @@
         <!-- Tabs -->
         <nav class="tabs">
           <template v-for="(tab, tabKey, idx) in tabs">
-            <div v-show="tab.show" :key="tabKey" :class="['tabs__item', { active: currentTab === tabKey }]">
+            <div v-show="tab.show" :key="tabKey" :class="['tabs__item', { active: tabKey === currentTab }]">
               <span @click="switchTab(tabKey, idx)"> {{ tab.text }}</span>
             </div>
           </template>
@@ -25,18 +27,18 @@
         <!-- Settings -->
         <Block tag="fieldset">
           <SliderGroupTransition :back="sliderBack">
-            <div v-for="tab in Object.keys(tabs)" v-show="tab === currentTab" :key="tab">
+            <div v-for="tabKey in Object.keys(tabs)" v-show="tabKey === currentTab" :key="tabKey">
               <component
-                :is="`setting-${tab}`"
+                :is="`setting-${tabKey}`"
                 v-bind="{
                   id,
                   name,
-                  ...$props[tab],
-                  //------------
-                  tab: tab,
                   typeConstraint,
                   columnsByKey,
                   columnsExcludeSelf,
+                  //------------
+                  tab: tabKey,
+                  ...$props[tabKey],
                 }"
                 @update:column="updateColumnById(...arguments)"
               >
@@ -46,26 +48,6 @@
               </component>
             </div>
           </SliderGroupTransition>
-          <!-- <SliderTransition :back="sliderBack">
-          <component
-            :is="`setting-${currentTab}`"
-            v-bind="{
-              id,
-              name,
-              ...$props[currentTab],
-              //------------
-              tab: currentTab,
-              typeConstraint,
-              columnsByKey,
-              columnsExcludeSelf,
-            }"
-            @update:column="updateColumnById(...arguments)"
-          >
-            <template v-for="(_, slot) in $scopedSlots" #[slot]="props">
-              <slot :name="slot" v-bind="props" />
-            </template>
-          </component>
-        </SliderTransition> -->
         </Block>
       </div>
     </FadeTransition>
@@ -73,11 +55,11 @@
 </template>
 
 <script>
-import FormItem from '@/components/ui/form/FormItem';
 import SettingBase from '@/components/ColumnSetting/Base';
 import SettingItem from '@/components/ColumnSetting/Item';
 import SettingRule from '@/components/ColumnSetting/Rule';
 import SettingCondition from '@/components/ColumnSetting/Condition';
+import FormItem from '@/components/ui/form/FormItem';
 import Block from '@/components/ui/Block';
 import FadeTransition from '@/components/ui/transition/Fade';
 import SliderTransition from '@/components/ui/transition/Slider';
@@ -89,12 +71,14 @@ import { arrRemoveValueByKey } from '@/assets/js/helper.js';
 export default /*#__PURE__*/ {
   name: 'ColumnSetting',
   components: {
-    FormItem,
     SettingBase,
     SettingItem,
     SettingRule,
     SettingCondition,
+    // UI
+    FormItem,
     Block,
+    // Transition
     FadeTransition,
     SliderTransition,
     SliderGroupTransition,
@@ -126,7 +110,7 @@ export default /*#__PURE__*/ {
     };
   },
   computed: {
-    ...collectsGetters,
+    collects: collectsGetters.collects,
     tabs() {
       return {
         base: { text: '基本', show: true },
@@ -165,7 +149,7 @@ export default /*#__PURE__*/ {
     if (!this.currentTab) this.currentTab = 'base';
   },
   methods: {
-    ...collectsMutations,
+    setCollect: collectsMutations.setCollect,
     updateColumnById(id, path, val) {
       this.$emit('update:column', id, path, val);
     },

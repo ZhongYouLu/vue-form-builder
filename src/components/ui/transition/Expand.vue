@@ -9,12 +9,6 @@
 export default /*#__PURE__*/ {
   name: 'TransitionExpand',
   inheritAttrs: false,
-  created() {
-    console.log('expand created');
-  },
-  updated() {
-    console.log('expand updated');
-  },
   methods: {
     enter(element) {
       const width = getComputedStyle(element).width;

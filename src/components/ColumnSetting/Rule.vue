@@ -1,23 +1,25 @@
 <template>
   <div>
     <FormItem
-      :id="`[${id}]-requiredSync`"
-      :value="requiredSync"
-      desc="連動必填..."
-      type="select"
-      :options="requiredSyncOptions"
-      :icons="typeIcons"
-      text-key="name"
-      icon-key="type"
-      multiple
+      v-bind="requiredSyncScope"
       @handle:selecting="handleRequiredSync(1, $event)"
       @handle:deselecting="handleRequiredSync(0, $event)"
     />
     <hr class="dashed" />
     <div v-for="(v, k) in fields" :key="k" class="input-group">
-      <FormItem :id="`[${id}]-${k}`" v-bind="v.props" :value="$props[k]" @update:value="updateRule([k], $event)">
+      <FormItem
+        v-bind="{
+          id: `[${id}]-${k}`,
+          value: $props[k],
+          ...v.props,
+        }"
+        @update:value="updateRule([k], $event)"
+      >
         <template #text-right>
-          <Button icon="mdi:ideogram-cjk-variant" type="flat" shape="circle" @click="toggleToggleMsg(k)" />
+          <Button
+            v-bind="{ icon: 'mdi:ideogram-cjk-variant', type: 'flat', shape: 'circle' }"
+            @click="toggleShowMsg(k)"
+          />
         </template>
         <template v-for="(_, slot) in $scopedSlots" #[slot]="props">
           <slot :name="slot" v-bind="props" />
@@ -25,10 +27,12 @@
       </FormItem>
       <!-- Msg -->
       <FormItem
-        v-show="toggleMsg[k]"
-        :id="`[${id}]-${k}-msg`"
-        :value="$props.msg[k]"
-        :placeholder="v.msg"
+        v-show="collectShowMsg[k]"
+        v-bind="{
+          id: `[${id}]-${k}-msg`,
+          value: $props.msg[k],
+          placeholder: v.msg,
+        }"
         @update:value="updateRule(['msg', k], $event)"
       />
     </div>
@@ -39,9 +43,9 @@
 import FormItem from '@/components/ui/form/FormItem';
 import Button from '@/components/ui/Button';
 import { getters as collectsGetters, mutations as collectsMutations } from '@/store/collects.js';
-
+import { getters as regexOptionsGetters, mutations as regexOptionsMutations } from '@/store/regexOptions.js';
 import { arrRemoveValue } from '@/assets/js/helper.js';
-import { typeIcons, regexOptions } from '@/assets/js/options.js';
+import { typeIcons } from '@/assets/js/options.js';
 
 export default /*#__PURE__*/ {
   name: 'ColumnSettingRule',
@@ -59,10 +63,10 @@ export default /*#__PURE__*/ {
     name: { type: String, default: null },
     // 欄位屬性約束
     typeConstraint: { type: Object, required: true },
-    // 排除自己的所有欄位群
-    columnsExcludeSelf: { type: Array, required: true },
     // 所有欄位群 (obj by key)
     columnsByKey: { type: Object, required: true },
+    // 排除自己的所有欄位群
+    columnsExcludeSelf: { type: Array, required: true },
     //-----------
     // 規則提示
     msg: { type: Object, default: () => ({}) },
@@ -83,15 +87,10 @@ export default /*#__PURE__*/ {
     // 選擇數量上限 [多選框選項]
     most: { type: Number, default: null },
   },
-  emits: ['update'],
+  emits: ['update:column'],
   computed: {
-    ...collectsGetters,
-    typeIcons() {
-      return typeIcons;
-    },
-    regexOptions() {
-      return regexOptions;
-    },
+    collects: collectsGetters.collects,
+    regexOptions: regexOptionsGetters.regexOptions,
     fields() {
       const name = this.name || this.id;
       const sameAsName = this.sameAs ? this.columnsByKey[this.sameAs].name || this.columnsByKey[this.sameAs].id : '';
@@ -103,9 +102,10 @@ export default /*#__PURE__*/ {
           requiredPassive: {
             props: {
               desc: '被...連動必填',
+              placeholder: '請選擇欄位',
               type: 'select',
               options: this.requiredPassiveOptions,
-              icons: this.typeIcons,
+              icons: typeIcons,
               textKey: 'name',
               iconKey: 'type',
               multiple: true,
@@ -126,8 +126,8 @@ export default /*#__PURE__*/ {
             desc: '與..相符',
             placeholder: '請選擇欄位',
             type: 'select',
-            options: this.typeConstraint.filterSame(this.columnsExcludeSelf),
-            icons: this.typeIcons,
+            options: this.sameAsOptions,
+            icons: typeIcons,
             textKey: 'name',
             iconKey: 'type',
             clearable: true,
@@ -136,27 +136,33 @@ export default /*#__PURE__*/ {
         },
       };
 
-      if (this.typeConstraint.isText && !this.columnsByKey[this.id].base?.subType) {
+      if (this.typeConstraint.isText) {
         fields = {
           ...fields,
           minimum: { props: { desc: '字元下限', type: 'number' }, msg: `[${name}] 最少 [:min] 個字。` },
           maximum: { props: { desc: '字元上限', type: 'number' }, msg: `[${name}] 最多 [:max] 個字。` },
-          regex: {
-            props: {
-              desc: '驗證格式',
-              type: 'select',
-              placeholder: '請選擇',
-              options: this.regexOptions,
-              clearable: true,
-              taggable: true,
-              pushTags: true,
-              reactable: true,
-              createOption: (option) => ({ id: option, text: option }),
-              // getOptionLabel: (option) => option,
-            },
-            msg: `[${name}] 格式驗證失敗。`,
-          },
         };
+
+        if (!this.columnsByKey[this.id].base?.subType) {
+          fields = {
+            ...fields,
+            regex: {
+              props: {
+                desc: '驗證格式',
+                type: 'select',
+                placeholder: '請選擇',
+                options: this.regexOptions,
+                clearable: true,
+                taggable: true,
+                pushTags: true,
+                reactable: true,
+                createOption: (option) => ({ id: option, text: option }),
+                // getOptionLabel: (option) => option,
+              },
+              msg: `[${name}] 格式驗證失敗。`,
+            },
+          };
+        }
       } else if (this.typeConstraint.isNumber) {
         fields = {
           ...fields,
@@ -179,8 +185,8 @@ export default /*#__PURE__*/ {
 
       return fields;
     },
-    toggleMsg() {
-      return this.collects[this.id]['toggleMsg'];
+    sameAsOptions() {
+      return this.typeConstraint.filterSame(this.columnsExcludeSelf);
     },
     requiredPassiveOptions() {
       return this.required ? [] : this.columnsExcludeSelf;
@@ -199,34 +205,44 @@ export default /*#__PURE__*/ {
         return acc;
       }, []);
     },
+    requiredSyncScope() {
+      return {
+        id: `[${this.id}]-requiredSync`,
+        value: this.requiredSync,
+        desc: '連動必填...',
+        placeholder: '請選擇欄位',
+        type: 'select',
+        options: this.requiredSyncOptions,
+        icons: typeIcons,
+        textKey: 'name',
+        iconKey: 'type',
+        multiple: true,
+      };
+    },
+    collectShowMsg() {
+      return this.collects[this.id]['showMsg'];
+    },
   },
   created() {
-    console.log('created');
-    this.setCollect([this.id, 'toggleMsg']);
-    this.updateRule(['msg'], {});
-    this.updateRule(['requiredPassive'], []);
-
-    // if (this.regex && this.regexOptions.findIndex((option) => option.value === this.regex) === -1) {
-    //   this.regexOptions.push({ id: this.regex, text: this.regex });
-    // }
+    console.log('[rule] created!');
+    collectsMutations.setCollect([this.id, 'showMsg']);
+    this.updateRule(['msg'], this.msg);
   },
   methods: {
-    ...collectsMutations,
-    updateRule(path, val) {
-      this.$emit('update:column', this.id, [this.tab, ...path], val);
+    toggleShowMsg(k) {
+      collectsMutations.toggleCollect([this.id, 'showMsg', k]);
     },
-    toggleToggleMsg(k) {
-      this.toggleCollect([this.id, 'toggleMsg', k]);
+    updateColumnById(id, path, val) {
+      this.$emit('update:column', id, path, val);
+    },
+    updateRule(path, val) {
+      this.updateColumnById(this.id, [this.tab, ...path], val);
     },
     handleRequiredSync(isAdd, { id }) {
-      const target = this.columnsByKey[id];
-      const requiredPassive = target.rule?.requiredPassive || [];
-
-      if (isAdd) {
-        target.rule.requiredPassive = [...requiredPassive, this.id];
-      } else {
-        target.rule.requiredPassive = arrRemoveValue(requiredPassive, this.id);
-      }
+      const targetColumn = this.columnsByKey[id];
+      const requiredPassive = targetColumn.rule?.requiredPassive || [];
+      const newValue = isAdd ? [...requiredPassive, this.id] : arrRemoveValue(requiredPassive, this.id);
+      this.updateColumnById(id, ['rule', 'requiredPassive'], newValue);
     },
   },
 };

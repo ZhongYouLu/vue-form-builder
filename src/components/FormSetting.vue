@@ -15,9 +15,7 @@
                   <template v-if="collects[column.id].isEditName">
                     <Field
                       :ref="`editName-${column.id}`"
-                      :value="column.name"
-                      :placeholder="column.id"
-                      block
+                      v-bind="{ value: column.name, placeholder: column.id, block: true }"
                       @update:value="setColumnById(column.id, ['name'], $event)"
                       @handle:enter="handleEditNameEnter(column.id)"
                     />
@@ -27,18 +25,25 @@
                   </template>
                   <Button
                     :ref="`toggleEditNameBtn-${column.id}`"
-                    :icon="collects[column.id].isEditName ? 'ic:baseline-done-outline' : 'mi:edit-alt'"
-                    v-bind="headerBtnProps"
+                    v-bind="{
+                      icon: collects[column.id].isEditName ? 'ic:baseline-done-outline' : 'mi:edit-alt',
+                      ...headerBtnProps,
+                    }"
                     @click="toggleIsEditName(column.id)"
                   />
                 </div>
                 <div class="card__controll">
                   <Button
-                    :icon="collects[column.id].isOpen ? 'mdi:eye-minus' : 'mdi:eye-settings'"
-                    v-bind="headerBtnProps"
+                    v-bind="{
+                      icon: collects[column.id].isOpen ? 'mdi:eye-minus' : 'mdi:eye-settings',
+                      ...headerBtnProps,
+                    }"
                     @click="toggleIsOpen(column.id)"
                   />
-                  <Button icon="mdi:close-thick" v-bind="headerBtnProps" @click="handleRemoveColumn(column.id)" />
+                  <Button
+                    v-bind="{ icon: 'mdi:close-thick', ...headerBtnProps }"
+                    @click="handleRemoveColumn(column.id)"
+                  />
                 </div>
               </slot>
             </template>
@@ -62,50 +67,57 @@
         </Block>
       </SlideFadeTransitionGroup>
     </Draggable>
-    <Button icon="mdi:plus" type="dashed" block @click="addColumn" />
+    <Button v-bind="{ icon: 'mdi:plus', type: 'dashed', block: true }" @click="addColumn" />
   </div>
 </template>
 
 <script>
+import ColumnSetting from '@/components/ColumnSetting';
 import { Draggable, Block, Card, Button, Icon, Field } from '@/components/ui';
 import SlideFadeTransitionGroup from '@/components/ui/transition-group/SlideFade';
 import ExpandTransition from '@/components/ui/transition/Expand';
-import ColumnSetting from '@/components/ColumnSetting';
-import {
-  getters as columnsGetters,
-  mutations as columnsMutations,
-  actions as columnsActions,
-} from '@/store/columns.js';
 import { getters as collectsGetters, mutations as collectsMutations } from '@/store/collects.js';
 
 export default /*#__PURE__*/ {
   name: 'FormSetting',
   components: {
+    ColumnSetting,
+    // UI
     Draggable,
     Block,
     Card,
     Button,
     Icon,
     Field,
-    ColumnSetting,
+    // Transition
     SlideFadeTransitionGroup,
     ExpandTransition,
   },
+  props: {
+    columns: { type: Array, required: true },
+    columnsByKey: { type: Object, required: true },
+    //-----------
+    addColumn: { type: Function, required: true },
+    setColumnById: { type: Function, required: true },
+    handleRemoveColumn: { type: Function, required: true },
+  },
+  emits: ['update:columns'],
   computed: {
-    ...columnsGetters,
-    ...collectsGetters,
+    collects: collectsGetters.collects,
+    mutableColumns: {
+      get() {
+        return this.columns;
+      },
+      set(val) {
+        this.$emit('update:columns', val);
+      },
+    },
     headerBtnProps() {
-      return {
-        type: 'flat',
-        shape: 'circle',
-        color: '#fff',
-      };
+      return { type: 'flat', shape: 'circle', color: '#fff' };
     },
   },
   methods: {
-    ...columnsMutations,
-    ...columnsActions,
-    ...collectsMutations,
+    toggleCollect: collectsMutations.toggleCollect,
     toggleIsOpen(columnId) {
       this.toggleCollect([columnId, 'isOpen']);
     },

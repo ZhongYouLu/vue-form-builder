@@ -34,7 +34,7 @@ export default /*#__PURE__*/ {
     // 顯示條件
     display: { type: Array, default: () => [] },
   },
-  emits: ['update'],
+  emits: ['update:column'],
   computed: {
     matubleDisplay: {
       get() {
@@ -50,8 +50,11 @@ export default /*#__PURE__*/ {
     this.updateCondition(['display'], this.matubleDisplay);
   },
   methods: {
+    updateColumnById(id, path, val) {
+      this.$emit('update:column', id, path, val);
+    },
     updateCondition(path, val) {
-      this.$emit('update:column', this.id, [this.tab, ...path], val);
+      this.updateColumnById(this.id, [this.tab, ...path], val);
     },
   },
 };

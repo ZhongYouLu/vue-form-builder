@@ -1,7 +1,7 @@
 import Vue from 'vue';
 import { instantiateSetState, instantiateGetState } from '@/store/helper.js';
 import collects, { mutations as collectsMutations } from '@/store/collects.js';
-
+import { mutations as regexOptionsMutations } from '@/store/regexOptions.js';
 import {
   nanoid,
   isEmpty,
@@ -11,14 +11,23 @@ import {
   arrRemoveValues,
   difference,
   deepCopy,
+  getObjPathArr,
 } from '@/assets/js/helper.js';
-
 import { getTypeConstraint } from '@/assets/js/options.js';
 
-const state = Vue.observable({ columns: [], columnsByKey: {} });
+const _getColumn = {};
+const _setColumn = {};
+const useColumn = (column) => {
+  const id = column.id;
+  if (!_getColumn[id]) _getColumn[id] = instantiateGetState(column);
+  if (!_setColumn[id]) _setColumn[id] = instantiateSetState(column);
 
-const setColumn = {};
-const getColumn = {};
+  console.log('useColumn', id);
+  return [_getColumn[id], _setColumn[id]];
+};
+
+// State
+const state = Vue.observable({ columns: [], columnsByKey: {} });
 
 // Getters
 const getters = {
@@ -66,15 +75,13 @@ const mutations = {
     const column = state.columnsByKey[id];
 
     if (column) {
-      if (!setColumn[id]) setColumn[id] = instantiateSetState(column);
-      if (!getColumn[id]) getColumn[id] = instantiateGetState(column);
+      const [getColumn, setColumn] = useColumn(column);
 
-      const before = deepCopy(getColumn[id]({ objectPath }));
-      setColumn[id]({ objectPath, value, upsert });
-      const after = getColumn[id]({ objectPath });
+      const before = deepCopy(getColumn({ objectPath }));
+      setColumn({ objectPath, value, upsert });
+      const after = getColumn({ objectPath });
 
-      const targetProp = objectPath.join('.');
-      actions.handleUpdateColumnProp(column, targetProp, after, before);
+      actions.handleUpdateColumnProp(column, objectPath, after, before);
     }
   },
 };
@@ -103,21 +110,20 @@ const actions = {
     if (deductIds.length) {
       // 監聽連動 [Side Effect]
       after.forEach((column) => {
-        const setColumn = instantiateSetState(column);
-        const getColumn = instantiateGetState(column);
+        const [getColumn, setColumn] = useColumn(column);
         let objectPath = null;
         let targetValue = null;
 
         // 如果有規則
         if (column.rule) {
           // 被連動必填
-          objectPath = ['rule', 'requiredPassive'];
+          objectPath = 'rule.requiredPassive';
           if ((targetValue = getColumn({ objectPath }))) {
             setColumn({ objectPath, value: arrRemoveValues(targetValue, deductIds) });
           }
 
           // 與...相符
-          objectPath = ['rule', 'sameAs'];
+          objectPath = 'rule.sameAs';
           if ((targetValue = getColumn({ objectPath }))) {
             setColumn({ objectPath, value: null });
           }
@@ -126,12 +132,18 @@ const actions = {
         // 如果有條件
         if (column.condition) {
           // 顯示
-          objectPath = ['condition', 'display'];
+          objectPath = 'condition.display';
           if ((targetValue = getColumn({ objectPath }))) {
             removeConditionDisplayTriggerId(targetValue, deductIds); // recursive & side effect
           }
         }
       });
+    }
+
+    const allRegexValue = after.reduce((acc, c) => (c.rule?.regex ? [...acc, c.rule.regex] : acc), []);
+    if (allRegexValue) {
+      console.log('allRegexValue', allRegexValue);
+      regexOptionsMutations.updateOptions(allRegexValue);
     }
   },
   handleRemoveColumn(id, handleConfirm = null) {
@@ -147,11 +159,11 @@ const actions = {
       if (confirm(showMsg)) allowFunc();
     }
   },
-  handleUpdateColumnProp(column, targetProp, after, before) {
+  handleUpdateColumnProp(column, objectPath, after, before) {
+    const targetProp = getObjPathArr(objectPath).join('.');
     switch (targetProp) {
       case 'type': {
         const typeConstraint = getTypeConstraint(after);
-        console.log('type', after, before);
 
         // 基本設定
         if (column.base) {
@@ -196,7 +208,9 @@ const actions = {
         break;
       }
       case 'rule.required': {
-        if (after) column.rule.requiredPassive = [];
+        if (after && column.rule?.requiredPassive) {
+          column.rule.requiredPassive = [];
+        }
         break;
       }
       case 'item.options': {
@@ -204,7 +218,6 @@ const actions = {
         const beforeIds = (before || []).map((c) => c.id);
         const addIds = difference(afterIds, beforeIds); // 增加的欄位IDs
         const deductIds = difference(beforeIds, afterIds); // 減少的欄位IDs
-        // console.log('item.options', addIds, deductIds);
 
         // 有增加的IDs
         if (addIds.length) {
@@ -308,19 +321,19 @@ const processColumns = (function () {
   // 處理欄位的條件
   const processCondition = (condition) => {
     let { display, ...newCondition } = condition;
-    display = processDisplay(display);
+    display = processConditionDisplay(display);
     if (!isEmpty(display)) newCondition['display'] = display;
 
     return newCondition;
   };
   // 處理欄位的條件的顯示
-  const processDisplay = (arr) => {
+  const processConditionDisplay = (arr) => {
     if (!Array.isArray(arr)) return arr;
 
     return arr.reduce((acc, d) => {
       if (d.triggerId) {
         let { list, ...newD } = d;
-        list = processDisplay(list);
+        list = processConditionDisplay(list);
         if (!isEmpty(list)) newD['list'] = list;
         if (!isEmpty(newD)) acc.push(newD);
       }
@@ -330,6 +343,20 @@ const processColumns = (function () {
 
   return (columns) => columns.map((column) => processColumn(column));
 })();
+
+const initConditionDisplayValue = (arr, triggerId) => {
+  if (!Array.isArray(arr)) return arr;
+
+  return arr.map((d) => {
+    if (d.triggerId === triggerId) {
+      d.value = null;
+    }
+    if (Array.isArray(d.list) && d.list.length) {
+      d.list = initConditionDisplayValue(d.list, triggerId);
+    }
+    return d;
+  });
+};
 
 // 初始不存在的id (recursive & side effect)
 const removeConditionDisplayTriggerId = (arr, deductIds) => {
@@ -342,20 +369,6 @@ const removeConditionDisplayTriggerId = (arr, deductIds) => {
     }
     if (Array.isArray(d.list) && d.list.length) {
       d.list = removeConditionDisplayTriggerId(d.list, deductIds);
-    }
-    return d;
-  });
-};
-
-const initConditionDisplayValue = (arr, triggerId) => {
-  if (!Array.isArray(arr)) return arr;
-
-  return arr.map((d) => {
-    if (d.triggerId === triggerId) {
-      d.value = null;
-    }
-    if (Array.isArray(d.list) && d.list.length) {
-      d.list = initConditionDisplayValue(d.list, triggerId);
     }
     return d;
   });

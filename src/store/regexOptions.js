@@ -1,7 +1,8 @@
 import Vue from 'vue';
+import { regexOptions } from '@/assets/js/options.js';
 import { difference } from '@/assets/js/helper.js';
 
-const state = Vue.observable({ regexOptions: {} });
+const state = Vue.observable({ regexOptions: regexOptions || [] });
 
 // Getters
 const getters = {
@@ -12,10 +13,8 @@ const getters = {
 const mutations = {
   setOptions: (val) => (state.regexOptions = val),
   addOption: (val) => state.regexOptions.push({ id: val, text: val }),
-  update: (regexValues) => {
-    // const regexValues = columns.reduce((acc, c) => (c.rule?.regex ? acc.concat(c.rule.regex) : acc), []);
-
-    if (regexValues) {
+  updateOptions: (regexValues) => {
+    if (Array.isArray(regexValues) && regexValues.length) {
       const newValues = difference(
         regexValues,
         state.regexOptions.map((option) => option.id)
@@ -25,5 +24,5 @@ const mutations = {
   },
 };
 
-export default state;
+export default state.regexOptions;
 export { getters, mutations };

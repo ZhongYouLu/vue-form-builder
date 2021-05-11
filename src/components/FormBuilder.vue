@@ -9,7 +9,15 @@
     />
     <h1>Form ID: {{ id }}</h1>
     <main class="form-builder__main">
-      <FormSetting>
+      <FormSetting
+        :columns.sync="mutableColumns"
+        v-bind="{
+          columnsByKey: columnsByKey,
+          addColumn: addColumn,
+          setColumnById: setColumnById,
+          handleRemoveColumn: handleRemoveColumn,
+        }"
+      >
         <template v-for="(_, slot) in $scopedSlots" #[slot]="props">
           <slot :name="slot" v-bind="props" />
         </template>
@@ -31,9 +39,12 @@ import FormSetting from '@/components/FormSetting';
 import FormDemo from '@/components/FormDemo';
 import RecordControls from '@/components/RecordControls';
 import JsonView from 'vue-json-views';
-
 import { tunnelEmit } from '@/store/helper';
-import { getters as columnsGetters } from '@/store/columns.js';
+import {
+  getters as columnsGetters,
+  mutations as columnsMutations,
+  actions as columnsActions,
+} from '@/store/columns.js';
 
 export default /*#__PURE__*/ {
   name: 'FormBuilder',
@@ -49,13 +60,16 @@ export default /*#__PURE__*/ {
   },
   emits: ['update:columns'],
   computed: {
-    mutableColumns: columnsGetters.mutableColumns,
-    finalColumns: columnsGetters.finalColumns,
+    ...columnsGetters,
   },
   watch: {
-    mutableColumns(columns) {
-      tunnelEmit(this, 'update:columns', columns);
+    mutableColumns(val) {
+      tunnelEmit(this, 'update:columns', val);
     },
+  },
+  methods: {
+    ...columnsMutations,
+    ...columnsActions,
   },
 };
 </script>

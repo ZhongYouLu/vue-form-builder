@@ -2,11 +2,13 @@
   <SlideFadeTransitionGroup>
     <FormItem
       v-for="(v, k) in fields"
-      :id="`[${id}]-${k}`"
       :key="k"
-      v-bind="v.props"
-      :value="$props[k]"
-      @update:value="$emit('update:column', id, [tab, k], $event)"
+      v-bind="{
+        id: `[${id}]-${k}`,
+        value: $props[k],
+        ...v.props,
+      }"
+      @update:value="updateBase([k], $event)"
     >
       <template v-for="(_, slot) in $scopedSlots" #[slot]="props">
         <slot :name="slot" v-bind="props" />
@@ -56,7 +58,7 @@ export default /*#__PURE__*/ {
     // 加密
     encrypt: { type: Number, default: null },
   },
-  emits: ['update'],
+  emits: ['update:column'],
   computed: {
     fields() {
       let fields = {
@@ -137,6 +139,14 @@ export default /*#__PURE__*/ {
       }
 
       return fields;
+    },
+  },
+  methods: {
+    updateColumnById(id, path, val) {
+      this.$emit('update:column', id, path, val);
+    },
+    updateBase(path, val) {
+      this.updateColumnById(this.id, [this.tab, ...path], val);
     },
   },
 };
