@@ -2,15 +2,19 @@
   <div class="x-field">
     <component
       :is="componentName"
-      :id="id"
       ref="el"
-      :name="name || id"
-      v-bind="$attrs"
-      :type="subType || type"
-      :multiple="!!multiple"
+      v-bind="{
+        ...$attrs,
+        id,
+        name: name || id,
+        type: subType || type,
+        multiple: !!multiple,
+      }"
       :value.sync="mutableValue"
-      @focus="$emit('focus', $event)"
-      @blur="$emit('blur', $event)"
+      v-on="{
+        focus: handleFocus,
+        blur: handleBlur,
+      }"
     >
       <template v-for="(_, slot) in $scopedSlots" #[slot]="props">
         <slot :name="slot" v-bind="props" />
@@ -44,11 +48,12 @@ export default /*#__PURE__*/ {
     // ------------
     id: { type: String, default: null },
     name: { type: String, default: null },
-    value: { type: [String, Number, Boolean, Array], default: null },
-    default: { type: [String, Number, Boolean, Array], default: null },
     type: { validator: (val) => !!typeConfig[val], default: 'text' },
     subType: { validator: (val) => !!subTypeConfig[val], default: null },
     multiple: { type: [Boolean, Number], default: null },
+    default: { type: [String, Number, Boolean, Array], default: null },
+    // ------------
+    value: { type: [String, Number, Boolean, Array], default: null },
     error: { type: String, default: null },
   },
   emits: ['input', 'focus', 'blur'],
@@ -128,6 +133,24 @@ export default /*#__PURE__*/ {
     // },
   },
   methods: {
+    reset() {
+      this.$refs.el.reset();
+    },
+    focus() {
+      this.$refs.el.focus();
+    },
+    validity() {
+      return this.$refs.el.validity();
+    },
+    checkValidity() {
+      return this.$refs.el.checkValidity();
+    },
+    handleFocus(e) {
+      this.$emit('focus', e);
+    },
+    handleBlur(e) {
+      this.$emit('blur', e);
+    },
     checkRule(name, value) {
       // 檢查 - 必填
       if (this.required && (value == null || value === '')) {

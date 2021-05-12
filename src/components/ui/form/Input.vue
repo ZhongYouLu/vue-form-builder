@@ -89,6 +89,7 @@ export default /*#__PURE__*/ {
       errorType: null,
       eyeclose: true,
       inputTimer: null,
+      defaultValue: null,
     };
   },
   computed: {
@@ -184,6 +185,9 @@ export default /*#__PURE__*/ {
       });
     },
   },
+  created() {
+    this.defaultValue = this.value;
+  },
   methods: {
     tunnelEmit(event, ...payload) {
       let vm = this;
@@ -197,7 +201,7 @@ export default /*#__PURE__*/ {
       }
     },
     reset() {
-      this.mutableValue = this.defaultvalue;
+      this.mutableValue = this.defaultValue;
       this.invalid = false;
       this.tips = null;
       this.showTips = null;

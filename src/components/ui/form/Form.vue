@@ -2,44 +2,45 @@
   <div>
     <form
       ref="form"
-      class="x-form"
-      :name="name"
-      :method="method"
-      :action="action"
-      :novalidate="novalidate"
-      :disabled="disabled"
-      :type="type"
+      v-bind="{
+        class: 'x-form',
+        name,
+        method,
+        action,
+        novalidate,
+        disabled,
+      }"
     >
-      <template v-for="{ id, ...column } in columns">
-        <FormItem
-          v-if="values[id] !== undefined"
-          :id="id"
-          :key="id"
-          ref="formItem"
-          :type="column.type"
-          :novalidate="novalidate"
-          :disabled="disabled"
-          v-bind="{
-            ...column.base,
-            ...column.rule,
-            ...column.item,
-            ...column.condition,
-          }"
-          :columns="columns"
-          :columns-by-key="columnsByKey"
-          :values="values"
-          :value.sync="values[id]"
-          :error.sync="errors[id]"
-          v-on="{
-            // focus: handleFocus,
-            // blur: handleBlur,
-          }"
-        >
-          <template v-for="(_, slot) in $scopedSlots" #[slot]="props">
-            <slot :name="slot" v-bind="props" />
-          </template>
-        </FormItem>
-      </template>
+      <FormItem
+        v-for="{ id, type, ...column } in columns"
+        :key="id"
+        ref="formItem"
+        v-bind="{
+          id,
+          type,
+          novalidate,
+          disabled,
+          // -----------
+          ...column.base,
+          ...column.rule,
+          ...column.item,
+          ...column.condition,
+          // -----------
+          columns,
+          columnsByKey,
+          values,
+        }"
+        :value.sync="values[id]"
+        :error.sync="errors[id]"
+        v-on="{
+          // focus: handleFocus,
+          // blur: handleBlur,
+        }"
+      >
+        <template v-for="(_, slot) in $scopedSlots" #[slot]="props">
+          <slot :name="slot" v-bind="props" />
+        </template>
+      </FormItem>
       <Button @click="submit">Send</Button>
       <Button htmltype="reset" @click="reset">reset</Button>
     </form>
@@ -69,8 +70,6 @@ export default /*#__PURE__*/ {
     action: { type: String, default: null },
     novalidate: { type: Boolean, defalut: null },
     disabled: { type: Boolean, defalut: null },
-    // -----------------------------------
-    type: { type: String, default: null },
   },
   emits: ['submit'],
   data() {
@@ -105,12 +104,12 @@ export default /*#__PURE__*/ {
   methods: {
     reset() {
       this.invalid = false;
-      this.$refs.formItem.forEach((el) => {
-        el.$refs.field.$refs.el.reset();
+      this.$refs.formItem.forEach((formItem) => {
+        formItem.reset();
       });
     },
     validity() {
-      this.$refs.formItem.every((el) => el.validity());
+      this.$refs.formItem.every((formItem) => formItem.validity());
     },
     formdata() {
       const formdata = new FormData();
@@ -142,7 +141,7 @@ export default /*#__PURE__*/ {
       if (this.checkValidity() && !this.disabled) {
         // https://developers.google.com/web/fundamentals/design-and-ux/input/forms
 
-        const form = e.target;
+        const form = this.$refs.form;
         // form.reportValidity()
         // if (form.reportValidity() === false) {
         //   alert('Form is invalid - submission prevented!');

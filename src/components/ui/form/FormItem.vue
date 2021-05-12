@@ -7,14 +7,17 @@
       <slot name="text-right"></slot>
     </label>
     <Field
-      :id="id"
       ref="field"
-      v-bind="$attrs"
-      :name="name || id"
-      :required="!!required"
-      :columns="columns"
-      :columns-by-key="columnsByKey"
-      :values="values"
+      v-bind="{
+        ...$attrs,
+        id,
+        name: name || id,
+        required: !!required,
+        // -----------
+        columns,
+        columnsByKey,
+        values,
+      }"
       :value.sync="mutableValue"
       :error.sync="mutableError"
       v-on="{
@@ -45,12 +48,12 @@ export default /*#__PURE__*/ {
     // ------------
     id: { type: String, required: true },
     name: { type: String, default: null },
-    value: { type: [String, Number, Boolean, Array], default: null },
-    error: { type: String, default: null },
-    // ------------
     desc: { type: String, default: null }, // 欄位說明
     subDesc: { type: String, default: null }, // 欄位子說明
     required: { type: [Boolean, Number], default: null },
+    // ------------
+    value: { type: [String, Number, Boolean, Array], default: null },
+    error: { type: String, default: null },
   },
   emits: ['update:value', 'update:error', 'focus', 'blur'],
   computed: {
