@@ -34,7 +34,7 @@
 
 <script>
 import Field from '@/components/ui/form/Field';
-
+import { getTypeConstraint } from '@/assets/js/options.js';
 export default /*#__PURE__*/ {
   name: 'FormItem',
   components: {
@@ -98,7 +98,7 @@ export default /*#__PURE__*/ {
       this.$emit('blur', e);
     },
     checkConditionDisplay(rootList, rootLogic) {
-      if (rootList == null || !rootList.length) return true;
+      if (!Array.isArray(rootList) || !rootList.length) return true;
 
       let flag = rootLogic === 'or' ? false : true;
 
@@ -106,13 +106,17 @@ export default /*#__PURE__*/ {
         const { triggerId, state, value, list, logic: groupLogic } = rootList[i];
 
         const selfFlag = this.checkDisplayState(triggerId, state, value);
-        const groupFlag = this.checkConditionDisplay(list, groupLogic);
 
-        let tempFlag;
-        if (groupLogic === 'or') {
-          tempFlag = selfFlag || groupFlag;
-        } else {
-          tempFlag = selfFlag && groupFlag;
+        let tempFlag = selfFlag;
+
+        if (Array.isArray(list) && list.length) {
+          const groupFlag = this.checkConditionDisplay(list, groupLogic);
+
+          if (groupLogic === 'or') {
+            tempFlag = tempFlag || groupFlag;
+          } else {
+            tempFlag = tempFlag && groupFlag;
+          }
         }
 
         if (rootLogic === 'or') {
@@ -151,12 +155,16 @@ export default /*#__PURE__*/ {
         }
         // 符合其一
         case 'mo': {
-          flag = (value || []).some((v) => v === triggerValue);
+          flag = (value || []).some((v) =>
+            Array.isArray(triggerValue) ? triggerValue.includes(v) : triggerValue === v
+          );
           break;
         }
         // 符合全部
         case 'ma': {
-          flag = (value || []).every((v) => v === triggerValue);
+          flag = (value || []).every((v) =>
+            Array.isArray(triggerValue) ? triggerValue.includes(v) : triggerValue === v
+          );
           break;
         }
         // TODO: ...
@@ -164,27 +172,56 @@ export default /*#__PURE__*/ {
 
       return flag;
     },
-    checkRule(value, { type, rule } = {}) {
-      const { required, minimum, maximum, sameAs } = rule;
+    checkRule(value, { type, base, rule } = {}) {
+      if (!rule) return true;
+
+      const typeConstraint = getTypeConstraint(type);
+      const { required, requiredPassive, minimum, maximum, least, most, regex, sameAs } = rule;
+
+      // 自身必填檢查
+      let needRequired = required;
+      if (!needRequired && requiredPassive && requiredPassive.length) {
+        needRequired = requiredPassive.some((cid) => {
+          var targetValue = this.values[cid];
+          return targetValue != null || targetValue !== '' || targetValue.length;
+        });
+      }
 
       // 檢查 - 必填
-      if (required && (value == null || value === '')) return false;
+      if (needRequired && (value == null || value === '' || !value.length)) return false;
 
       // (通過必填檢查，但無資料，不進行後續檢查。)
       if (value == null) return true;
 
       // 檢查 - 上下限
-      if (type === 'text') {
+      if (typeConstraint.isText) {
         if (minimum && minimum > value.length) return false;
-        if (maximum && minimum < value.length) return false;
-      } else if (type === 'number') {
+        if (maximum && maximum < value.length) return false;
+      } else if (typeConstraint.isNumber) {
         if (minimum && minimum > value) return false;
-        if (maximum && minimum < value) return false;
+        if (maximum && maximum < value) return false;
+      } else if (typeConstraint.isDate) {
+        const valueDateTime = new Date(value).getTime();
+        if (minimum && new Date(minimum).getTime() > valueDateTime) return false;
+        if (maximum && new Date(maximum).getTime() < valueDateTime) return false;
+      } else if (base.multiple) {
+        if (least && least > value.length) return false;
+        if (most && most < value.length) return false;
       }
+
+      // 檢查 - Regex
+      if (regex && !new RegExp(regex, 'gi').test(value)) return false;
 
       // 檢查 - 與..相符
       if (sameAs && this.columnsByKey[this.sameAs]) {
-        if (value !== this.values[this.sameAs]) return false;
+        var sameAsValue = this.values[this.sameAs];
+
+        if (!base.multiple) {
+          if (value !== sameAsValue) return false;
+        } else {
+          if (value.length !== sameAsValue.length) return false;
+          if (!value.every((v) => sameAsValue.includes(v))) return false;
+        }
       }
 
       return true;

@@ -41,7 +41,7 @@
           <slot :name="slot" v-bind="props" />
         </template>
       </FormItem>
-      <Button @click="submit">Send</Button>
+      <Button ref="submitBtn" @click="submit">Send</Button>
       <Button htmltype="reset" @click="reset">reset</Button>
     </form>
     <hr class="dashed" />
@@ -137,52 +137,32 @@ export default /*#__PURE__*/ {
       this.invalid = !validity;
       return validity;
     },
-    submit(e) {
-      if (this.checkValidity() && !this.disabled) {
-        // https://developers.google.com/web/fundamentals/design-and-ux/input/forms
+    async submit(e) {
+      // https://developers.google.com/web/fundamentals/design-and-ux/input/forms
+      if (!this.disabled && this.checkValidity()) {
 
-        const form = this.$refs.form;
-        // form.reportValidity()
-        // if (form.reportValidity() === false) {
-        //   alert('Form is invalid - submission prevented!');
-        //   return false;
-        // }
-        this.serialized(form);
+        // validity
+        if (this.action) {
+          this.$refs.submitBtn && (this.$refs.submitBtn.loading = true);
+
+          let data;
+          if (this.method == 'GET') {
+            data = await fetch(`${this.action}?${this.serialized(this.$refs.form)}`);
+          } else {
+            data = await fetch(this.action, {
+              method: 'POST',
+              body: this.formdata,
+            });
+          }
+
+          this.$refs.submitBtn && (this.$refs.submitBtn.loading = false);
+
+          if (data.headers.get('content-type') == 'application/json') {
+            console.log(data.json());
+          }
+        }
+
         this.$emit('submit', this.values);
-
-        //validity
-        // if (this.action) {
-        //   this.submitBtn && (this.submitBtn.loading = true);
-        //   if (this.method == 'GET') {
-        //     const formdata = new URLSearchParams(this.formdata).toString();
-        //     const data = await fetch(`${this.action}?${formdata}`);
-        //     this.submitBtn && (this.submitBtn.loading = false);
-        //     if (data.headers.get('content-type') == 'application/json') {
-        //       this.dispatchEvent(
-        //         new CustomEvent('submit', {
-        //           detail: {
-        //             data: data.json(),
-        //           },
-        //         })
-        //       );
-        //     }
-        //   } else {
-        //     const data = await fetch(this.action, {
-        //       method: 'POST',
-        //       body: this.formdata,
-        //     });
-        //     this.submitBtn && (this.submitBtn.loading = false);
-        //     if (data.headers.get('content-type') == 'application/json') {
-        //       this.dispatchEvent(
-        //         new CustomEvent('submit', {
-        //           detail: {
-        //             data: data.json(),
-        //           },
-        //         })
-        //       );
-        //     }
-        //   }
-        // }
       }
     },
     serialized(form) {
@@ -213,7 +193,7 @@ export default /*#__PURE__*/ {
         }
       }
 
-      console.log('serialized:', serialized.join('&'));
+      return serialized.join('&');
     },
     handleFocus(e) {
       console.log('focus', e);
