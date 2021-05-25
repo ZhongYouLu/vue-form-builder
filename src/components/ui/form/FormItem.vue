@@ -34,6 +34,7 @@
 
 <script>
 import Field from '@/components/ui/form/Field';
+import { getters as regexGetters } from '@/store/regex.js';
 import { getTypeConstraint } from '@/assets/js/options.js';
 export default /*#__PURE__*/ {
   name: 'FormItem',
@@ -77,6 +78,7 @@ export default /*#__PURE__*/ {
     canDisplay() {
       return this.checkConditionDisplay(this.display, 'and');
     },
+    regexConfig: regexGetters.regexConfig,
   },
   methods: {
     reset() {
@@ -210,7 +212,7 @@ export default /*#__PURE__*/ {
       }
 
       // 檢查 - Regex
-      if (regex && !new RegExp(regex, 'gi').test(value)) return false;
+      if (regex && !new RegExp(this.regexConfig[regex].pattern, 'gi').test(value)) return false;
 
       // 檢查 - 與..相符
       if (sameAs && this.columnsByKey[this.sameAs]) {

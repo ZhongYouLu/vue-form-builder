@@ -119,6 +119,7 @@ export default /*#__PURE__*/ {
     pushTags: { type: Boolean, default: false }, // When true, newly created tags will be added to the options list.
     createOption: { type: Function, default: null }, // User defined function for adding Options
     reactable: { type: Boolean, default: false },
+    handleCreatedCallback: { type: Function, default: null },
     // ---------------------------------------------
     closeOnSelect: { type: Boolean, default: true }, // Close a dropdown when an option is chosen. Set to false to keep the dropdown open
     noDrop: { type: Boolean, default: false }, // Disable the dropdown entirely.
@@ -239,6 +240,11 @@ export default /*#__PURE__*/ {
       if (this.reactable) {
         this.mutableOptions.push(option);
       }
+
+      if (this.handleCreatedCallback) {
+        this.handleCreatedCallback(option);
+      }
+
       this.tunnelEmit('handle:created', option);
     },
     withPopper(dropdownList, component, { width }) {

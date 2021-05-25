@@ -67,18 +67,3 @@ export const autocompleteSectionOptions = convertOptions({
   billing: '訂購',
   shipping: '收件',
 });
-
-// https://www.html5pattern.com/
-// https://regexr.com/
-/* use demo:
-    const regex = new RegExp(pattern, flag); // flag:['g', 'i', 'gi']
-    const check = regex.test(string);
-  */
-export const regexConfig = {
-  tel: { text: '手機', pattern: '^09[0-9]{8}$' },
-  date: { text: '日期', pattern: '^((19|20)?[0-9]{2}[- /.](0?[1-9]|1[012])[- /.](0?[1-9]|[12][0-9]|3[01]))$' },
-  password: { text: '密碼', pattern: '^(?=.*[a-zA-Z]+)(?=.*\\d+)[a-zA-Z0-9]{8,16}$' },
-  chinese: { text: '中文字', pattern: '^[\u4e00-\u9fa5]+$' },
-};
-
-export const regexOptions = convertOptions(nested2Pairs(regexConfig, 'text'));

@@ -43,7 +43,7 @@
 import FormItem from '@/components/ui/form/FormItem';
 import Button from '@/components/ui/Button';
 import { getters as collectsGetters, mutations as collectsMutations } from '@/store/collects.js';
-import { getters as regexOptionsGetters, mutations as regexOptionsMutations } from '@/store/regexOptions.js';
+import { getters as regexGetters, mutations as regexMutations } from '@/store/regex.js';
 import { arrRemoveValue } from '@/assets/js/helper.js';
 import { typeIcons } from '@/assets/js/options.js';
 
@@ -90,7 +90,7 @@ export default /*#__PURE__*/ {
   emits: ['update:column'],
   computed: {
     collects: collectsGetters.collects,
-    regexOptions: regexOptionsGetters.regexOptions,
+    regexOptions: regexGetters.regexOptions,
     fields() {
       const name = this.name || this.id;
       const sameAsName = this.sameAs ? this.columnsByKey[this.sameAs].name || this.columnsByKey[this.sameAs].id : '';
@@ -150,8 +150,9 @@ export default /*#__PURE__*/ {
               clearable: true,
               taggable: true,
               pushTags: true,
-              reactable: true,
+              // reactable: true,
               createOption: (option) => ({ id: option, text: option }),
+              handleCreatedCallback: (option) => regexMutations.addRegex(option.text),
               // getOptionLabel: (option) => option,
             },
             msg: `[${name}] 格式驗證失敗。`,

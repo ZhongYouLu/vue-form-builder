@@ -1,7 +1,7 @@
 import Vue from 'vue';
 import { instantiateSetState, instantiateGetState } from '@/store/helper.js';
 import collects, { mutations as collectsMutations } from '@/store/collects.js';
-import { mutations as regexOptionsMutations } from '@/store/regexOptions.js';
+import { mutations as regexMutations } from '@/store/regex.js';
 import {
   nanoid,
   isEmpty,
@@ -136,11 +136,7 @@ const actions = {
       });
     }
 
-    const allRegexValue = after.reduce((acc, c) => (c.rule?.regex ? [...acc, c.rule.regex] : acc), []);
-    if (allRegexValue) {
-      console.log('allRegexValue', allRegexValue);
-      regexOptionsMutations.updateOptions(allRegexValue);
-    }
+    regexMutations.updateRegex(after.reduce((acc, c) => (c.rule?.regex ? [...acc, c.rule.regex] : acc), []));
   },
   handleRemoveColumn(id, handleConfirm = null) {
     const idx = state.columns.findIndex((c) => c.id === id);
