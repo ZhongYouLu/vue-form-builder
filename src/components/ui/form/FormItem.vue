@@ -2,6 +2,7 @@
 <template>
   <div v-if="canDisplay" class="x-form-item">
     <label :for="id" class="label" :class="{ required: required }">
+      <span v-if="idx">{{ idx }}.</span>
       <slot name="text-left"></slot>
       <span>{{ desc }}</span>
       <slot name="text-right"></slot>
@@ -36,6 +37,7 @@
 import Field from '@/components/ui/form/Field';
 import { getters as regexGetters } from '@/store/regex.js';
 import { getTypeConstraint } from '@/assets/js/options.js';
+
 export default /*#__PURE__*/ {
   name: 'FormItem',
   components: {
@@ -47,6 +49,7 @@ export default /*#__PURE__*/ {
     columnsByKey: { type: Object, default: null },
     values: { type: Object, default: null },
     // ------------
+    idx: { type: Number, default: null },
     id: { type: String, required: true },
     name: { type: String, default: null },
     desc: { type: String, default: null }, // 欄位說明

@@ -12,10 +12,11 @@
       }"
     >
       <FormItem
-        v-for="{ id, type, ...column } in columns"
+        v-for="({ id, type, ...column }, idx) in columns"
         :key="id"
         ref="formItem"
         v-bind="{
+          idx: idx + 1,
           id,
           type,
           novalidate,
@@ -41,12 +42,14 @@
           <slot :name="slot" v-bind="props" />
         </template>
       </FormItem>
-      <Button ref="submitBtn" @click="submit">Send</Button>
-      <Button htmltype="reset" @click="reset">reset</Button>
+      <div>
+        <Button ref="submitBtn" @click="submit">Send</Button>
+        <Button htmltype="reset" @click="reset">reset</Button>
+      </div>
     </form>
     <hr class="dashed" />
-    <div>values: {{ values }}</div>
     <div>invalid: {{ !!invalid }}</div>
+    <div>values: {{ values }}</div>
     <div>errors: {{ errors }}</div>
   </div>
 </template>
@@ -140,7 +143,6 @@ export default /*#__PURE__*/ {
     async submit(e) {
       // https://developers.google.com/web/fundamentals/design-and-ux/input/forms
       if (!this.disabled && this.checkValidity()) {
-
         // validity
         if (this.action) {
           this.$refs.submitBtn && (this.$refs.submitBtn.loading = true);
@@ -208,6 +210,7 @@ export default /*#__PURE__*/ {
 <style lang="scss">
 @import '@/assets/scss/utils.scss';
 
+/*
 form {
   counter-reset: num;
 
@@ -218,4 +221,5 @@ form {
     }
   }
 }
+*/
 </style>
