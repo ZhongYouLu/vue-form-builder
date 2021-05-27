@@ -1,7 +1,7 @@
 /* eslint-disable vue/no-mutating-props */
 <template>
-  <div class="x-input" :disabled="disabled" :invalid="invalid" :block="block" :multi="multi">
     <Tips type="error" :tabindex="disabled ? -1 : null" :dir="errordir" :tips="tips" :show="showTips">
+    <div class="x-input" :disabled="disabled" :invalid="invalid" :block="block" :multi="multi">
       <Icon v-if="icon" class="x-input__pre" :icon="icon" />
       <component :is="multi ? 'textarea' : 'input'" ref="el" v-bind="bindAttrs" v-on="bindEvents" />
       <label v-if="label && !icon" class="x-input__label">{{ label }}</label>
@@ -28,8 +28,8 @@
           @click="invokeSubmit"
         ></Button>
       </template>
-    </Tips>
   </div>
+  </Tips>
 </template>
 
 <script>

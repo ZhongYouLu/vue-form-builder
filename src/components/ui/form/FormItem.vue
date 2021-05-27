@@ -348,7 +348,8 @@ export default /*#__PURE__*/ {
     flex: 1 1 20rem;
     width: 100%;
 
-    & > * {
+    & > *,
+    .x-input {
       width: 100%;
     }
   }

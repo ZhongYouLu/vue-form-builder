@@ -88,7 +88,6 @@ export default /*#__PURE__*/ {
       this.showTimer && clearTimeout(this.showTimer);
 
       // todo: sync
-      console.log(_show);
       this.localShow = _show;
       if (_show) {
         this.showTimer = setTimeout(() => {
@@ -130,7 +129,7 @@ export default /*#__PURE__*/ {
 @import '@/assets/scss/utils.scss';
 
 .x-tips {
-  display: inline-block;
+  display: inline-flex;
   position: relative;
   overflow: visible;
 
