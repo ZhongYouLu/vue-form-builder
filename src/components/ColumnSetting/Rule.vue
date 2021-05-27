@@ -132,7 +132,7 @@ export default /*#__PURE__*/ {
             iconKey: 'type',
             clearable: true,
           },
-          msg: `[${name}] 與 [${sameAsName}] 不相符`,
+          msg: `[${name}] 與 [${sameAsName}] 不相符。`,
         },
       };
 
