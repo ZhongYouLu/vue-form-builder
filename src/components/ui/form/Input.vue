@@ -1,6 +1,6 @@
 /* eslint-disable vue/no-mutating-props */
 <template>
-    <Tips type="error" :tabindex="disabled ? -1 : null" :dir="errordir" :tips="tips" :show="showTips">
+  <Tips type="error" :tabindex="disabled ? -1 : null" :dir="errordir" :tips="tips" :show="showTips">
     <div class="x-input" :disabled="disabled" :invalid="invalid" :block="block" :multi="multi">
       <Icon v-if="icon" class="x-input__pre" :icon="icon" />
       <component :is="multi ? 'textarea' : 'input'" ref="el" v-bind="bindAttrs" v-on="bindEvents" />
@@ -28,7 +28,7 @@
           @click="invokeSubmit"
         ></Button>
       </template>
-  </div>
+    </div>
   </Tips>
 </template>
 
@@ -47,10 +47,13 @@ export default /*#__PURE__*/ {
   inheritAttrs: false,
   props: {
     value: { type: [String, Number], default: null },
+    error: { type: String, default: null },
+    // ---------------------------------
     id: { type: String, default: null },
     name: { type: String, default: null },
     type: { type: String, default: null },
     placeholder: { type: String, default: null },
+    defaultValue: { type: [String, Number], default: null },
     label: { type: String, default: null }, // 設置後 placeholder 失效
     icon: { type: String, default: null }, // 設置後 label 失效
     required: { type: Boolean, default: null },
@@ -68,28 +71,21 @@ export default /*#__PURE__*/ {
     // ---------------------------------
     multi: { type: Boolean, default: null },
     block: { type: Boolean, default: null },
-    errortips: { type: String, default: null },
     errordir: { type: String, default: 'top' },
     debounce: { type: Number, default: 50 },
-    customValidity: {
-      type: Object,
-      default: () => ({
-        method: () => true,
-        // tips: '',
-      }),
-    },
     callInput: { type: Function, default: null },
+    // ---------------------------------
+    checkRule: { type: Function, default: null },
   },
-  emits: ['update:value', 'focus', 'blur', 'submit', 'handle:enter'],
+  emits: ['update:value', 'update:error', 'focus', 'blur', 'submit', 'handle:enter'],
   data() {
     return {
       invalid: null,
       tips: null,
       showTips: null,
-      errorType: null,
       eyeclose: true,
       inputTimer: null,
-      defaultValue: null,
+      selfDefaultValue: null,
     };
   },
   computed: {
@@ -98,12 +94,16 @@ export default /*#__PURE__*/ {
         return this.value;
       },
       set(val) {
-        if (val) {
-          val = val.trim();
-          if (this.type === 'number') val = Number(val);
-        }
-
+        if (val) val = this.type === 'number' ? Number(val) : val.trim();
         this.$emit('update:value', val !== '' ? val : null);
+      },
+    },
+    mutableError: {
+      get() {
+        return this.error;
+      },
+      set(val) {
+        this.$emit('update:error', val);
       },
     },
     localType() {
@@ -177,16 +177,21 @@ export default /*#__PURE__*/ {
     },
   },
   watch: {
-    mutableValue(val) {
-      this.$refs.el.value = val;
-
-      this.$nextTick(() => {
-        this.checkValidity();
-      });
+    value: {
+      handler: function (val) {
+        this.$nextTick(() => {
+          this.$refs.el.value = val;
+          this.checkValidity();
+        });
+      },
+      // immediate: true,
+    },
+    defaultValue(val) {
+      this.selfDefaultValue = val;
     },
   },
   created() {
-    this.defaultValue = this.value;
+    this.selfDefaultValue = this.defaultValue || this.value;
   },
   methods: {
     tunnelEmit(event, ...payload) {
@@ -201,28 +206,42 @@ export default /*#__PURE__*/ {
       }
     },
     reset() {
-      this.mutableValue = this.defaultValue;
-      this.invalid = false;
-      this.tips = null;
+      this.mutableValue = this.selfDefaultValue;
+      this.invalid = null;
       this.showTips = null;
+      this.tips = null;
     },
     focus() {
-      this.$nextTick(() => this.$refs.el.focus());
+      this.$nextTick(() => {
+        // moveCursorToEnd
+        const el = this.$refs.el;
+        el.focus();
+        if (typeof el.selectionStart == 'number') {
+          el.selectionStart = el.selectionEnd = el.value.length;
+        } else if (typeof el.createTextRange != 'undefined') {
+          var range = el.createTextRange();
+          range.collapse(false);
+          range.select();
+        }
+      });
     },
     // 是否有效
     validity() {
+      // custom
+      if (this.mutableError) return false;
+
+      if (this.checkRule) {
+        const { flag, errorMsg } = this.checkRule(this.id);
+        if (!flag) {
+          this.mutableError = errorMsg;
+          return false;
+        }
+      }
       // base (default)
       if (!this.$refs.el.checkValidity()) {
-        this.errorType = null;
+        this.mutableError = this.$refs.el.validationMessage;
         return false;
       }
-
-      // custom
-      if (!this.customValidity.method(this.$props)) {
-        this.errorType = 'custom';
-        return false;
-      }
-
       return true;
     },
     checkValidity() {
@@ -231,13 +250,14 @@ export default /*#__PURE__*/ {
       }
 
       if (this.validity()) {
-        this.invalid = false;
+        this.invalid = null;
         this.showTips = null;
         this.tips = null;
       } else {
         // this.focus();
         this.invalid = true;
         this.showTips = true;
+        this.tips = this.mutableError;
 
         /* [ValidityState]
          * badInput: 表示使用者提供了瀏覽器無法轉換的輸入
@@ -252,20 +272,9 @@ export default /*#__PURE__*/ {
          * valid: 有效的，符合所有驗證
          * valueMissing: 有設置 required 屬性，但沒有值
          */
-
-        const el = this.$refs.el;
         // if (el.validity.valueMissing) {
         //   this.tips = el.validationMessage;
         // }
-
-        switch (this.errorType) {
-          case 'custom':
-            this.tips = this.customValidity.tips;
-            break;
-          default:
-            this.tips = this.errortips || el.validationMessage;
-            break;
-        }
       }
 
       return !this.invalid;

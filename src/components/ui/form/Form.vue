@@ -30,6 +30,8 @@
           columns,
           columnsByKey,
           values,
+          // -----------
+          testMode: true,
         }"
         :value.sync="values[id]"
         :error.sync="errors[id]"
@@ -79,7 +81,7 @@ export default /*#__PURE__*/ {
     return {
       values: {},
       errors: {},
-      invalid: null,
+      invalid: null, // 無效的
     };
   },
   computed: {
@@ -108,23 +110,12 @@ export default /*#__PURE__*/ {
     reset() {
       this.invalid = false;
       this.$refs.formItem.forEach((formItem) => {
+        console.log(formItem);
         formItem.reset();
       });
     },
     validity() {
       this.$refs.formItem.every((formItem) => formItem.validity());
-    },
-    formdata() {
-      const formdata = new FormData();
-      const jsondata = {};
-      if (!this.disabled) {
-        this.$refs.formItem.forEach((el) => {
-          formdata.set(el.name, el.value);
-          jsondata[el.name] = el.value;
-        });
-      }
-      formdata.json = jsondata;
-      return formdata;
     },
     checkValidity() {
       if (this.novalidate) {
@@ -139,6 +130,18 @@ export default /*#__PURE__*/ {
       });
       this.invalid = !validity;
       return validity;
+    },
+    formdata() {
+      const formdata = new FormData();
+      const jsondata = {};
+      if (!this.disabled) {
+        this.$refs.formItem.forEach((el) => {
+          formdata.set(el.name, el.value);
+          jsondata[el.name] = el.value;
+        });
+      }
+      formdata.json = jsondata;
+      return formdata;
     },
     async submit(e) {
       // https://developers.google.com/web/fundamentals/design-and-ux/input/forms

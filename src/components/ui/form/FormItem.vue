@@ -1,6 +1,6 @@
 /* eslint-disable vue/no-mutating-props */
 <template>
-  <div v-if="canDisplay" class="x-form-item">
+  <div v-show="canDisplay" class="x-form-item">
     <label :for="id" class="label" :class="{ required: required }">
       <span v-if="idx">{{ idx }}.</span>
       <slot name="text-left"></slot>
@@ -16,7 +16,6 @@
         required: !!required,
         // -----------
         checkRule,
-        // disabled: canDisplay,
       }"
       :value.sync="mutableValue"
       :error.sync="mutableError"
@@ -29,11 +28,18 @@
         <slot :name="slot" v-bind="props" />
       </template>
     </Field>
+    <div v-if="testMode">
+      <Button @click="focus">focus</Button>
+      <Button @click="reset">reset</Button>
+      <Button @click="validity">validity</Button>
+      <Button @click="checkValidity">checkValidity</Button>
+    </div>
   </div>
 </template>
 
 <script>
 import Field from '@/components/ui/form/Field';
+import Button from '@/components/ui/Button';
 import { getters as regexGetters } from '@/store/regex.js';
 import { getTypeConstraint } from '@/assets/js/options.js';
 
@@ -41,6 +47,7 @@ export default /*#__PURE__*/ {
   name: 'FormItem',
   components: {
     Field,
+    Button,
   },
   inheritAttrs: false,
   props: {
@@ -54,10 +61,11 @@ export default /*#__PURE__*/ {
     desc: { type: String, default: null }, // 欄位說明
     subDesc: { type: String, default: null }, // 欄位子說明
     required: { type: [Boolean, Number], default: null },
-    display: { type: Array, default: null },
+    display: { type: Array, default: null }, // Condition's Display
     // ------------
     value: { type: [String, Number, Boolean, Array], default: null },
     error: { type: String, default: null },
+    testMode: { type: Boolean, default: null },
   },
   emits: ['update:value', 'update:error', 'focus', 'blur'],
   computed: {
@@ -83,17 +91,21 @@ export default /*#__PURE__*/ {
     regexConfig: regexGetters.regexConfig,
   },
   methods: {
-    reset() {
-      this.$refs.field.reset();
-    },
     focus() {
       this.$refs.field.focus();
     },
+    reset() {
+      this.$refs.field.reset();
+    },
     validity() {
-      return this.$refs.field.validity();
+      const validity = this.$refs.field.validity();
+      console.log(2, this.id, validity);
+      return validity;
     },
     checkValidity() {
-      return this.$refs.field.checkValidity();
+      const checkValidity = this.$refs.field.checkValidity();
+      console.log(2, this.id, checkValidity);
+      return checkValidity;
     },
     handleFocus(e) {
       this.$emit('focus', e);

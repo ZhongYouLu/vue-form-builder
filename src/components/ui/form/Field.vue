@@ -9,6 +9,8 @@
         name: name || id,
         type: subType || type,
         multiple: !!multiple,
+        // -----
+        checkRule,
       }"
       :value.sync="mutableValue"
       :error.sync="mutableError"
@@ -55,7 +57,7 @@ export default /*#__PURE__*/ {
     // ------------
     checkRule: { type: Function, default: null },
   },
-  emits: ['input', 'focus', 'blur'],
+  emits: ['update:value', 'update:error', 'input', 'focus', 'blur'],
   computed: {
     componentName() {
       let name = null;
@@ -92,7 +94,6 @@ export default /*#__PURE__*/ {
         return this.error;
       },
       set(val) {
-        if (this.$refs.el) this.$refs.el.$refs.el.setCustomValidity(val || '');
         this.$emit('update:error', val);
       },
     },
@@ -112,17 +113,21 @@ export default /*#__PURE__*/ {
     },
   },
   methods: {
-    reset() {
-      this.$refs.el.reset();
-    },
     focus() {
       this.$refs.el.focus();
     },
+    reset() {
+      this.$refs.el.reset();
+    },
     validity() {
-      return this.$refs.el.validity();
+      const validity = this.$refs.el.validity();
+      console.log(1, this.id, validity);
+      return validity;
     },
     checkValidity() {
-      return this.$refs.el.checkValidity();
+      const checkValidity = this.$refs.el.checkValidity();
+      console.log(1, this.id, checkValidity);
+      return checkValidity;
     },
     handleCheckRule() {
       if (this.checkRule) {

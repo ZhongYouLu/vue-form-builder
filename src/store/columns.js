@@ -182,9 +182,13 @@ const actions = {
         // 規則設定
         if (column.rule) {
           // 重置 [與..相符]
-          if (column.rule.sameAs) {
-            column.rule.sameAs = null;
-          }
+          if (column.rule.sameAs) column.rule.sameAs = null;
+          // 重置 [下限]
+          if (column.rule.minimum) column.rule.minimum = null;
+          // 重置 [上限]
+          if (column.rule.maximum) column.rule.maximum = null;
+          // 重置 [驗證格式]
+          if (column.rule.regex) column.rule.regex = null;
         }
 
         // 連動其他欄位
