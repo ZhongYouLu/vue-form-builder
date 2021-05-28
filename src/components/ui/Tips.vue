@@ -11,7 +11,7 @@
       prefix: prefix,
       suffix: suffix,
       show: localShow,
-      hastips: !!tips,
+      hastips: !disabled ? !!tips : null,
       tabindex: disabled ? -1 : null,
     }"
   >

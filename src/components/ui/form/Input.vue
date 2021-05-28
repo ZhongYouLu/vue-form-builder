@@ -1,25 +1,36 @@
 <template>
-  <Tips
-    v-bind="{
-      type: 'error',
-      dir: errordir,
-      tips: tips,
-      show: showTips,
-      disabled,
-    }"
-  >
-    <div class="x-input" v-bind="{ disabled, invalid, block, multi }">
+  <div class="x-input" v-bind="{ disabled, invalid: !disabled ? invalid : null, block, multi }">
+    <Tips
+      v-bind="{
+        type: 'error',
+        dir: errordir,
+        tips: tips,
+        show: showTips,
+        disabled,
+      }"
+    >
       <Icon v-if="icon" class="x-input__pre" :icon="icon" />
-      <component :is="multi ? 'textarea' : 'input'" ref="el" v-bind="bindAttrs" v-on="bindEvents" />
-      <div v-if="surplus" class="surplus">{{ surplus }}</div>
-      <label v-if="label && !icon" class="x-input__label">{{ label }}</label>
-      <template v-if="!multi">
-        <div v-if="type === 'number'" class="x-input__right x-input__right--number">
+      <!-- Textarea -->
+      <template v-if="multi">
+        <textarea ref="el" v-model="mutableValue" v-bind="bindAttrs" v-on="bindEvents" />
+        <label v-if="label && !icon" class="x-input__label">{{ label }}</label>
+        <div v-if="surplus" class="surplus">{{ surplus }}</div>
+      </template>
+      <!-- Number -->
+      <template v-else-if="type === 'number'">
+        <input ref="el" v-model.number="mutableValue" v-bind="bindAttrs" v-on="bindEvents" />
+        <label v-if="label && !icon" class="x-input__label">{{ label }}</label>
+        <div class="x-input__right x-input__right--number">
           <Button icon="mdi:chevron-up" type="flat" @click="invokeAdd" />
           <Button icon="mdi:chevron-down" type="flat" @click="invokeSub" />
         </div>
+      </template>
+      <!-- Other -->
+      <template v-else>
+        <input ref="el" v-model.trim="mutableValue" v-bind="bindAttrs" v-on="bindEvents" />
+        <label v-if="label && !icon" class="x-input__label">{{ label }}</label>
         <Button
-          v-else-if="type === 'password'"
+          v-if="type === 'password'"
           :icon="eyeclose ? 'mdi-light:eye-off' : 'mdi-light:eye'"
           v-bind="{ class: 'x-input__right', type: 'flat', shape: 'circle' }"
           @click="invokePass"
@@ -32,8 +43,8 @@
           @click="invokeSubmit"
         />
       </template>
-    </div>
-  </Tips>
+    </Tips>
+  </div>
 </template>
 
 <script>
@@ -197,7 +208,7 @@ export default /*#__PURE__*/ {
     value: {
       handler: function (val) {
         this.$nextTick(() => {
-          this.$refs.el.value = val;
+          //this.$refs.el.value = val;
           this.checkValidity();
         });
       },
@@ -206,7 +217,7 @@ export default /*#__PURE__*/ {
     multi: {
       handler: function () {
         this.$nextTick(() => {
-          this.$refs.el.value = this.value;
+          //this.$refs.el.value = this.value;
           this.checkValidity();
         });
       },
@@ -352,7 +363,7 @@ export default /*#__PURE__*/ {
       this.$emit('focus', e);
     },
     handleBlur(e) {
-      this.$refs.el.value = this.mutableValue;
+      //this.$refs.el.value = this.mutableValue;
 
       this.checkValidity();
       this.$emit('blur', e);
@@ -435,6 +446,7 @@ export default /*#__PURE__*/ {
       height: calc(var(--borderWidth) * 3);
       transition: top 0.3s ease-out;
     }
+
     :focus + &,
     :not(:placeholder-shown) + &,
     :-webkit-autofill + & {

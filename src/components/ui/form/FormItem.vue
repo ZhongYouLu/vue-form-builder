@@ -14,6 +14,7 @@
         id,
         name: name || id,
         required: !!required,
+        disabled,
         // -----------
         checkRule,
       }"
@@ -33,6 +34,7 @@
       <Button @click="reset">reset</Button>
       <Button @click="validity">validity</Button>
       <Button @click="checkValidity">checkValidity</Button>
+      <XSwitch v-model="disabled" />
     </div>
   </div>
 </template>
@@ -40,6 +42,7 @@
 <script>
 import Field from '@/components/ui/form/Field';
 import Button from '@/components/ui/Button';
+import XSwitch from '@/components/ui/Switch';
 import { getters as regexGetters } from '@/store/regex.js';
 import { getTypeConstraint } from '@/assets/js/options.js';
 
@@ -48,6 +51,7 @@ export default /*#__PURE__*/ {
   components: {
     Field,
     Button,
+    XSwitch,
   },
   inheritAttrs: false,
   props: {
@@ -68,6 +72,11 @@ export default /*#__PURE__*/ {
     testMode: { type: Boolean, default: null },
   },
   emits: ['update:value', 'update:error', 'focus', 'blur'],
+  data() {
+    return {
+      disabled: false,
+    };
+  },
   computed: {
     mutableValue: {
       get() {

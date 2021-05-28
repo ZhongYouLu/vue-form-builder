@@ -1,20 +1,23 @@
 <template>
-  <div class="x-checkbox" :checked="checked" :disabled="disabled" :invalid="invalid">
-    <Tips type="error" :dir="idx ? 'bottomleft' : 'topleft'" :tips="tips" :show="showTips">
+  <div class="x-checkbox" v-bind="{ disabled, invalid, checked }">
+    <Tips
+      v-bind="{
+        type: 'error',
+        dir: idx != null ? 'bottomleft' : 'topleft',
+        tips: tips,
+        show: showTips,
+        disabled,
+      }"
+    >
       <label>
         <input
-          :id="id"
           ref="el"
           v-model="checked"
-          :name="name"
           type="checkbox"
           :true-value="yes"
           :false-value="no"
-          :required="required"
-          :disabled="disabled"
-          @keydown="handleKeydown"
-          @focus="handleFocus"
-          @blur="handleBlur"
+          v-bind="bindAttrs"
+          v-on="bindEvents"
         />
         <span class="x-cheked">
           <Icon icon="mdi:check" />
@@ -79,6 +82,21 @@ export default /*#__PURE__*/ {
         const el = this.$refs.el;
         if (el) el.indeterminate = !!flag;
       },
+    },
+    bindAttrs() {
+      return {
+        id: this.id,
+        name: this.name,
+        required: this.required,
+        disabled: this.disabled,
+      };
+    },
+    bindEvents() {
+      return {
+        keydown: this.handleKeydown,
+        focus: this.handleFocus,
+        blur: this.handleBlur,
+      };
     },
   },
   watch: {

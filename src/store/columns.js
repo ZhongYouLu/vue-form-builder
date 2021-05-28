@@ -165,6 +165,10 @@ const actions = {
           if (column.base.subType && !typeConstraint.isText) {
             column.base.subType = null;
           }
+          // 重置 [多行]
+          if (column.base.multi && !typeConstraint.canMulti) {
+            column.base.multi = null;
+          }
           // 重置 [可複選]
           if (column.base.multiple && !typeConstraint.canMultiple) {
             column.base.multiple = null;

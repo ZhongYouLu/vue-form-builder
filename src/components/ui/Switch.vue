@@ -42,6 +42,7 @@ export default /*#__PURE__*/ {
 @import '@/assets/scss/utils.scss';
 
 .x-switch {
+  box-sizing: content-box;
   display: inline-block;
   -webkit-tap-highlight-color: transparent; /* for removing the highlight */
 

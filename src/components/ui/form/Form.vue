@@ -95,9 +95,16 @@ export default /*#__PURE__*/ {
         columns.map((column) => {
           let value = this.values[column.id] || null;
 
-          const oldDefault = old?.find((c) => c.id === column.id)?.base?.defaultValue;
-          const newDefault = column.base?.defaultValue;
-          if (newDefault !== oldDefault) value = newDefault || null;
+          const oldColumn = old?.find((c) => c.id === column.id);
+          if (column.type !== oldColumn?.type) {
+            value = null;
+          } else {
+            const oldDefault = oldColumn?.base?.defaultValue;
+            const newDefault = column.base?.defaultValue;
+            if (newDefault !== oldDefault) {
+              value = newDefault || null;
+            }
+          }
 
           this.$set(this.values, column.id, value);
           this.$set(this.errors, column.id, null);
@@ -110,7 +117,6 @@ export default /*#__PURE__*/ {
     reset() {
       this.invalid = false;
       this.$refs.formItem.forEach((formItem) => {
-        console.log(formItem);
         formItem.reset();
       });
     },
