@@ -96,14 +96,15 @@ export default /*#__PURE__*/ {
           let value = this.values[column.id] || null;
 
           const oldColumn = old?.find((c) => c.id === column.id);
-          if (column.type !== oldColumn?.type) {
+
+          const oldDefault = oldColumn?.base?.defaultValue;
+          const newDefault = column.base?.defaultValue;
+          if (newDefault !== oldDefault) {
+            value = newDefault || null;
+          }
+
+          if (!old && column.type !== oldColumn?.type) {
             value = null;
-          } else {
-            const oldDefault = oldColumn?.base?.defaultValue;
-            const newDefault = column.base?.defaultValue;
-            if (newDefault !== oldDefault) {
-              value = newDefault || null;
-            }
           }
 
           this.$set(this.values, column.id, value);

@@ -152,7 +152,6 @@ export default /*#__PURE__*/ {
         id: this.id,
         name: this.name,
         type: this.localType,
-        value: this.mutableValue,
         class: this.classes,
         placeholder: this.label || this.placeholder,
         minlength: this.minlength,
@@ -207,19 +206,7 @@ export default /*#__PURE__*/ {
   watch: {
     value: {
       handler: function (val) {
-        this.$nextTick(() => {
-          //this.$refs.el.value = val;
-          this.checkValidity();
-        });
-      },
-      // immediate: true,
-    },
-    multi: {
-      handler: function () {
-        this.$nextTick(() => {
-          //this.$refs.el.value = this.value;
-          this.checkValidity();
-        });
+        this.checkValidity();
       },
       // immediate: true,
     },
@@ -261,6 +248,11 @@ export default /*#__PURE__*/ {
       this.invalid = null;
       this.showTips = null;
       this.tips = null;
+
+      this.$nextTick(() => {
+        this.$refs.el.value = this.value;
+        console.log(this.$refs.el);
+      });
     },
     // 是否有效
     validity() {
@@ -363,8 +355,6 @@ export default /*#__PURE__*/ {
       this.$emit('focus', e);
     },
     handleBlur(e) {
-      //this.$refs.el.value = this.mutableValue;
-
       this.checkValidity();
       this.$emit('blur', e);
     },
