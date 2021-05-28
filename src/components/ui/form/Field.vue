@@ -3,15 +3,7 @@
     <component
       :is="componentName"
       ref="el"
-      v-bind="{
-        ...$attrs,
-        id,
-        name: name || id,
-        type: subType || type,
-        multiple: !!multiple,
-        // -----
-        checkRule,
-      }"
+      v-bind="bindAttrs"
       :value.sync="mutableValue"
       :error.sync="mutableError"
       v-on="{
@@ -49,6 +41,8 @@ export default /*#__PURE__*/ {
     name: { type: String, default: null },
     type: { validator: (val) => !!typeConfig[val], default: 'text' },
     subType: { validator: (val) => !!subTypeConfig[val], default: null },
+    minimum: { type: [Number, String], default: null },
+    maximum: { type: [Number, String], default: null },
     multiple: { type: [Boolean, Number], default: null },
     default: { type: [String, Number, Boolean, Array], default: null },
     // ------------
@@ -97,6 +91,33 @@ export default /*#__PURE__*/ {
         this.$emit('update:error', val);
       },
     },
+    bindAttrs() {
+      let config = {
+        ...this.$attrs,
+        id: this.id,
+        name: this.name || this.id,
+        type: this.subType || this.type,
+        multiple: !!this.multiple,
+        // -----
+        checkRule: this.checkRule,
+      };
+
+      if (this.type === 'text') {
+        config = {
+          ...config,
+          minlength: this.minimum,
+          maxlength: this.maximum,
+        };
+      } else {
+        config = {
+          ...config,
+          min: this.minimum,
+          max: this.maximum,
+        };
+      }
+
+      return config;
+    },
   },
   watch: {
     default: {
@@ -129,17 +150,17 @@ export default /*#__PURE__*/ {
       console.log(1, this.id, checkValidity);
       return checkValidity;
     },
-    handleCheckRule() {
-      if (this.checkRule) {
-        const { errorMsg } = this.checkRule(this.id);
-        this.mutableError = errorMsg;
-      }
-    },
     handleFocus(e) {
       this.$emit('focus', e);
     },
     handleBlur(e) {
       this.$emit('blur', e);
+    },
+    handleCheckRule() {
+      if (this.checkRule) {
+        const { errorMsg } = this.checkRule(this.id);
+        this.mutableError = errorMsg;
+      }
     },
   },
 };

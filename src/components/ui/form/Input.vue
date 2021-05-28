@@ -1,9 +1,17 @@
-/* eslint-disable vue/no-mutating-props */
 <template>
-  <Tips type="error" :tabindex="disabled ? -1 : null" :dir="errordir" :tips="tips" :show="showTips">
-    <div class="x-input" :disabled="disabled" :invalid="invalid" :block="block" :multi="multi">
+  <Tips
+    v-bind="{
+      type: 'error',
+      dir: errordir,
+      tips: tips,
+      show: showTips,
+      disabled,
+    }"
+  >
+    <div class="x-input" v-bind="{ disabled, invalid, block, multi }">
       <Icon v-if="icon" class="x-input__pre" :icon="icon" />
       <component :is="multi ? 'textarea' : 'input'" ref="el" v-bind="bindAttrs" v-on="bindEvents" />
+      <div v-if="surplus" class="surplus">{{ surplus }}</div>
       <label v-if="label && !icon" class="x-input__label">{{ label }}</label>
       <template v-if="!multi">
         <div v-if="type === 'number'" class="x-input__right x-input__right--number">
@@ -12,21 +20,17 @@
         </div>
         <Button
           v-else-if="type === 'password'"
-          class="x-input__right"
           :icon="eyeclose ? 'mdi-light:eye-off' : 'mdi-light:eye'"
-          type="flat"
-          shape="circle"
+          v-bind="{ class: 'x-input__right', type: 'flat', shape: 'circle' }"
           @click="invokePass"
-        ></Button>
+        />
         <Button
           v-else-if="type === 'search'"
           ref="search"
-          class="x-input__right"
           icon="ic:baseline-search"
-          type="flat"
-          shape="circle"
+          v-bind="{ class: 'x-input__right', type: 'flat', shape: 'circle' }"
           @click="invokeSubmit"
-        ></Button>
+        />
       </template>
     </div>
   </Tips>
@@ -65,11 +69,11 @@ export default /*#__PURE__*/ {
     minlength: { type: Number, default: null },
     maxlength: { type: Number, default: null },
     rows: { type: Number, default: null },
-    min: { type: Number, default: null },
-    max: { type: Number, default: null },
+    min: { type: [Number, String], default: null },
+    max: { type: [Number, String], default: null },
     step: { type: Number, default: null },
     // ---------------------------------
-    multi: { type: Boolean, default: null },
+    multi: { type: [Boolean, Number], default: null },
     block: { type: Boolean, default: null },
     errordir: { type: String, default: 'top' },
     debounce: { type: Number, default: 50 },
@@ -167,13 +171,26 @@ export default /*#__PURE__*/ {
       return temp;
     },
     bindEvents() {
-      return {
+      let config = {
         input: this.handleInput,
-        keydown: this.handleKeydown,
-        keyup: this.handleKeyup,
         focus: this.handleFocus,
         blur: this.handleBlur,
       };
+
+      if (!this.multi) {
+        config = {
+          ...config,
+          keydown: this.handleKeydown,
+          keyup: this.handleKeyup,
+        };
+      }
+
+      return config;
+    },
+    surplus() {
+      if (!this.multi) return null;
+
+      return `${this.mutableValue?.length || 0} / ${this.maxlength}`;
     },
   },
   watch: {
@@ -181,6 +198,15 @@ export default /*#__PURE__*/ {
       handler: function (val) {
         this.$nextTick(() => {
           this.$refs.el.value = val;
+          this.checkValidity();
+        });
+      },
+      // immediate: true,
+    },
+    multi: {
+      handler: function () {
+        this.$nextTick(() => {
+          this.$refs.el.value = this.value;
           this.checkValidity();
         });
       },
@@ -205,12 +231,6 @@ export default /*#__PURE__*/ {
         // return console.error(`no target listener for event "${event}"`);
       }
     },
-    reset() {
-      this.mutableValue = this.selfDefaultValue;
-      this.invalid = null;
-      this.showTips = null;
-      this.tips = null;
-    },
     focus() {
       this.$nextTick(() => {
         // moveCursorToEnd
@@ -225,6 +245,12 @@ export default /*#__PURE__*/ {
         }
       });
     },
+    reset() {
+      this.mutableValue = this.selfDefaultValue;
+      this.invalid = null;
+      this.showTips = null;
+      this.tips = null;
+    },
     // 是否有效
     validity() {
       // custom
@@ -237,11 +263,13 @@ export default /*#__PURE__*/ {
           return false;
         }
       }
+
       // base (default)
       if (!this.$refs.el.checkValidity()) {
         this.mutableError = this.$refs.el.validationMessage;
         return false;
       }
+
       return true;
     },
     checkValidity() {
@@ -576,5 +604,15 @@ export default /*#__PURE__*/ {
       height: 1.5em;
     }
   }
+}
+
+.surplus {
+  text-align: right;
+  position: absolute;
+  right: 1em;
+  bottom: 0;
+  opacity: 0.5;
+  user-select: none;
+  pointer-events: none;
 }
 </style>

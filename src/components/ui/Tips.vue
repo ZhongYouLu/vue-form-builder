@@ -3,14 +3,17 @@
   <div
     ref="tips"
     class="x-tips"
-    :style="styles"
-    :tips="localTips"
-    :hastips="!!tips"
-    :prefix="prefix"
-    :suffix="suffix"
-    :dir="tempDir"
-    :type="type"
-    :show="localShow"
+    v-bind="{
+      style: styles,
+      type: type,
+      dir: tempDir,
+      tips: localTips,
+      prefix: prefix,
+      suffix: suffix,
+      show: localShow,
+      hastips: !!tips,
+      tabindex: disabled ? -1 : null,
+    }"
   >
     <slot />
   </div>
@@ -21,6 +24,8 @@ export default /*#__PURE__*/ {
   name: 'Tips',
   props: {
     tips: { type: String, default: null },
+    prefix: { type: String, default: '' },
+    suffix: { type: String, default: '' },
     dir: {
       validator(value) {
         return [
@@ -47,10 +52,9 @@ export default /*#__PURE__*/ {
       },
       default: null,
     },
-    prefix: { type: String, default: '' },
-    suffix: { type: String, default: '' },
     show: { type: Boolean, default: null },
     color: { type: String, default: '' },
+    disabled: { type: Boolean, default: null },
   },
   data() {
     return {

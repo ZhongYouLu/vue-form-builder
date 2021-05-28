@@ -51,6 +51,8 @@ export default /*#__PURE__*/ {
     label: { type: String, default: null },
     // 欄位性質
     subType: { type: String, default: null },
+    // 多
+    multi: { type: Number, default: null },
     // 可複選
     multiple: { type: Number, default: null },
     // 自動完成區段
@@ -87,6 +89,7 @@ export default /*#__PURE__*/ {
             fuseKeys: ['id', 'text'],
           },
         };
+        fields['multi'] = { props: { desc: '多行', type: 'checkbox', label: '多行' } };
       }
 
       // Change defalutValue.props.type
