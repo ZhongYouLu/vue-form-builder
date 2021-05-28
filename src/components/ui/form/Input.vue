@@ -188,7 +188,7 @@ export default /*#__PURE__*/ {
       return config;
     },
     surplus() {
-      if (!this.multi) return null;
+      if (!this.multi || !this.maxlength) return null;
 
       return `${this.mutableValue?.length || 0} / ${this.maxlength}`;
     },
