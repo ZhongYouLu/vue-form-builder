@@ -28,12 +28,12 @@
           disabled,
           // -----------
           columnsByKey,
-          values,
+          fields,
           // -----------
           testMode,
         }"
-        :value.sync="values[id]"
-        :error.sync="errors[id]"
+        :value.sync="fields[id].value"
+        :error.sync="fields[id].error"
         v-on="{
           // focus: handleFocus,
           // blur: handleBlur,
@@ -53,8 +53,7 @@
     <template v-if="testMode">
       <hr class="dashed" />
       <div>invalid: {{ !!invalid }}</div>
-      <div>values: {{ values }}</div>
-      <div>errors: {{ errors }}</div>
+      <div>fields: {{ fields }}</div>
     </template>
   </div>
 </template>
@@ -84,8 +83,7 @@ export default /*#__PURE__*/ {
   emits: ['submit'],
   data() {
     return {
-      values: {},
-      errors: {},
+      fields: {},
       invalid: null, // 無效的
     };
   },
@@ -98,7 +96,7 @@ export default /*#__PURE__*/ {
     columns: {
       handler: function (columns, old) {
         columns.map((column) => {
-          let value = this.values[column.id] || null;
+          let value = this.fields[column.id]?.value || null;
 
           const oldColumn = old?.find((c) => c.id === column.id);
 
@@ -112,8 +110,10 @@ export default /*#__PURE__*/ {
             value = null;
           }
 
-          this.$set(this.values, column.id, value);
-          this.$set(this.errors, column.id, null);
+          this.$set(this.fields, column.id, {
+            value: value,
+            error: null,
+          });
         });
       },
       immediate: true,

@@ -16,7 +16,7 @@
         required: !!required,
         disabled,
         columnsByKey,
-        values,
+        fields,
       }"
       :value.sync="mutableValue"
       :error.sync="mutableError"
@@ -30,6 +30,9 @@
       </template>
     </Field>
     <div v-if="testMode">
+      <p>mutableValue: {{ mutableValue }}</p>
+      <p>mutableError: {{ mutableError }}</p>
+      <p>requiredPassive: {{ $attrs.requiredPassive }}</p>
       <Button @click="focus">focus</Button>
       <Button @click="reset">reset</Button>
       <Button @click="validity">validity</Button>
@@ -56,7 +59,7 @@ export default /*#__PURE__*/ {
   inheritAttrs: false,
   props: {
     columnsByKey: { type: Object, default: null },
-    values: { type: Object, default: null },
+    fields: { type: Object, default: null },
     // ------------
     idx: { type: Number, default: null },
     id: { type: String, required: true },
@@ -94,7 +97,7 @@ export default /*#__PURE__*/ {
       },
     },
     canDisplay() {
-      return checkConditionDisplay(this.columnsByKey, this.values, this.display, 'and');
+      return checkConditionDisplay(this.columnsByKey, this.fields, this.display, 'and');
     },
     regexConfig: regexGetters.regexConfig,
   },

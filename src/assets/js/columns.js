@@ -1,6 +1,6 @@
 import { getTypeConstraint } from '@/assets/js/options.js';
 
-export const checkConditionDisplay = (columnsByKey, values, rootList, rootLogic) => {
+export const checkConditionDisplay = (columnsByKey, fields, rootList, rootLogic) => {
   if (!Array.isArray(rootList) || !rootList.length) return true;
 
   let flag = rootLogic === 'or' ? false : true;
@@ -8,12 +8,12 @@ export const checkConditionDisplay = (columnsByKey, values, rootList, rootLogic)
   for (let i = 0; i < rootList.length; i++) {
     const { triggerId, state, value, list, logic: groupLogic } = rootList[i];
 
-    const selfFlag = checkDisplayState(columnsByKey, values, triggerId, state, value);
+    const selfFlag = checkDisplayState(columnsByKey, fields, triggerId, state, value);
 
     let tempFlag = selfFlag;
 
     if (Array.isArray(list) && list.length) {
-      const groupFlag = checkConditionDisplay(columnsByKey, values, list, groupLogic);
+      const groupFlag = checkConditionDisplay(columnsByKey, fields, list, groupLogic);
 
       if (groupLogic === 'or') {
         tempFlag = tempFlag || groupFlag;
@@ -33,17 +33,17 @@ export const checkConditionDisplay = (columnsByKey, values, rootList, rootLogic)
 
   return flag;
 };
-export const checkDisplayState = (columnsByKey, values, triggerId, state = null, value = null) => {
+export const checkDisplayState = (columnsByKey, fields, triggerId, state = null, value = null) => {
   const triggerColumn = columnsByKey[triggerId];
   if (!triggerColumn) return true;
 
-  const triggerValue = values[triggerId];
+  const triggerValue = fields[triggerId].value;
 
   let flag = false;
   switch (state) {
     // 有效的
     case null: {
-      flag = checkRule(columnsByKey, values, triggerId).flag;
+      flag = checkRule(columnsByKey, fields, triggerId).flag;
       break;
     }
     // 空值
@@ -72,7 +72,7 @@ export const checkDisplayState = (columnsByKey, values, triggerId, state = null,
   return flag;
 };
 
-export const checkRule = (columnsByKey, values, id) => {
+export const checkRule = (columnsByKey, fields, id) => {
   let column;
   try {
     column = columnsByKey[id];
@@ -86,7 +86,7 @@ export const checkRule = (columnsByKey, values, id) => {
   const typeConstraint = getTypeConstraint(type);
   const { required, requiredPassive, minimum, maximum, least, most, regex, sameAs } = rule;
 
-  const value = values[id];
+  const value = fields[id].value;
   const ruleMsg = rule.msg || {};
   const name = columnName || id;
   let next = true;
@@ -97,8 +97,11 @@ export const checkRule = (columnsByKey, values, id) => {
     // 自身必填檢查
     let needRequired = required;
     if (!needRequired && requiredPassive && requiredPassive.length) {
+      // requiredPassive 被其他欄位連動必填 (自身必填檢查)
       needRequired = requiredPassive.some((cid) => {
-        var targetValue = values[cid];
+        // const { flag } = checkRule(columnsByKey, fields, cid);
+        // if (!flag) return false;
+        var targetValue = fields[cid].value;
         return Array.isArray(targetValue) ? !targetValue.length : targetValue != null && targetValue !== '';
       });
     }
@@ -110,7 +113,10 @@ export const checkRule = (columnsByKey, values, id) => {
   }
 
   // (通過必填檢查，但無資料，不進行後續檢查。)
-  if (next && value == null) return { flag: true };
+  if (next && value == null) {
+    fields[id].error = null;
+    return { flag: true };
+  }
 
   // 檢查 - 上下限
   if (next) {
@@ -179,8 +185,8 @@ export const checkRule = (columnsByKey, values, id) => {
 
   // 檢查 - 與..相符
   if (next && sameAs) {
-    const sameAsColumn = this.columnsByKey[sameAs];
-    const sameAsValue = this.values[sameAs];
+    const sameAsColumn = columnsByKey[sameAs];
+    const sameAsValue = fields[sameAs].value;
     if (sameAsColumn) {
       if (!base?.multiple) {
         if (value !== sameAsValue) next = false;
@@ -196,5 +202,6 @@ export const checkRule = (columnsByKey, values, id) => {
     }
   }
 
+  fields[id].error = errorMsg;
   return { flag: next, errorMsg };
 };

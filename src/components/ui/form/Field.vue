@@ -39,7 +39,7 @@ export default /*#__PURE__*/ {
   inheritAttrs: false,
   props: {
     columnsByKey: { type: Object, default: null },
-    values: { type: Object, default: null },
+    fields: { type: Object, default: null },
     // ------------
     id: { type: String, default: null },
     name: { type: String, default: null },
@@ -94,7 +94,7 @@ export default /*#__PURE__*/ {
       },
     },
     isForm() {
-      return this.columnsByKey && this.values;
+      return this.columnsByKey && this.fields;
     },
     bindAttrs() {
       let config = {
@@ -103,7 +103,7 @@ export default /*#__PURE__*/ {
         name: this.name || this.id,
         type: this.subType || this.type,
         multiple: !!this.multiple,
-        checkRule: this.isForm ? checkRule.bind(null, this.columnsByKey, this.values) : null,
+        checkRule: this.isForm ? checkRule.bind(null, this.columnsByKey, this.fields) : null,
       };
 
       if (this.type === 'text') {
@@ -162,8 +162,9 @@ export default /*#__PURE__*/ {
     },
     handleCheckRule() {
       if (this.isForm) {
-        const { errorMsg } = checkRule(this.columnsByKey, this.values, this.id);
-        this.mutableError = errorMsg;
+        checkRule(this.columnsByKey, this.fields, this.id);
+        // const { errorMsg } = checkRule(this.columnsByKey, this.fields, this.id);
+        // this.mutableError = errorMsg;
       }
     },
   },
