@@ -89,8 +89,6 @@ export default /*#__PURE__*/ {
     errordir: { type: String, default: 'top' },
     debounce: { type: Number, default: 50 },
     callInput: { type: Function, default: null },
-    // ---------------------------------
-    checkRule: { type: Function, default: null },
   },
   emits: ['update:value', 'update:error', 'focus', 'blur', 'submit', 'handle:enter'],
   data() {
@@ -254,14 +252,6 @@ export default /*#__PURE__*/ {
       // custom
       if (this.mutableError) return false;
 
-      if (this.checkRule) {
-        const { flag, errorMsg } = this.checkRule(this.id);
-        if (!flag) {
-          this.mutableError = errorMsg;
-          return false;
-        }
-      }
-
       // base (default)
       if (!this.$refs.el.checkValidity()) {
         this.mutableError = this.$refs.el.validationMessage;
@@ -311,11 +301,10 @@ export default /*#__PURE__*/ {
       if (this.debounce) {
         this.inputTimer && clearTimeout(this.inputTimer);
         this.inputTimer = setTimeout(() => {
-          this.mutableValue = e.target.value;
-          this.callInput && this.callInput(this.value);
+          this.callInput && this.callInput(this.mutableValue);
         }, this.debounce);
       } else {
-        this.callInput && this.callInput(this.value);
+        this.callInput && this.callInput(this.mutableValue);
       }
     },
     handleKeydown(e) {

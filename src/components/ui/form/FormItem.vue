@@ -15,8 +15,6 @@
         name: name || id,
         required: !!required,
         disabled,
-        columnsByKey,
-        fields,
       }"
       :value.sync="mutableValue"
       :error.sync="mutableError"
@@ -33,6 +31,7 @@
       <p>mutableValue: {{ mutableValue }}</p>
       <p>mutableError: {{ mutableError }}</p>
       <p>requiredPassive: {{ $attrs.requiredPassive }}</p>
+      <p>requiredSync: {{ fields[id].requiredSync }}</p>
       <Button @click="focus">focus</Button>
       <Button @click="reset">reset</Button>
       <Button @click="validity">validity</Button>
@@ -46,8 +45,7 @@
 import Field from '@/components/ui/form/Field';
 import Button from '@/components/ui/Button';
 import XSwitch from '@/components/ui/Switch';
-import { getters as regexGetters } from '@/store/regex.js';
-import { checkConditionDisplay } from '@/assets/js/columns.js';
+import { checkConditionDisplay, checkRule } from '@/assets/js/columns.js';
 
 export default /*#__PURE__*/ {
   name: 'FormItem',
@@ -85,6 +83,7 @@ export default /*#__PURE__*/ {
         return this.value;
       },
       set(val) {
+        console.log('mutableValue', this.id, val);
         this.$emit('update:value', val);
       },
     },
@@ -99,7 +98,11 @@ export default /*#__PURE__*/ {
     canDisplay() {
       return checkConditionDisplay(this.columnsByKey, this.fields, this.display, 'and');
     },
-    regexConfig: regexGetters.regexConfig,
+  },
+  watch: {
+    value() {
+      checkRule(this.columnsByKey, this.fields, this.id);
+    },
   },
   methods: {
     focus() {

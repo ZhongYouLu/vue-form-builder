@@ -113,6 +113,12 @@ export default /*#__PURE__*/ {
           this.$set(this.fields, column.id, {
             value: value,
             error: null,
+            requiredSync: this.columns.reduce((acc, c) => {
+              if (c.rule?.requiredPassive?.includes(column.id)) {
+                acc.push(c.id);
+              }
+              return acc;
+            }, []),
           });
         });
       },

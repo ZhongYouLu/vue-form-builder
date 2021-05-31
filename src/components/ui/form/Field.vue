@@ -25,7 +25,6 @@ import XCheckboxGroup from '@/components/ui/form/CheckboxGroup';
 import XRadioGroup from '@/components/ui/form/RadioGroup';
 import XSelect from '@/components/ui/form/Select';
 import { typeConfig, subTypeConfig } from '@/assets/js/options.js';
-import { checkRule } from '@/assets/js/columns.js';
 
 export default /*#__PURE__*/ {
   name: 'Field',
@@ -38,17 +37,14 @@ export default /*#__PURE__*/ {
   },
   inheritAttrs: false,
   props: {
-    columnsByKey: { type: Object, default: null },
-    fields: { type: Object, default: null },
-    // ------------
     id: { type: String, default: null },
     name: { type: String, default: null },
     type: { validator: (val) => !!typeConfig[val], default: 'text' },
     subType: { validator: (val) => !!subTypeConfig[val], default: null },
     minimum: { type: [Number, String], default: null },
     maximum: { type: [Number, String], default: null },
+    defaultValue: { type: [String, Number, Boolean, Array], default: null },
     multiple: { type: [Boolean, Number], default: null },
-    default: { type: [String, Number, Boolean, Array], default: null },
     // ------------
     value: { type: [String, Number, Boolean, Array], default: null },
     error: { type: String, default: null },
@@ -93,17 +89,14 @@ export default /*#__PURE__*/ {
         this.$emit('update:error', val);
       },
     },
-    isForm() {
-      return this.columnsByKey && this.fields;
-    },
     bindAttrs() {
       let config = {
         ...this.$attrs,
         id: this.id,
         name: this.name || this.id,
         type: this.subType || this.type,
+        defaultValue: this.defaultValue,
         multiple: !!this.multiple,
-        checkRule: this.isForm ? checkRule.bind(null, this.columnsByKey, this.fields) : null,
       };
 
       if (this.type === 'text') {
@@ -121,20 +114,6 @@ export default /*#__PURE__*/ {
       }
 
       return config;
-    },
-  },
-  watch: {
-    default: {
-      handler: function (_default) {
-        if (_default != null && this.mutableValue == null) {
-          this.mutableValue = _default;
-        }
-        this.handleCheckRule();
-      },
-      immediate: true,
-    },
-    value() {
-      this.handleCheckRule();
     },
   },
   methods: {
@@ -159,13 +138,6 @@ export default /*#__PURE__*/ {
     },
     handleBlur(e) {
       this.$emit('blur', e);
-    },
-    handleCheckRule() {
-      if (this.isForm) {
-        checkRule(this.columnsByKey, this.fields, this.id);
-        // const { errorMsg } = checkRule(this.columnsByKey, this.fields, this.id);
-        // this.mutableError = errorMsg;
-      }
     },
   },
 };

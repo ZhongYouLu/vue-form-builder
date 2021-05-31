@@ -1,3 +1,4 @@
+import regexConfig from '@/store/regex.js';
 import { getTypeConstraint } from '@/assets/js/options.js';
 
 export const checkConditionDisplay = (columnsByKey, fields, rootList, rootLogic) => {
@@ -114,6 +115,12 @@ export const checkRule = (columnsByKey, fields, id) => {
 
   // (通過必填檢查，但無資料，不進行後續檢查。)
   if (next && value == null) {
+    if (next && fields[id].requiredSync?.length) {
+      fields[id].requiredSync.forEach((cid) => {
+        checkRule(columnsByKey, fields, cid);
+      });
+    }
+
     fields[id].error = null;
     return { flag: true };
   }
@@ -177,7 +184,7 @@ export const checkRule = (columnsByKey, fields, id) => {
 
   // 檢查 - Regex
   if (next && regex) {
-    if (!new RegExp(this.regexConfig[regex].pattern, 'gi').test(value)) {
+    if (!new RegExp(regexConfig[regex].pattern, 'gi').test(value)) {
       next = false;
       errorMsg = ruleMsg['regex'] || `[${name}] 格式驗證失敗。`;
     }
@@ -200,6 +207,12 @@ export const checkRule = (columnsByKey, fields, id) => {
         errorMsg = ruleMsg['sameAs'] || `[${name}] 與 [${sameAsName}] 不相符。`;
       }
     }
+  }
+
+  if (next && fields[id].requiredSync?.length) {
+    fields[id].requiredSync.forEach((cid) => {
+      checkRule(columnsByKey, fields, cid);
+    });
   }
 
   fields[id].error = errorMsg;
