@@ -248,11 +248,6 @@ export default /*#__PURE__*/ {
       this.invalid = null;
       this.showTips = null;
       this.tips = null;
-
-      this.$nextTick(() => {
-        this.$refs.el.value = this.value;
-        console.log(this.$refs.el);
-      });
     },
     // 是否有效
     validity() {

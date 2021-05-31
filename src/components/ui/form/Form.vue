@@ -46,7 +46,7 @@
       </FormItem>
       <div>
         <Button ref="submitBtn" @click="submit">Send</Button>
-        <Button htmltype="reset" @click="reset">reset</Button>
+        <Button @click="reset">reset</Button>
       </div>
     </form>
     <hr class="dashed" />
