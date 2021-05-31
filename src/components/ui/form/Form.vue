@@ -12,26 +12,25 @@
       }"
     >
       <FormItem
-        v-for="({ id, type, ...column }, idx) in columns"
+        v-for="({ id, type, base, rule, item, condition }, idx) in columns"
         :key="id"
         ref="formItem"
         v-bind="{
           idx: idx + 1,
           id,
           type,
+          ...base,
+          ...rule,
+          ...item,
+          ...condition,
+          // -----------
           novalidate,
           disabled,
           // -----------
-          ...column.base,
-          ...column.rule,
-          ...column.item,
-          ...column.condition,
-          // -----------
-          columns,
           columnsByKey,
           values,
           // -----------
-          testMode: true,
+          testMode,
         }"
         :value.sync="values[id]"
         :error.sync="errors[id]"
@@ -47,12 +46,16 @@
       <div>
         <Button ref="submitBtn" @click="submit">Send</Button>
         <Button @click="reset">reset</Button>
+        <Button @click="validity">validity</Button>
+        <Button @click="checkValidity">checkValidity</Button>
       </div>
     </form>
-    <hr class="dashed" />
-    <div>invalid: {{ !!invalid }}</div>
-    <div>values: {{ values }}</div>
-    <div>errors: {{ errors }}</div>
+    <template v-if="testMode">
+      <hr class="dashed" />
+      <div>invalid: {{ !!invalid }}</div>
+      <div>values: {{ values }}</div>
+      <div>errors: {{ errors }}</div>
+    </template>
   </div>
 </template>
 
@@ -75,6 +78,8 @@ export default /*#__PURE__*/ {
     action: { type: String, default: null },
     novalidate: { type: Boolean, defalut: null },
     disabled: { type: Boolean, defalut: null },
+    // -----------------------------------
+    testMode: { type: Boolean, default: null },
   },
   emits: ['submit'],
   data() {
@@ -122,17 +127,17 @@ export default /*#__PURE__*/ {
       });
     },
     validity() {
-      this.$refs.formItem.every((formItem) => formItem.validity());
+      return this.$refs.formItem.every((formItem) => formItem.validity());
     },
     checkValidity() {
-      if (this.novalidate) {
-        return true;
-      }
-      const elements = [...this.$refs.formItem].reverse();
+      if (this.novalidate) return true;
+
       let validity = true;
+      const elements = [...this.$refs.formItem].reverse();
       elements.forEach((el) => {
         if (el.checkValidity && !el.checkValidity()) {
           validity = false;
+          el.focus();
         }
       });
       this.invalid = !validity;

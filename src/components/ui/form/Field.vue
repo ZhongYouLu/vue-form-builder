@@ -25,6 +25,7 @@ import XCheckboxGroup from '@/components/ui/form/CheckboxGroup';
 import XRadioGroup from '@/components/ui/form/RadioGroup';
 import XSelect from '@/components/ui/form/Select';
 import { typeConfig, subTypeConfig } from '@/assets/js/options.js';
+import { checkRule } from '@/assets/js/columns.js';
 
 export default /*#__PURE__*/ {
   name: 'Field',
@@ -37,6 +38,9 @@ export default /*#__PURE__*/ {
   },
   inheritAttrs: false,
   props: {
+    columnsByKey: { type: Object, default: null },
+    values: { type: Object, default: null },
+    // ------------
     id: { type: String, default: null },
     name: { type: String, default: null },
     type: { validator: (val) => !!typeConfig[val], default: 'text' },
@@ -48,8 +52,6 @@ export default /*#__PURE__*/ {
     // ------------
     value: { type: [String, Number, Boolean, Array], default: null },
     error: { type: String, default: null },
-    // ------------
-    checkRule: { type: Function, default: null },
   },
   emits: ['update:value', 'update:error', 'input', 'focus', 'blur'],
   computed: {
@@ -91,6 +93,9 @@ export default /*#__PURE__*/ {
         this.$emit('update:error', val);
       },
     },
+    isForm() {
+      return this.columnsByKey && this.values;
+    },
     bindAttrs() {
       let config = {
         ...this.$attrs,
@@ -98,8 +103,7 @@ export default /*#__PURE__*/ {
         name: this.name || this.id,
         type: this.subType || this.type,
         multiple: !!this.multiple,
-        // -----
-        checkRule: this.checkRule,
+        checkRule: this.isForm ? checkRule.bind(null, this.columnsByKey, this.values) : null,
       };
 
       if (this.type === 'text') {
@@ -142,12 +146,12 @@ export default /*#__PURE__*/ {
     },
     validity() {
       const validity = this.$refs.el.validity();
-      console.log(1, this.id, validity);
+      console.log('[validity]', this.id, validity);
       return validity;
     },
     checkValidity() {
       const checkValidity = this.$refs.el.checkValidity();
-      console.log(1, this.id, checkValidity);
+      console.log('[checkValidity]', this.id, checkValidity);
       return checkValidity;
     },
     handleFocus(e) {
@@ -157,8 +161,8 @@ export default /*#__PURE__*/ {
       this.$emit('blur', e);
     },
     handleCheckRule() {
-      if (this.checkRule) {
-        const { errorMsg } = this.checkRule(this.id);
+      if (this.isForm) {
+        const { errorMsg } = checkRule(this.columnsByKey, this.values, this.id);
         this.mutableError = errorMsg;
       }
     },

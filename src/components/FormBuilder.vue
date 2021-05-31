@@ -22,7 +22,7 @@
           <slot :name="slot" v-bind="props" />
         </template>
       </FormSetting>
-      <FormDemo :columns="finalColumns" />
+      <Form :columns="finalColumns" :test-mode="true" />
       <div>
         sync: {{ JSON.stringify(columns) === JSON.stringify(mutableColumns) }}
         <hr />
@@ -36,8 +36,8 @@
 
 <script>
 import FormSetting from '@/components/FormSetting';
-import FormDemo from '@/components/FormDemo';
 import RecordControls from '@/components/RecordControls';
+import Form from '@/components/ui/form/Form';
 import JsonView from 'vue-json-views';
 import { tunnelEmit } from '@/store/helper';
 import {
@@ -50,7 +50,7 @@ export default /*#__PURE__*/ {
   name: 'FormBuilder',
   components: {
     FormSetting,
-    FormDemo,
+    Form,
     RecordControls,
     JsonView,
   },
