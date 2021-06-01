@@ -50,9 +50,9 @@ export default /*#__PURE__*/ {
       validator(value) {
         return ['success', 'error', 'warning'].includes(value);
       },
-      default: null,
+      default: 'error',
     },
-    show: { type: Boolean, default: null },
+    showTips: { type: Boolean, default: null },
     color: { type: String, default: '' },
     disabled: { type: Boolean, default: null },
   },
@@ -61,7 +61,7 @@ export default /*#__PURE__*/ {
       TIP_SIZE: 30,
       tempDir: null,
       localTips: this.tips,
-      localShow: this.show,
+      localShow: this.showTips,
       timer: null,
       showTimer: null,
     };
@@ -88,12 +88,12 @@ export default /*#__PURE__*/ {
         }, 300);
       }
     },
-    show: function (_show) {
+    showTips: function (_showTips) {
       this.showTimer && clearTimeout(this.showTimer);
 
       // todo: sync
-      this.localShow = _show;
-      if (_show) {
+      this.localShow = _showTips;
+      if (_showTips) {
         this.showTimer = setTimeout(() => {
           this.localShow = null;
         }, 1500);

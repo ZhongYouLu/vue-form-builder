@@ -1,14 +1,6 @@
 <template>
   <div class="x-input" v-bind="{ disabled, invalid: !disabled ? invalid : null, block, multi }">
-    <Tips
-      v-bind="{
-        type: 'error',
-        dir: errordir,
-        tips: tips,
-        show: showTips,
-        disabled,
-      }"
-    >
+    <Tips v-bind="{ tips, showTips, disabled, dir: errordir }">
       <Icon v-if="icon" class="x-input__pre" :icon="icon" />
       <!-- Textarea -->
       <template v-if="multi">

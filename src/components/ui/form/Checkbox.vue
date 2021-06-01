@@ -1,14 +1,6 @@
 <template>
-  <div class="x-checkbox" v-bind="{ disabled, invalid, checked }">
-    <Tips
-      v-bind="{
-        type: 'error',
-        dir: idx != null ? 'bottomleft' : 'topleft',
-        tips: tips,
-        show: showTips,
-        disabled,
-      }"
-    >
+  <div class="x-checkbox" v-bind="{ disabled, invalid: !disabled ? invalid : null, checked }">
+    <Tips v-bind="{ tips, showTips, disabled, dir: idx ? 'bottomleft' : 'topleft' }">
       <label>
         <input
           ref="el"

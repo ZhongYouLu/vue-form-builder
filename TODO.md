@@ -16,6 +16,8 @@
   - 隱藏條件的 符合其一/全部
 - [ ] 抽出 Tips 並調整 style
 - [ ] 更新規則，FormDemo ErrorMsg未同步
+- [ ] 顯示條件的符合全部，純輸入框&非複選 需隱藏。
+
 ### ISSUE
 
 - [ ] Input元件 focus() 時機

@@ -1,6 +1,6 @@
 <template>
-  <div ref="group" class="x-checkbox-group" :disabled="disabled" :invalid="invalid">
-    <Tips type="error" :tabindex="disabled ? -1 : null" :tips="tips" :show="showTips">
+  <div ref="group" class="x-checkbox-group" v-bind="{ disabled, invalid: !disabled ? invalid : null }">
+    <Tips v-bind="{ tips, showTips, disabled }">
       <Checkbox
         v-for="(option, idx) in options"
         :key="option[valueKey]"

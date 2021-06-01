@@ -1,6 +1,6 @@
 <template>
-  <div class="x-radio" :checked="checked" :disabled="disabled" :invalid="invalid">
-    <Tips type="error" :dir="idx ? 'bottomleft' : 'topleft'" :tips="tips" :show="showTips">
+  <div class="x-radio" v-bind="{ disabled, invalid: !disabled ? invalid : null, checked }">
+    <Tips v-bind="{ tips, showTips, disabled, dir: idx ? 'bottomleft' : 'topleft' }">
       <label>
         <input
           :id="id"
