@@ -202,12 +202,8 @@ export default /*#__PURE__*/ {
     },
   },
   watch: {
-    value: {
-      handler: function (val) {
-        this.checkValidity();
-      },
-      // immediate: true,
-    },
+    mutableValue: 'checkValidity',
+    mutableError: 'checkValidity',
     defaultValue(val) {
       this.selfDefaultValue = val;
     },
@@ -253,10 +249,7 @@ export default /*#__PURE__*/ {
       if (this.mutableError) return false;
 
       // base (default)
-      if (!this.$refs.el.checkValidity()) {
-        this.mutableError = this.$refs.el.validationMessage;
-        return false;
-      }
+      if (!this.$refs.el.checkValidity()) return false;
 
       return true;
     },
@@ -273,7 +266,7 @@ export default /*#__PURE__*/ {
         // this.focus();
         this.invalid = true;
         this.showTips = true;
-        this.tips = this.mutableError;
+        this.tips = this.mutableError || this.$refs.el.validationMessage;
 
         /* [ValidityState]
          * badInput: 表示使用者提供了瀏覽器無法轉換的輸入
@@ -297,14 +290,15 @@ export default /*#__PURE__*/ {
     },
     handleInput(e) {
       e.stopPropagation();
+      if (!this.callInput) return false;
 
       if (this.debounce) {
         this.inputTimer && clearTimeout(this.inputTimer);
         this.inputTimer = setTimeout(() => {
-          this.callInput && this.callInput(this.mutableValue);
+          this.callInput(this.mutableValue);
         }, this.debounce);
       } else {
-        this.callInput && this.callInput(this.mutableValue);
+        this.callInput(this.mutableValue);
       }
     },
     handleKeydown(e) {
@@ -323,11 +317,10 @@ export default /*#__PURE__*/ {
         case 13: //Enter
           if (this.validity()) {
             const searchBtn = this.$refs.search;
-            if (searchBtn) {
-              // searchBtn.$refs.btn.focus();
-              searchBtn.$refs.btn.dispatchEvent(new MouseEvent('mousedown'));
-              searchBtn.handleClick();
-            }
+            if (!searchBtn) return false;
+            // searchBtn.$refs.btn.focus();
+            searchBtn.$refs.btn.dispatchEvent(new MouseEvent('mousedown'));
+            searchBtn.handleClick();
           }
           break;
         default:
@@ -350,7 +343,6 @@ export default /*#__PURE__*/ {
     invokePass() {
       this.eyeclose = !this.eyeclose;
       this.focus();
-      console.log('invokePass');
     },
     invokeAdd() {
       this.$refs.el.stepUp();

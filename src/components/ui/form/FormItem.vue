@@ -15,6 +15,7 @@
         name: name || id,
         required: !!required,
         disabled,
+        checkRule: handleCheckRule,
       }"
       :value.sync="mutableValue"
       :error.sync="mutableError"
@@ -83,7 +84,6 @@ export default /*#__PURE__*/ {
         return this.value;
       },
       set(val) {
-        console.log('mutableValue', this.id, val);
         this.$emit('update:value', val);
       },
     },
@@ -99,11 +99,9 @@ export default /*#__PURE__*/ {
       return checkConditionDisplay(this.columnsByKey, this.fields, this.display, 'and');
     },
   },
-  watch: {
-    value() {
-      checkRule(this.columnsByKey, this.fields, this.id);
-    },
-  },
+  // watch: {
+  //   mutableValue: 'handleCheckRule',
+  // },
   methods: {
     focus() {
       this.$refs.field.focus();
@@ -122,6 +120,9 @@ export default /*#__PURE__*/ {
     },
     handleBlur(e) {
       this.$emit('blur', e);
+    },
+    handleCheckRule() {
+      this.fields && checkRule(this.columnsByKey, this.fields, this.id);
     },
   },
 };

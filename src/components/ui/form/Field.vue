@@ -48,9 +48,27 @@ export default /*#__PURE__*/ {
     // ------------
     value: { type: [String, Number, Boolean, Array], default: null },
     error: { type: String, default: null },
+    // ------------
+    checkRule: { type: Function, default: null },
   },
   emits: ['update:value', 'update:error', 'input', 'focus', 'blur'],
   computed: {
+    mutableValue: {
+      get() {
+        return this.value;
+      },
+      set(val) {
+        this.$emit('update:value', val);
+      },
+    },
+    mutableError: {
+      get() {
+        return this.error;
+      },
+      set(val) {
+        this.$emit('update:error', val);
+      },
+    },
     componentName() {
       let name = null;
       switch (this.type) {
@@ -72,22 +90,6 @@ export default /*#__PURE__*/ {
           break;
       }
       return name;
-    },
-    mutableValue: {
-      get() {
-        return this.value;
-      },
-      set(val) {
-        this.$emit('update:value', val);
-      },
-    },
-    mutableError: {
-      get() {
-        return this.error;
-      },
-      set(val) {
-        this.$emit('update:error', val);
-      },
     },
     bindAttrs() {
       let config = {
@@ -116,6 +118,18 @@ export default /*#__PURE__*/ {
       return config;
     },
   },
+  watch: {
+    mutableValue: {
+      handler: function () {
+        this.checkRule && this.checkRule();
+        // this.$nextTick(() => {
+        //   this.checkValidity();
+        // });
+      },
+      immediate: true,
+    },
+    // mutableError: 'checkValidity',
+  },
   methods: {
     focus() {
       this.$refs.el.focus();
@@ -129,6 +143,8 @@ export default /*#__PURE__*/ {
       return validity;
     },
     checkValidity() {
+      if (!this.$refs.el?.checkValidity) return false;
+
       const checkValidity = this.$refs.el.checkValidity();
       console.log('[checkValidity]', this.id, checkValidity);
       return checkValidity;
