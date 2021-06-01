@@ -64,7 +64,6 @@
               taggable
               no-drop
               :close-on-select="false"
-              :reduce="(option) => option"
               :create-option="(option) => ({ id: Number(option), text: thousandSeparatorFunc(option) })"
               @update:value="$emit('update:value', $event)"
             />
@@ -254,10 +253,7 @@ export default /*#__PURE__*/ {
       return !this.stateBaseOptions.map((option) => option.id).includes(this.state) && !this.allowInputValues;
     },
     thousandSeparatorFunc() {
-      return (option) => {
-        console.log(option);
-        return thousandSeparator(option);
-      };
+      return (option) => thousandSeparator(option);
     },
   },
   watch: {
