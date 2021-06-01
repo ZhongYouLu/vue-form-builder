@@ -219,7 +219,6 @@ export default /*#__PURE__*/ {
     },
   },
   created() {
-    console.log('[rule] created!');
     collectsMutations.setCollect([this.id, 'showMsg']);
     this.updateRule(['msg'], this.msg);
   },

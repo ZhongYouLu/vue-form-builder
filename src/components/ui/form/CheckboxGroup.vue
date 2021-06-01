@@ -75,7 +75,7 @@ export default /*#__PURE__*/ {
       return this.options.reduce((acc, option) => {
         const v = option[this.valueKey];
         acc[v] = {
-          flag: this.value.includes(v) ? this.yes : this.no,
+          flag: this.value?.includes(v) ? this.yes : this.no,
           required: this.requiredValue.includes(v),
         };
         return acc;

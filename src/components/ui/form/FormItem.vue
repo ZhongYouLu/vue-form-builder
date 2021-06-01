@@ -15,6 +15,7 @@
         name: name || id,
         required: !!required,
         disabled,
+        novalidate: !canDisplay,
         checkRule: handleCheckRule,
       }"
       :value.sync="mutableValue"

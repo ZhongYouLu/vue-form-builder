@@ -106,7 +106,7 @@ export default /*#__PURE__*/ {
             value = newDefault || null;
           }
 
-          if (!old && column.type !== oldColumn?.type) {
+          if (oldColumn && oldColumn.type !== column.type) {
             value = null;
           }
 

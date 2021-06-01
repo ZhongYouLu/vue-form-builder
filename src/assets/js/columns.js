@@ -40,37 +40,88 @@ export const checkDisplayState = (columnsByKey, fields, triggerId, state = null,
 
   const triggerValue = fields[triggerId].value;
 
-  let flag = false;
   switch (state) {
     // 有效的
     case null: {
-      flag = checkRule(columnsByKey, fields, triggerId).flag;
-      break;
+      return checkRule(columnsByKey, fields, triggerId).flag;
     }
     // 空值
     case '0': {
-      flag = triggerValue == null || triggerValue === '';
-      break;
+      return triggerValue == null || triggerValue === '';
     }
     // 不為空
     case '1': {
-      flag = triggerValue != null && triggerValue !== '';
-      break;
+      return triggerValue != null && triggerValue !== '';
     }
     // 符合其一
     case 'mo': {
-      flag = (value || []).some((v) => (Array.isArray(triggerValue) ? triggerValue.includes(v) : triggerValue === v));
-      break;
+      return Array.isArray(value) && value.length
+        ? value.some((v) => (Array.isArray(triggerValue) ? triggerValue.includes(v) : triggerValue === v))
+        : false;
     }
     // 符合全部
     case 'ma': {
-      flag = (value || []).every((v) => (Array.isArray(triggerValue) ? triggerValue.includes(v) : triggerValue === v));
-      break;
+      return Array.isArray(value) && value.length
+        ? value.every((v) => (Array.isArray(triggerValue) ? triggerValue.includes(v) : triggerValue === v))
+        : false;
     }
-    // TODO: ...
+    // Is
+    case 'is': {
+      return triggerValue === value;
+    }
+    // Is not
+    case 'nis': {
+      return triggerValue !== value;
+    }
+    // Contains
+    case 'ct': {
+      return triggerValue?.includes(value);
+    }
+    // Does not contain
+    case 'nct': {
+      return !triggerValue?.includes(value);
+    }
+    // Starts with
+    case 'sw': {
+      return triggerValue?.startsWith(value);
+    }
+    // Starts with
+    case 'ew': {
+      return triggerValue?.endsWith(value);
+    }
+    // equal (=)
+    case 'eq': {
+      return triggerValue === value;
+    }
+    // not equal (!=)
+    case 'neq': {
+      return triggerValue !== value;
+    }
+    // greater then (>)
+    case 'gt': {
+      return triggerValue > value;
+    }
+    // less then (<)
+    case 'lt': {
+      return triggerValue < value;
+    }
+    // greater then or equal (>=)
+    case 'ge': {
+      return triggerValue >= value;
+    }
+    // less then or equal (<=)
+    case 'le': {
+      return triggerValue <= value;
+    }
   }
+};
 
-  return flag;
+const checkRuleAsync = (columnsByKey, fields, id) => {
+  if (fields[id].requiredSync?.length) {
+    fields[id].requiredSync.forEach((cid) => {
+      checkRule(columnsByKey, fields, cid);
+    });
+  }
 };
 
 export const checkRule = (columnsByKey, fields, id) => {
@@ -78,11 +129,16 @@ export const checkRule = (columnsByKey, fields, id) => {
   try {
     column = columnsByKey[id];
   } catch (error) {
-    return { flag: true, errorMsg: null };
+    return { flag: true };
   }
 
   const { name: columnName, type, base, rule } = column;
-  if (!rule) return { flag: true, errorMsg: null };
+
+  if (!rule) {
+    checkRuleAsync(columnsByKey, fields, id);
+    fields[id].error = null;
+    return { flag: true };
+  }
 
   const typeConstraint = getTypeConstraint(type);
   const { required, requiredPassive, minimum, maximum, least, most, regex, sameAs } = rule;
@@ -115,12 +171,7 @@ export const checkRule = (columnsByKey, fields, id) => {
 
   // (通過必填檢查，但無資料，不進行後續檢查。)
   if (next && value == null) {
-    if (next && fields[id].requiredSync?.length) {
-      fields[id].requiredSync.forEach((cid) => {
-        checkRule(columnsByKey, fields, cid);
-      });
-    }
-
+    checkRuleAsync(columnsByKey, fields, id);
     fields[id].error = null;
     return { flag: true };
   }
@@ -209,11 +260,7 @@ export const checkRule = (columnsByKey, fields, id) => {
     }
   }
 
-  if (next && fields[id].requiredSync?.length) {
-    fields[id].requiredSync.forEach((cid) => {
-      checkRule(columnsByKey, fields, cid);
-    });
-  }
+  checkRuleAsync(columnsByKey, fields, id);
 
   fields[id].error = errorMsg;
   return { flag: next, errorMsg };

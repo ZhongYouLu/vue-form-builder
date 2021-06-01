@@ -47,8 +47,10 @@ export default /*#__PURE__*/ {
     placeholder: { type: String, default: null },
     // 預設值
     defaultValue: { type: [String, Number, Boolean, Array], default: null },
-    // 勾選框文字
+    // Label
     label: { type: String, default: null },
+    // 圖示
+    icon: { type: String, default: null },
     // 欄位性質
     subType: { type: String, default: null },
     // 多
@@ -72,6 +74,14 @@ export default /*#__PURE__*/ {
 
       if (this.typeConstraint.isInput || this.typeConstraint.isSelect) {
         fields['placeholder'] = { props: { desc: '提示文字' } };
+      }
+
+      if ((this.typeConstraint.isCheckbox && !this.multiple) || this.typeConstraint.isInput) {
+        fields['label'] = { props: { desc: 'Label' } };
+      }
+
+      if (this.typeConstraint.isInput) {
+        fields['icon'] = { props: { desc: '圖示' } };
       }
 
       if (!this.typeConstraint.isFile) {
@@ -112,10 +122,6 @@ export default /*#__PURE__*/ {
           // pushTags: true,
           // reactable: true,
         };
-      }
-
-      if (this.typeConstraint.isCheckbox && !this.multiple) {
-        fields['label'] = { props: { desc: '勾選文字' } };
       }
 
       if (this.typeConstraint.canMultiple) {

@@ -160,7 +160,7 @@ export default /*#__PURE__*/ {
     level: { type: Number, default: 0 },
     rootLogic: { validator: (value) => ['and', 'or'].includes(value), default: 'and' },
   },
-  $emits: ['update:list', 'remove'],
+  $emits: ['update:list', 'update:value', 'update:logic', 'update:trigger-id', 'update:state', 'remove'],
   data() {
     return {
       expanded: false,
@@ -220,7 +220,7 @@ export default /*#__PURE__*/ {
       return [
         { id: 'is', text: 'Is' }, // Is
         { id: 'nis', text: 'Is not' }, // Is not
-        { id: 'ct', text: 'Containss' }, // Containss
+        { id: 'ct', text: 'Contains' }, // Contains
         { id: 'nct', text: 'Does not contain' }, // Does not contain
         { id: 'sw', text: 'Starts with' }, // Starts with
         { id: 'ew', text: 'Ends with' }, // Ends with
@@ -257,6 +257,10 @@ export default /*#__PURE__*/ {
     },
   },
   watch: {
+    // state: function (state) {
+    //   console.log(state, this.allowInputValues, this.allowInputValue);
+    //   this.$emit('update:value', this.allowInputValues ? [] : null);
+    // },
     allowInputValues: function (flag) {
       if (flag) this.$emit('update:value', []);
     },
