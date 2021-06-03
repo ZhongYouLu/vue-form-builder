@@ -3,18 +3,17 @@
     <Tips v-bind="{ tips, showTips, disabled, dir: idx ? 'bottomleft' : 'topleft' }">
       <label>
         <input
-          :id="id"
           ref="el"
           v-model="checked"
-          :name="name"
           type="checkbox"
           :true-value="yes"
           :false-value="no"
-          :required="required"
-          :disabled="disabled"
-          @keydown="handleKeydown"
-          @focus="handleFocus"
-          @blur="handleBlur"
+          v-bind="{ id, name, required, disabled }"
+          v-on="{
+            keydown: handleKeydown,
+            focus: handleFocus,
+            blur: handleBlur,
+          }"
         />
         <span class="x-cheked" />
         <slot>
@@ -35,10 +34,12 @@ export default /*#__PURE__*/ {
   },
   inheritAttrs: false,
   props: {
+    value: { type: [String, Number, Boolean], default: null },
+    error: { type: String, default: null },
+    // ----------------------------------
     idx: { type: Number, default: null },
     id: { type: String, default: null },
     name: { type: String, default: null },
-    value: { type: [String, Number, Boolean], default: null },
     label: { type: [String, Number, Boolean], default: '是' },
     yes: { type: [String, Number, Boolean], default: 1 },
     no: { type: [String, Number, Boolean], default: null },
@@ -46,15 +47,13 @@ export default /*#__PURE__*/ {
     required: { type: Boolean, default: null },
     disabled: { type: Boolean, default: null },
     novalidate: { type: Boolean, default: null },
-    // ----------------------------------
-    errortips: { type: String, default: null },
   },
   emits: ['update:value', 'focus', 'blur'],
   data() {
     return {
-      invalid: false,
-      showTips: false,
+      invalid: null,
       tips: null,
+      showTips: null,
       isfocus: false,
     };
   },
@@ -65,7 +64,7 @@ export default /*#__PURE__*/ {
       },
       set(val) {
         if (val === this.no) {
-          this.$refs.radio.checked = this.checked;
+          this.$refs.el.checked = this.checked;
           return;
         }
         this.$emit('update:value', val);
@@ -93,14 +92,14 @@ export default /*#__PURE__*/ {
         if (!this.$slots.default[0].tag) this.$slots.default[0].tag = 'span';
       }
     },
-    reset() {
-      this.checked = this.no;
-      this.invalid = false;
-      this.tips = null;
-      this.showTips = null;
-    },
     focus() {
       this.$nextTick(() => this.$refs.el.focus());
+    },
+    reset() {
+      this.checked = this.no;
+      this.invalid = null;
+      this.showTips = null;
+      this.tips = null;
     },
     validity() {
       return this.$refs.el.checkValidity();

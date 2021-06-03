@@ -116,50 +116,56 @@ export const checkDisplayState = (columnsByKey, fields, triggerId, state = null,
   }
 };
 
-const checkRuleAsync = (columnsByKey, fields, id) => {
+export const processRule = (columnsByKey, fields, id) => {
+  // 防呆
+  if (!columnsByKey || !fields || !id) return true;
+
+  const { flag, errorMsg } = checkRule(columnsByKey, fields, id);
+  fields[id].error = errorMsg;
+
   if (fields[id].requiredSync?.length) {
     fields[id].requiredSync.forEach((cid) => {
-      checkRule(columnsByKey, fields, cid);
+      const { errorMsg } = checkRule(columnsByKey, fields, cid);
+      fields[cid].error = errorMsg;
     });
   }
+
+  return flag;
 };
 
 export const checkRule = (columnsByKey, fields, id) => {
-  let column;
-  try {
-    column = columnsByKey[id];
-  } catch (error) {
-    return { flag: true };
-  }
+  // 防呆
+  if (!columnsByKey || !fields || !id) return { flag: true, errorMsg: null };
 
-  const { name: columnName, type, base, rule } = column;
+  // 取得欄位設定資訊
+  const column = columnsByKey[id];
 
-  if (!rule) {
-    checkRuleAsync(columnsByKey, fields, id);
-    fields[id].error = null;
-    return { flag: true };
-  }
+  // 判斷是否有規則設定
+  if (!column.rule) return { flag: true, errorMsg: null };
 
-  const typeConstraint = getTypeConstraint(type);
-  const { required, requiredPassive, minimum, maximum, least, most, regex, sameAs } = rule;
+  const value = fields[id].value; // 欄位值
+  const name = column.name || id; // 欄位名稱
+  const typeConstraint = getTypeConstraint(column.type); // 欄位屬性約束
+  const ruleMsg = column.rule.msg || {}; // 自定義錯誤訊息
 
-  const value = fields[id].value;
-  const ruleMsg = rule.msg || {};
-  const name = columnName || id;
+  console.log('[checkRule]', name, value);
+
   let next = true;
   let errorMsg = '';
+
+  // 解構規則設定
+  const { required, requiredPassive, minimum, maximum, least, most, regex, sameAs } = column.rule;
 
   // 檢查 - 必填
   if (next) {
     // 自身必填檢查
     let needRequired = required;
-    if (!needRequired && requiredPassive && requiredPassive.length) {
+    if (!needRequired && requiredPassive?.length) {
       // requiredPassive 被其他欄位連動必填 (自身必填檢查)
       needRequired = requiredPassive.some((cid) => {
-        // const { flag } = checkRule(columnsByKey, fields, cid);
-        // if (!flag) return false;
-        var targetValue = fields[cid].value;
-        return Array.isArray(targetValue) ? !targetValue.length : targetValue != null && targetValue !== '';
+        const targetValue = fields[cid].value;
+        const hasValue = Array.isArray(targetValue) ? !targetValue.length : targetValue != null && targetValue !== '';
+        return hasValue && checkRule(columnsByKey, fields, cid).flag;
       });
     }
 
@@ -170,14 +176,10 @@ export const checkRule = (columnsByKey, fields, id) => {
   }
 
   // (通過必填檢查，但無資料，不進行後續檢查。)
-  if (next && value == null) {
-    checkRuleAsync(columnsByKey, fields, id);
-    fields[id].error = null;
-    return { flag: true };
-  }
+  // if (next && value == null) return { flag: true, errorMsg: null };
 
   // 檢查 - 上下限
-  if (next) {
+  if (next && value) {
     // 文字
     if (typeConstraint.isText) {
       // 字元下限
@@ -219,7 +221,7 @@ export const checkRule = (columnsByKey, fields, id) => {
       }
     }
     // 選擇數量
-    else if (base.multiple) {
+    else if (column.base?.multiple && Array.isArray(value)) {
       // 選擇數量下限
       if (least && least > value.length) {
         next = false;
@@ -234,7 +236,7 @@ export const checkRule = (columnsByKey, fields, id) => {
   }
 
   // 檢查 - Regex
-  if (next && regex) {
+  if (next && value && regex) {
     if (!new RegExp(regexConfig[regex].pattern, 'gi').test(value)) {
       next = false;
       errorMsg = ruleMsg['regex'] || `[${name}] 格式驗證失敗。`;
@@ -246,11 +248,11 @@ export const checkRule = (columnsByKey, fields, id) => {
     const sameAsColumn = columnsByKey[sameAs];
     const sameAsValue = fields[sameAs].value;
     if (sameAsColumn) {
-      if (!base?.multiple) {
-        if (value !== sameAsValue) next = false;
-      } else {
+      if (column.base?.multiple && Array.isArray(value)) {
         if (value.length !== sameAsValue.length) next = false;
         if (!value.every((v) => sameAsValue.includes(v))) next = false;
+      } else {
+        if (value !== sameAsValue) next = false;
       }
 
       if (!next) {
@@ -260,8 +262,5 @@ export const checkRule = (columnsByKey, fields, id) => {
     }
   }
 
-  checkRuleAsync(columnsByKey, fields, id);
-
-  fields[id].error = errorMsg;
   return { flag: next, errorMsg };
 };

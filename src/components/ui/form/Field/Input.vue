@@ -3,13 +3,13 @@
     <Tips v-bind="{ tips, showTips, disabled, dir: errordir }">
       <Icon v-if="icon" class="x-input__pre" :icon="icon" />
       <!-- Textarea -->
-      <template v-if="multi">
+      <template v-if="isTextarea">
         <textarea ref="el" v-model="mutableValue" v-bind="bindAttrs" v-on="bindEvents" />
         <label v-if="label && !icon" class="x-input__label">{{ label }}</label>
         <div v-if="surplus" class="surplus">{{ surplus }}</div>
       </template>
       <!-- Number -->
-      <template v-else-if="type === 'number'">
+      <template v-else-if="typeConstraint.isNumber">
         <input ref="el" v-model.number="mutableValue" v-bind="bindAttrs" v-on="bindEvents" />
         <label v-if="label && !icon" class="x-input__label">{{ label }}</label>
         <div class="x-input__right x-input__right--number">
@@ -43,6 +43,7 @@
 import Tips from '@/components/ui/Tips';
 import Icon from '@/components/ui/Icon';
 import Button from '@/components/ui/Button';
+import { getTypeConstraint } from '@/assets/js/options.js';
 
 export default /*#__PURE__*/ {
   name: 'Input',
@@ -81,6 +82,9 @@ export default /*#__PURE__*/ {
     errordir: { type: String, default: 'top' },
     debounce: { type: Number, default: 50 },
     callInput: { type: Function, default: null },
+    // ------------
+    checkRule: { type: Function, default: null },
+    processRule: { type: Function, default: null },
   },
   emits: ['update:value', 'update:error', 'focus', 'blur', 'submit', 'handle:enter'],
   data() {
@@ -88,9 +92,9 @@ export default /*#__PURE__*/ {
       invalid: null,
       tips: null,
       showTips: null,
-      eyeclose: true,
+      // -----------------
       inputTimer: null,
-      selfDefaultValue: null,
+      eyeclose: true,
     };
   },
   computed: {
@@ -99,7 +103,7 @@ export default /*#__PURE__*/ {
         return this.value;
       },
       set(val) {
-        if (val) val = this.type === 'number' ? Number(val) : val.trim();
+        if (val) val = this.typeConstraint.isNumber ? Number(val) : val.trim();
         this.$emit('update:value', val !== '' ? val : null);
       },
     },
@@ -110,6 +114,12 @@ export default /*#__PURE__*/ {
       set(val) {
         this.$emit('update:error', val);
       },
+    },
+    typeConstraint() {
+      return getTypeConstraint(this.type);
+    },
+    isTextarea() {
+      return this.typeConstraint.isText && this.multi;
     },
     localType() {
       let type = null;
@@ -134,11 +144,12 @@ export default /*#__PURE__*/ {
       return [
         'x-input__input',
         { 'x-input__input--label': this.label && !this.icon },
-        { 'x-input__input--number': this.type === 'number' },
+        { 'x-input__input--number': this.typeConstraint.isNumber },
       ];
     },
     bindAttrs() {
-      let temp = {
+      let attrs = {
+        // ...this.$attrs,
         id: this.id,
         name: this.name,
         type: this.localType,
@@ -146,46 +157,50 @@ export default /*#__PURE__*/ {
         placeholder: this.label || this.placeholder,
         minlength: this.minlength,
         maxlength: this.maxlength,
-        rows: this.rows,
         pattern: this.pattern,
         required: this.required,
         readonly: this.readonly,
         disabled: this.disabled,
       };
 
-      if (this.type === 'number') {
-        temp = {
-          ...temp,
+      if (this.isTextarea) {
+        attrs = {
+          ...attrs,
+          rows: this.rows,
+        };
+      } else if (this.typeConstraint.isNumber) {
+        attrs = {
+          ...attrs,
           min: this.min,
           max: this.max,
           step: this.step,
         };
-      } else if (this.type === 'date') {
-        temp = {
-          ...temp,
+      } else if (this.typeConstraint.isDate) {
+        attrs = {
+          ...attrs,
           min: this.min,
           max: this.max,
         };
       }
 
-      return temp;
+      return attrs;
     },
     bindEvents() {
-      let config = {
+      let events = {
         input: this.handleInput,
         focus: this.handleFocus,
         blur: this.handleBlur,
       };
 
       if (!this.multi) {
-        config = {
-          ...config,
+        events = {
+          ...events,
           keydown: this.handleKeydown,
           keyup: this.handleKeyup,
         };
       }
 
-      return config;
+      return events;
     },
     surplus() {
       if (!this.multi || !this.maxlength) return null;
@@ -196,12 +211,6 @@ export default /*#__PURE__*/ {
   watch: {
     mutableValue: 'checkValidity',
     mutableError: 'checkValidity',
-    defaultValue(val) {
-      this.selfDefaultValue = val;
-    },
-  },
-  created() {
-    this.selfDefaultValue = this.defaultValue || this.value;
   },
   methods: {
     tunnelEmit(event, ...payload) {
@@ -230,7 +239,7 @@ export default /*#__PURE__*/ {
       });
     },
     reset() {
-      this.mutableValue = this.selfDefaultValue;
+      this.mutableValue = this.defaultValue;
       this.invalid = null;
       this.showTips = null;
       this.tips = null;
@@ -238,7 +247,7 @@ export default /*#__PURE__*/ {
     // 是否有效
     validity() {
       // custom
-      if (this.mutableError) return false;
+      if (this.processRule && !this.processRule()) return false;
 
       // base (default)
       if (!this.$refs.el.checkValidity()) return false;

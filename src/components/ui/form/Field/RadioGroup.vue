@@ -1,22 +1,25 @@
 <template>
-  <div ref="group" class="x-checkbox-group" v-bind="{ disabled, invalid: !disabled ? invalid : null }">
+  <div ref="group" class="x-radio-group" v-bind="{ disabled, invalid: !disabled ? invalid : null }">
     <Tips v-bind="{ tips, showTips, disabled }">
-      <Checkbox
+      <Radio
         v-for="(option, idx) in options"
         :key="option[valueKey]"
         ref="el"
-        :idx="idx"
-        :name="name"
-        :label="option[textKey] || option[valueKey]"
-        :value="localValue[option[valueKey]].flag"
-        :required="localValue[option[valueKey]].required"
-        :yes="yes"
-        :no="no"
-        :disabled="disabled"
-        :novalidate="novalidate"
+        v-bind="{
+          idx,
+          name,
+          label: option[textKey] || option[valueKey],
+          value: localValue[option[valueKey]],
+          yes,
+          no,
+          disabled,
+          novalidate,
+        }"
+        v-on="{
+          focus: handleFocus,
+          blur: handleBlur,
+        }"
         @update:value="toggle(option[valueKey], $event)"
-        @focus="handleFocus"
-        @blur="handleBlur"
       />
     </Tips>
   </div>
@@ -24,19 +27,22 @@
 
 <script>
 import Tips from '@/components/ui/Tips';
-import Checkbox from '@/components/ui/form/Checkbox';
-import { arrRemoveValue } from '@/assets/js/helper.js';
+import Radio from '@/components/ui/form/Field/Radio';
 
 export default /*#__PURE__*/ {
   name: 'CheckboxGroup',
   components: {
     Tips,
-    Checkbox,
+    Radio,
   },
   inheritAttrs: false,
   props: {
+    value: { type: [String, Number, Boolean], default: null },
+    error: { type: String, default: null },
+    // ----------------------------------
+    id: { type: String, default: null },
     name: { type: String, default: null },
-    value: { type: Array, default: () => [] },
+    defaultValue: { type: [String, Number, Boolean], default: null },
     options: { type: Array, default: () => [] },
     valueKey: { type: String, default: 'id' },
     textKey: { type: String, default: 'text' },
@@ -44,22 +50,17 @@ export default /*#__PURE__*/ {
     no: { type: [String, Number, Boolean], default: null },
     // ----------------------------------
     required: { type: Boolean, default: null },
-    requiredValue: { type: Array, default: () => [] },
     disabled: { type: Boolean, default: null },
     novalidate: { type: Boolean, default: null },
-    min: { type: Number, default: null },
-    max: { type: Number, default: null },
-    // ----------------------------------
-    errortips: { type: String, default: null },
   },
-  emits: ['update:value', 'focus', 'blur'],
+  emits: ['update:value', 'update:error', 'focus', 'blur'],
   data() {
     return {
-      invalid: false,
+      invalid: null,
       tips: null,
-      showTips: false,
+      showTips: null,
       errorType: null,
-      defaultValue: [],
+      selfDefaultValue: null,
     };
   },
   computed: {
@@ -71,43 +72,37 @@ export default /*#__PURE__*/ {
         this.$emit('update:value', val);
       },
     },
+    mutableError: {
+      get() {
+        return this.error;
+      },
+      set(val) {
+        this.$emit('update:error', val);
+      },
+    },
     localValue() {
       return this.options.reduce((acc, option) => {
         const v = option[this.valueKey];
-        acc[v] = {
-          flag: this.value?.includes(v) ? this.yes : this.no,
-          required: this.requiredValue.includes(v),
-        };
+        acc[v] = this.value === v ? this.yes : this.no;
         return acc;
       }, {});
-    },
-    localMin() {
-      const min = this.min || 0;
-      return this.required ? Math.max(1, min) : min;
-    },
-    localMax() {
-      return this.max || Infinity;
     },
   },
   watch: {
     mutableValue: 'checkValidity',
+    mutableError: 'checkValidity',
+    defaultValue(val) {
+      this.selfDefaultValue = val;
+    },
   },
   created() {
-    this.defaultValue = this.value;
+    this.selfDefaultValue = this.defaultValue || this.value;
   },
   methods: {
     toggle(key, flag) {
       if (flag === this.yes) {
-        this.mutableValue = this.mutableValue.concat(key);
-      } else {
-        this.mutableValue = arrRemoveValue(this.mutableValue, key);
+        this.mutableValue = key;
       }
-    },
-    reset() {
-      this.mutableValue = this.defaultValue;
-      this.invalid = false;
-      this.tips = null;
-      this.showTips = null;
     },
     focus(idx) {
       if (idx == null || idx < 0 || idx > this.$refs.el.length - 1) idx = 0;
@@ -116,36 +111,24 @@ export default /*#__PURE__*/ {
         this.$nextTick(() => this.$refs.el[idx].focus());
       }
     },
-    checkAll() {
-      this.mutableValue = Object.keys(this.localValue).map((key) => key);
+    reset() {
+      this.mutableValue = this.selfDefaultValue;
+      this.invalid = null;
+      this.showTips = null;
+      this.tips = null;
+      this.errorType = null;
     },
     validity() {
       this.errorType = null;
-      const len = this.value.length;
 
-      // 非必填且無勾選
-      if (!this.required && len == 0) {
-        return true;
-      }
+      // custom
+      if (this.mutableError) return false;
 
-      // 數量限制
-      if (len < this.localMin) {
-        this.errorType = 'min';
+      // base (default)
+      // 必填
+      if (this.required && (this.value == null || this.value === '')) {
+        this.errorType = 'required';
         return false;
-      }
-      if (len > this.localMax) {
-        this.errorType = 'max';
-        return false;
-      }
-
-      // 項目必填
-      if (this.requiredValue.length) {
-        for (let i = 0, el; (el = this.$refs.el[i]); i++) {
-          if (!el.checkValidity()) {
-            this.errorType = 'item-required';
-            return false;
-          }
-        }
       }
 
       return true;
@@ -156,26 +139,22 @@ export default /*#__PURE__*/ {
       }
 
       if (this.validity()) {
-        this.invalid = false;
+        this.invalid = null;
         this.showTips = null;
         this.tips = null;
       } else {
+        // this.focus();
         this.invalid = true;
         this.showTips = true;
       }
 
       switch (this.errorType) {
-        case 'min':
-          // this.focus();
-          this.tips = `請至少選擇${this.localMin}項`;
-          break;
-        case 'max':
-          this.tips = `至多選擇${this.localMax}項`;
-          break;
-        case 'item-required':
-          this.tips = null;
+        case 'required':
+          this.focus();
+          this.tips = '必須選擇一項';
           break;
         default:
+          this.tips = this.mutableError;
           break;
       }
 
@@ -194,7 +173,7 @@ export default /*#__PURE__*/ {
 <style lang="scss">
 @import '@/assets/scss/utils.scss';
 
-.x-checkbox-group {
+.x-radio-group {
   display: inline-block;
 
   &:focus-within,
@@ -213,13 +192,13 @@ export default /*#__PURE__*/ {
       outline: 0;
     }
 
-    .x-checkbox {
+    .x-radio {
       pointer-events: none;
       opacity: 0.6;
     }
   }
 
-  .x-checkbox {
+  .x-radio {
     margin-right: var(--fontSize);
     transition: opacity 0.3s;
   }

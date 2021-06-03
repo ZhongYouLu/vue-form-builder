@@ -15,10 +15,13 @@
   - 隱藏項目設定
   - 隱藏條件的 符合其一/全部
 - [ ] 抽出 Tips 並調整 style
-- [ ] 更新規則，FormDemo ErrorMsg未同步
 - [ ] 顯示條件的符合全部，純輸入框&非複選 需隱藏。
+- [ ] 更新規則，FormDemo ErrorMsg 未同步
+- [ ] 與..相符，有選項的欄位屬性會對不到 (id、text)
+- [ ] 與..相符，如果值為空不會到該段檢查。
 
 ### ISSUE
 
-- [ ] Input元件 focus() 時機
-- [ ] Input元件 checkValidity() 時機
+- [ ] Input 元件 focus() 時機
+- [ ] Input 元件 checkValidity() 時機
+- [ ] CheckRule() 時機

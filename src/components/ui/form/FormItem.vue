@@ -9,15 +9,7 @@
     </label>
     <Field
       ref="field"
-      v-bind="{
-        ...$attrs,
-        id,
-        name: name || id,
-        required: !!required,
-        disabled,
-        novalidate: !canDisplay,
-        checkRule: handleCheckRule,
-      }"
+      v-bind="bindAttrs"
       :value.sync="mutableValue"
       :error.sync="mutableError"
       v-on="{
@@ -47,7 +39,7 @@
 import Field from '@/components/ui/form/Field';
 import Button from '@/components/ui/Button';
 import XSwitch from '@/components/ui/Switch';
-import { checkConditionDisplay, checkRule } from '@/assets/js/columns.js';
+import { checkConditionDisplay, processRule, checkRule } from '@/assets/js/columns.js';
 
 export default /*#__PURE__*/ {
   name: 'FormItem',
@@ -67,6 +59,8 @@ export default /*#__PURE__*/ {
     desc: { type: String, default: null }, // 欄位說明
     subDesc: { type: String, default: null }, // 欄位子說明
     required: { type: [Boolean, Number], default: null },
+    // disabled: { type: Boolean, default: false },
+    // ------------
     display: { type: Array, default: null }, // Condition's Display
     // ------------
     value: { type: [String, Number, Boolean, Array], default: null },
@@ -99,9 +93,21 @@ export default /*#__PURE__*/ {
     canDisplay() {
       return checkConditionDisplay(this.columnsByKey, this.fields, this.display, 'and');
     },
+    bindAttrs() {
+      return {
+        ...this.$attrs,
+        id: this.id,
+        name: this.name || this.id,
+        required: !!this.required,
+        disabled: this.disabled,
+        novalidate: !this.canDisplay,
+        checkRule: this.invokeCheckRule,
+        processRule: this.invokeProcessRule,
+      };
+    },
   },
   // watch: {
-  //   mutableValue: 'handleCheckRule',
+  //   mutableValue: 'invokeProcessRule',
   // },
   methods: {
     focus() {
@@ -122,8 +128,11 @@ export default /*#__PURE__*/ {
     handleBlur(e) {
       this.$emit('blur', e);
     },
-    handleCheckRule() {
-      this.fields && checkRule(this.columnsByKey, this.fields, this.id);
+    invokeCheckRule() {
+      return checkRule(this.columnsByKey, this.fields, this.id);
+    },
+    invokeProcessRule() {
+      return processRule(this.columnsByKey, this.fields, this.id);
     },
   },
 };

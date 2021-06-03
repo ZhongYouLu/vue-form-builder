@@ -19,11 +19,11 @@
 </template>
 
 <script>
-import XInput from '@/components/ui/form/Input';
-import XCheckbox from '@/components/ui/form/Checkbox';
-import XCheckboxGroup from '@/components/ui/form/CheckboxGroup';
-import XRadioGroup from '@/components/ui/form/RadioGroup';
-import XSelect from '@/components/ui/form/Select';
+import XInput from '@/components/ui/form/Field/Input';
+import XCheckbox from '@/components/ui/form/Field/Checkbox';
+import XCheckboxGroup from '@/components/ui/form/Field/CheckboxGroup';
+import XRadioGroup from '@/components/ui/form/Field/RadioGroup';
+import XSelect from '@/components/ui/form/Field/Select';
 import { typeConfig, subTypeConfig } from '@/assets/js/options.js';
 
 export default /*#__PURE__*/ {
@@ -37,21 +37,27 @@ export default /*#__PURE__*/ {
   },
   inheritAttrs: false,
   props: {
+    value: { type: [String, Number, Boolean, Array], default: null },
+    error: { type: String, default: null },
+    // ------------
     id: { type: String, default: null },
     name: { type: String, default: null },
     type: { validator: (val) => !!typeConfig[val], default: 'text' },
     subType: { validator: (val) => !!subTypeConfig[val], default: null },
+    defaultValue: { type: [String, Number, Boolean, Array], default: null },
     minimum: { type: [Number, String], default: null },
     maximum: { type: [Number, String], default: null },
-    defaultValue: { type: [String, Number, Boolean, Array], default: null },
     multiple: { type: [Boolean, Number], default: null },
     // ------------
-    value: { type: [String, Number, Boolean, Array], default: null },
-    error: { type: String, default: null },
-    // ------------
     checkRule: { type: Function, default: null },
+    processRule: { type: Function, default: null },
   },
   emits: ['update:value', 'update:error', 'input', 'focus', 'blur'],
+  data() {
+    return {
+      selfDefaultValue: null,
+    };
+  },
   computed: {
     mutableValue: {
       get() {
@@ -92,43 +98,41 @@ export default /*#__PURE__*/ {
       return name;
     },
     bindAttrs() {
-      let config = {
+      let attrs = {
         ...this.$attrs,
         id: this.id,
         name: this.name || this.id,
         type: this.subType || this.type,
-        defaultValue: this.defaultValue,
+        defaultValue: this.selfDefaultValue,
         multiple: !!this.multiple,
+        // ------------
+        checkRule: this.checkRule,
+        processRule: this.processRule,
       };
 
       if (this.type === 'text') {
-        config = {
-          ...config,
+        attrs = {
+          ...attrs,
           minlength: this.minimum,
           maxlength: this.maximum,
         };
       } else {
-        config = {
-          ...config,
+        attrs = {
+          ...attrs,
           min: this.minimum,
           max: this.maximum,
         };
       }
 
-      return config;
+      return attrs;
     },
   },
-  watch: {
-    mutableValue: {
-      handler: function () {
-        this.checkRule && this.checkRule();
-        // this.$nextTick(() => {
-        //   this.checkValidity();
-        // });
-      },
-      immediate: true,
-    },
-    // mutableError: 'checkValidity',
+  // watch: {
+  //   mutableValue: 'check',
+  //   mutableError: 'check',
+  // },
+  created() {
+    this.selfDefaultValue = this.defaultValue || this.value;
   },
   methods: {
     focus() {
@@ -138,6 +142,8 @@ export default /*#__PURE__*/ {
       this.$refs.el.reset();
     },
     validity() {
+      if (!this.$refs.el?.validity) return false;
+
       const validity = this.$refs.el.validity();
       console.log('[validity]', this.id, validity);
       return validity;
@@ -148,6 +154,13 @@ export default /*#__PURE__*/ {
       const checkValidity = this.$refs.el.checkValidity();
       console.log('[checkValidity]', this.id, checkValidity);
       return checkValidity;
+    },
+    check() {
+      // this.checkRule && this.checkRule();
+      // this.processRule && this.processRule();
+      this.$nextTick(() => {
+        this.checkValidity();
+      });
     },
     handleFocus(e) {
       this.$emit('focus', e);
