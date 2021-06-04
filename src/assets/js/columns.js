@@ -140,8 +140,8 @@ export const getErrorMsg = (msg, { name, sameAsName, min, max } = {}) => {
 
   let temp = msg.replace(':name', name);
   if (sameAsName != null) temp = temp.replace(':sameAsName', sameAsName);
-  if (min != null) temp = temp.replace(':min', thousandSeparator(min));
-  if (max != null) temp = temp.replace(':max', thousandSeparator(max));
+  if (min != null) temp = temp.replace(':min', min);
+  if (max != null) temp = temp.replace(':max', max);
 
   return temp;
 };
@@ -215,12 +215,12 @@ export const checkRule = (columnsByKey, fields, id) => {
       // 字元下限
       if (min && min > value.length) {
         next = false;
-        msg = getErrorMsg(ruleMsg['min'] || errorMsg['min']['text'], { name, min });
+        msg = getErrorMsg(ruleMsg['min'] || errorMsg['min']['text'], { name, min: thousandSeparator(min) });
       }
       // 字元上限
       if (max && max < value.length) {
         next = false;
-        msg = getErrorMsg(ruleMsg['max'] || errorMsg['max']['text'], { name, max });
+        msg = getErrorMsg(ruleMsg['max'] || errorMsg['max']['text'], { name, max: thousandSeparator(max) });
       }
     }
     // 數字
@@ -228,12 +228,12 @@ export const checkRule = (columnsByKey, fields, id) => {
       // 數字下限
       if (min && min > value) {
         next = false;
-        msg = getErrorMsg(ruleMsg['min'] || errorMsg['min']['number'], { name, min });
+        msg = getErrorMsg(ruleMsg['min'] || errorMsg['min']['number'], { name, min: thousandSeparator(min) });
       }
       // 數字上限
       if (max && max < value) {
         next = false;
-        msg = getErrorMsg(ruleMsg['max'] || errorMsg['max']['number'], { name, max });
+        msg = getErrorMsg(ruleMsg['max'] || errorMsg['max']['number'], { name, max: thousandSeparator(max) });
       }
     }
     // 日期
@@ -255,12 +255,12 @@ export const checkRule = (columnsByKey, fields, id) => {
       // 選擇數量下限
       if (min && min > value.length) {
         next = false;
-        msg = getErrorMsg(ruleMsg['min'] || errorMsg['min']['option'], { name, min });
+        msg = getErrorMsg(ruleMsg['min'] || errorMsg['min']['option'], { name, min: thousandSeparator(min) });
       }
       // 選擇數量上限
       if (max && max < value.length) {
         next = false;
-        msg = getErrorMsg(ruleMsg['max'] || errorMsg['max']['option'], { name, max });
+        msg = getErrorMsg(ruleMsg['max'] || errorMsg['max']['option'], { name, max: thousandSeparator(max) });
       }
     }
   }

@@ -47,7 +47,7 @@ import FormItem from '@/components/ui/form/FormItem';
 import Button from '@/components/ui/Button';
 import { getters as collectsGetters, mutations as collectsMutations } from '@/store/collects.js';
 import { getters as regexGetters, mutations as regexMutations } from '@/store/regex.js';
-import { arrRemoveValue } from '@/assets/js/helper.js';
+import { arrRemoveValue, thousandSeparator } from '@/assets/js/helper.js';
 import { typeIcons } from '@/assets/js/options.js';
 import { errorMsg, getErrorMsg } from '@/assets/js/columns.js';
 
@@ -248,8 +248,8 @@ export default /*#__PURE__*/ {
     invokeGetErrorMsg(k, msg) {
       return getErrorMsg(this.$props.msg[k] || msg, {
         name: this.name,
-        min: this.min,
-        max: this.max,
+        min: this.typeConstraint.isDate ? this.min : thousandSeparator(this.min),
+        max: this.typeConstraint.isDate ? this.max : thousandSeparator(this.max),
         sameAs: this.sameAs,
       });
     },
