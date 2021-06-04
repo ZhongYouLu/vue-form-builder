@@ -46,6 +46,7 @@ import { getters as collectsGetters, mutations as collectsMutations } from '@/st
 import { getters as regexGetters, mutations as regexMutations } from '@/store/regex.js';
 import { arrRemoveValue } from '@/assets/js/helper.js';
 import { typeIcons } from '@/assets/js/options.js';
+import { errorMsg, getErrorMsg } from '@/assets/js/columns.js';
 
 export default /*#__PURE__*/ {
   name: 'ColumnSettingRule',
@@ -76,16 +77,12 @@ export default /*#__PURE__*/ {
     required: { type: Number, default: null },
     // 與..相符
     sameAs: { type: String, default: null },
-    // 字元下限
-    minimum: { type: [Number, String], default: null },
-    // 字元上限
-    maximum: { type: [Number, String], default: null },
+    // 下限
+    min: { type: [Number, String], default: null },
+    // 上限
+    max: { type: [Number, String], default: null },
     // 驗證格式
     regex: { type: String, default: null },
-    // 選擇數量下限 [多選框選項]
-    least: { type: Number, default: null },
-    // 選擇數量上限 [多選框選項]
-    most: { type: Number, default: null },
   },
   emits: ['update:column'],
   computed: {
@@ -110,7 +107,7 @@ export default /*#__PURE__*/ {
               iconKey: 'type',
               multiple: true,
             },
-            msg: `[${name}] 為必填。`,
+            msg: getErrorMsg(errorMsg.required, { name }),
           },
         };
       }
@@ -119,7 +116,7 @@ export default /*#__PURE__*/ {
         ...fields,
         required: {
           props: { desc: '是否必填', label: '必填', type: 'checkbox' },
-          msg: `[${name}] 為必填。`,
+          msg: getErrorMsg(errorMsg.required, { name }),
         },
         sameAs: {
           props: {
@@ -132,15 +129,15 @@ export default /*#__PURE__*/ {
             iconKey: 'type',
             clearable: true,
           },
-          msg: `[${name}] 與 [${sameAsName}] 不相符。`,
+          msg: getErrorMsg(errorMsg.sameAs, { name, sameAsName }),
         },
       };
 
       if (this.typeConstraint.isText) {
         fields = {
           ...fields,
-          minimum: { props: { desc: '字元下限', type: 'number' }, msg: `[${name}] 最少 [:min] 個字。` },
-          maximum: { props: { desc: '字元上限', type: 'number' }, msg: `[${name}] 最多 [:max] 個字。` },
+          min: { props: { desc: '字元下限', type: 'number' }, msg: getErrorMsg(errorMsg.min.text, { name }) },
+          max: { props: { desc: '字元上限', type: 'number' }, msg: getErrorMsg(errorMsg.max.text, { name }) },
           regex: {
             props: {
               desc: '驗證格式',
@@ -155,26 +152,26 @@ export default /*#__PURE__*/ {
               handleCreatedCallback: (option) => regexMutations.addRegex(option.text),
               // getOptionLabel: (option) => option,
             },
-            msg: `[${name}] 格式驗證失敗。`,
+            msg: getErrorMsg(errorMsg.regex, { name }),
           },
         };
       } else if (this.typeConstraint.isNumber) {
         fields = {
           ...fields,
-          minimum: { props: { desc: '數字下限', type: 'number' }, msg: `[${name}] 最少 [:min]。` },
-          maximum: { props: { desc: '數字上限', type: 'number' }, msg: `[${name}] 最多 [:max]。` },
+          min: { props: { desc: '數字下限', type: 'number' }, msg: getErrorMsg(errorMsg.min.number, { name }) },
+          max: { props: { desc: '數字上限', type: 'number' }, msg: getErrorMsg(errorMsg.max.number, { name }) },
         };
       } else if (this.typeConstraint.isDate) {
         fields = {
           ...fields,
-          minimum: { props: { desc: '日期下限', type: 'date' }, msg: `[${name}] 不得小於 [:min]。` },
-          maximum: { props: { desc: '日期上限', type: 'date' }, msg: `[${name}] 不得大於 [:max]。` },
+          min: { props: { desc: '日期下限', type: 'date' }, msg: getErrorMsg(errorMsg.min.date, { name }) },
+          max: { props: { desc: '日期上限', type: 'date' }, msg: getErrorMsg(errorMsg.max.date, { name }) },
         };
       } else if (this.columnsByKey[this.id].base?.multiple) {
         fields = {
           ...fields,
-          least: { props: { desc: '選擇數量下限', type: 'number' }, msg: `[${name}] 最少選 [:least] 個。` },
-          most: { props: { desc: '選擇數量上限', type: 'number' }, msg: `[${name}] 最多選 [:most] 個。` },
+          min: { props: { desc: '選擇數量下限', type: 'number' }, msg: getErrorMsg(errorMsg.min.option, { name }) },
+          max: { props: { desc: '選擇數量上限', type: 'number' }, msg: getErrorMsg(errorMsg.max.option, { name }) },
         };
       }
 

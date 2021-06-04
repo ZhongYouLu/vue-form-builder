@@ -153,7 +153,7 @@ const actions = {
   },
   handleUpdateColumnProp(column, objectPath, after, before) {
     const targetProp = getObjPathArr(objectPath).join('.');
-    console.log(targetProp, after, before);
+    // console.log(targetProp, after, before);
 
     switch (targetProp) {
       case 'type': {
@@ -188,9 +188,9 @@ const actions = {
           // 重置 [與..相符]
           if (column.rule.sameAs) column.rule.sameAs = null;
           // 重置 [下限]
-          if (column.rule.minimum) column.rule.minimum = null;
+          if (column.rule.min) column.rule.min = null;
           // 重置 [上限]
-          if (column.rule.maximum) column.rule.maximum = null;
+          if (column.rule.max) column.rule.max = null;
           // 重置 [驗證格式]
           if (column.rule.regex) column.rule.regex = null;
         }

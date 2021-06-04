@@ -116,6 +116,35 @@ export const checkDisplayState = (columnsByKey, fields, triggerId, state = null,
   }
 };
 
+export const errorMsg = {
+  required: `[:name] 為必填。`,
+  sameAs: `[:name] 與 [:sameAsName] 不相符。`,
+  regex: `[:name] 格式驗證失敗。`,
+  min: {
+    text: `[:name] 最少 [:min] 個字。`,
+    number: `[:name] 最少 [:min]。`,
+    date: `[:name] 不得小於 [:min]。`,
+    option: `[:name] 最少選 [:min] 個。`,
+  },
+  max: {
+    text: `[:name] 最少 [:max] 個字。`,
+    number: `[:name] 最多 [:max]。`,
+    date: `[:name] 不得大於 [:max]。`,
+    option: `[:name] 最多選 [:max] 個。`,
+  },
+};
+
+export const getErrorMsg = (msg, { name, sameAsName, min, max } = {}) => {
+  if (!msg) return '';
+
+  let temp = msg.replace(':name', name);
+  if (sameAsName) temp = temp.replace(':sameAsName', sameAsName);
+  if (min) temp = temp.replace(':min', min);
+  if (max) temp = temp.replace(':max', max);
+
+  return temp;
+};
+
 export const processRule = (columnsByKey, fields, id) => {
   // 防呆
   if (!columnsByKey || !fields || !id) return true;
@@ -151,10 +180,10 @@ export const checkRule = (columnsByKey, fields, id) => {
   console.log('[checkRule]', name, value);
 
   let next = true;
-  let errorMsg = '';
+  let msg = '';
 
   // 解構規則設定
-  const { required, requiredPassive, minimum, maximum, least, most, regex, sameAs } = column.rule;
+  const { required, requiredPassive, min, max, regex, sameAs } = column.rule;
 
   // 檢查 - 必填
   if (next) {
@@ -171,7 +200,7 @@ export const checkRule = (columnsByKey, fields, id) => {
 
     if (needRequired && (value == null || value === '' || (Array.isArray(value) && !value.length))) {
       next = false;
-      errorMsg = ruleMsg['required'] || `[${name}] 為必填。`;
+      msg = getErrorMsg(ruleMsg['required'] || errorMsg['required'], { name });
     }
   }
 
@@ -183,54 +212,54 @@ export const checkRule = (columnsByKey, fields, id) => {
     // 文字
     if (typeConstraint.isText) {
       // 字元下限
-      if (minimum && minimum > value.length) {
+      if (min && min > value.length) {
         next = false;
-        errorMsg = (ruleMsg['minimum'] || `[${name}] 最少 [:min] 個字。`).replace('[:min]', minimum);
+        msg = getErrorMsg(ruleMsg['min'] || errorMsg['min']['text'], { name, min });
       }
       // 字元上限
-      if (maximum && maximum < value.length) {
+      if (max && max < value.length) {
         next = false;
-        errorMsg = (ruleMsg['maximum'] || `[${name}] 最多 [:max] 個字。`).replace('[:max]', maximum);
+        msg = getErrorMsg(ruleMsg['max'] || errorMsg['max']['text'], { name, max });
       }
     }
     // 數字
     else if (typeConstraint.isNumber) {
       // 數字下限
-      if (minimum && minimum > value) {
+      if (min && min > value) {
         next = false;
-        errorMsg = (ruleMsg['minimum'] || `[${name}] 最少 [:min]。`).replace('[:min]', minimum);
+        msg = getErrorMsg(ruleMsg['min'] || errorMsg['min']['number'], { name, min });
       }
       // 數字上限
-      if (maximum && maximum < value) {
+      if (max && max < value) {
         next = false;
-        errorMsg = (ruleMsg['maximum'] || `[${name}] 最多 [:max]。`).replace('[:max]', maximum);
+        msg = getErrorMsg(ruleMsg['max'] || errorMsg['max']['number'], { name, max });
       }
     }
     // 日期
     else if (typeConstraint.isDate) {
       const valueDateTime = new Date(value).getTime();
       // 日期下限
-      if (minimum && new Date(minimum).getTime() > valueDateTime) {
+      if (min && new Date(min).getTime() > valueDateTime) {
         next = false;
-        errorMsg = (ruleMsg['minimum'] || `[${name}] 不得小於 [:min]。`).replace('[:min]', minimum);
+        msg = getErrorMsg(ruleMsg['min'] || errorMsg['min']['date'], { name, min });
       }
       // 日期上限
-      if (maximum && new Date(maximum).getTime() < valueDateTime) {
+      if (max && new Date(max).getTime() < valueDateTime) {
         next = false;
-        errorMsg = (ruleMsg['maximum'] || `[${name}] 不得大於 [:max]。`).replace('[:max]', maximum);
+        msg = getErrorMsg(ruleMsg['max'] || errorMsg['max']['date'], { name, max });
       }
     }
     // 選擇數量
     else if (column.base?.multiple && Array.isArray(value)) {
       // 選擇數量下限
-      if (least && least > value.length) {
+      if (min && min > value.length) {
         next = false;
-        errorMsg = (ruleMsg['least'] || `[${name}] 最少選 [:least]。`).replace('[:least]', least);
+        msg = getErrorMsg(ruleMsg['min'] || errorMsg['min']['option'], { name, min });
       }
       // 選擇數量上限
-      if (most && most < value.length) {
+      if (max && max < value.length) {
         next = false;
-        errorMsg = (ruleMsg['most'] || `[${name}] 最多選 [:most]。`).replace('[:most]', most);
+        msg = getErrorMsg(ruleMsg['max'] || errorMsg['max']['option'], { name, max });
       }
     }
   }
@@ -239,7 +268,7 @@ export const checkRule = (columnsByKey, fields, id) => {
   if (next && value && regex) {
     if (!new RegExp(regexConfig[regex].pattern, 'gi').test(value)) {
       next = false;
-      errorMsg = ruleMsg['regex'] || `[${name}] 格式驗證失敗。`;
+      msg = getErrorMsg(ruleMsg['regex'] || errorMsg['regex'], { name });
     }
   }
 
@@ -257,10 +286,10 @@ export const checkRule = (columnsByKey, fields, id) => {
 
       if (!next) {
         const sameAsName = sameAsColumn.name || sameAs;
-        errorMsg = ruleMsg['sameAs'] || `[${name}] 與 [${sameAsName}] 不相符。`;
+        msg = getErrorMsg(ruleMsg['sameAs'] || errorMsg['sameAs'], { name, sameAsName });
       }
     }
   }
 
-  return { flag: next, errorMsg };
+  return { flag: next, errorMsg: msg };
 };

@@ -45,8 +45,8 @@ export default /*#__PURE__*/ {
     type: { validator: (val) => !!typeConfig[val], default: 'text' },
     subType: { validator: (val) => !!subTypeConfig[val], default: null },
     defaultValue: { type: [String, Number, Boolean, Array], default: null },
-    minimum: { type: [Number, String], default: null },
-    maximum: { type: [Number, String], default: null },
+    min: { type: [Number, String], default: null },
+    max: { type: [Number, String], default: null },
     multiple: { type: [Boolean, Number], default: null },
     // ------------
     checkRule: { type: Function, default: null },
@@ -113,14 +113,14 @@ export default /*#__PURE__*/ {
       if (this.type === 'text') {
         attrs = {
           ...attrs,
-          minlength: this.minimum,
-          maxlength: this.maximum,
+          minlength: this.min,
+          maxlength: this.max,
         };
       } else {
         attrs = {
           ...attrs,
-          min: this.minimum,
-          max: this.maximum,
+          min: this.min,
+          max: this.max,
         };
       }
 
