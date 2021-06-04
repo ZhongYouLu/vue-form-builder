@@ -1,5 +1,6 @@
 import regexConfig from '@/store/regex.js';
 import { getTypeConstraint } from '@/assets/js/options.js';
+import { thousandSeparator } from '@/assets/js/helper.js';
 
 export const checkConditionDisplay = (columnsByKey, fields, rootList, rootLogic) => {
   if (!Array.isArray(rootList) || !rootList.length) return true;
@@ -139,8 +140,8 @@ export const getErrorMsg = (msg, { name, sameAsName, min, max } = {}) => {
 
   let temp = msg.replace(':name', name);
   if (sameAsName != null) temp = temp.replace(':sameAsName', sameAsName);
-  if (min != null) temp = temp.replace(':min', min);
-  if (max != null) temp = temp.replace(':max', max);
+  if (min != null) temp = temp.replace(':min', thousandSeparator(min));
+  if (max != null) temp = temp.replace(':max', thousandSeparator(max));
 
   return temp;
 };
