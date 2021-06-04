@@ -127,10 +127,13 @@ export default /*#__PURE__*/ {
       return attrs;
     },
   },
-  // watch: {
-  //   mutableValue: 'check',
-  //   mutableError: 'check',
-  // },
+  watch: {
+    // mutableValue: 'check',
+    // mutableError: 'check',
+    defaultValue(val) {
+      this.selfDefaultValue = val;
+    },
+  },
   created() {
     this.selfDefaultValue = this.defaultValue || this.value;
   },
