@@ -98,7 +98,7 @@ export default /*#__PURE__*/ {
   methods: {
     toggle(key, flag) {
       if (flag === this.yes) {
-        this.mutableValue = this.mutableValue.concat(key);
+        this.mutableValue = (this.mutableValue || []).concat(key);
       } else {
         this.mutableValue = arrRemoveValue(this.mutableValue, key);
       }
@@ -121,7 +121,7 @@ export default /*#__PURE__*/ {
     },
     validity() {
       this.errorType = null;
-      const len = this.value.length;
+      const len = (this.value || []).length;
 
       // 非必填且無勾選
       if (!this.required && len == 0) {

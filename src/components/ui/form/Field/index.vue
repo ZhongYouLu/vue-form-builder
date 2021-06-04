@@ -130,6 +130,9 @@ export default /*#__PURE__*/ {
   watch: {
     // mutableValue: 'check',
     // mutableError: 'check',
+    type() {
+      this.selfDefaultValue = null;
+    },
     defaultValue(val) {
       this.selfDefaultValue = val;
     },
