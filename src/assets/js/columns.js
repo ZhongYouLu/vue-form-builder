@@ -122,16 +122,16 @@ export const errorMsg = {
   sameAs: `[:name] 與 [:sameAsName] 不相符。`,
   regex: `[:name] 格式驗證失敗。`,
   min: {
-    text: `[:name] 最少 [:min] 個字。`,
-    number: `[:name] 最少 [:min]。`,
-    date: `[:name] 不得小於 [:min]。`,
-    option: `[:name] 最少選 [:min] 個。`,
+    text: `[:name] 最少 :min 個字。`,
+    number: `[:name] 最少 :min。`,
+    date: `[:name] 不得小於 :min。`,
+    option: `[:name] 最少選 :min 個。`,
   },
   max: {
-    text: `[:name] 最少 [:max] 個字。`,
-    number: `[:name] 最多 [:max]。`,
-    date: `[:name] 不得大於 [:max]。`,
-    option: `[:name] 最多選 [:max] 個。`,
+    text: `[:name] 最少 :max 個字。`,
+    number: `[:name] 最多 :max。`,
+    date: `[:name] 不得大於 :max。`,
+    option: `[:name] 最多選 :max 個。`,
   },
 };
 
