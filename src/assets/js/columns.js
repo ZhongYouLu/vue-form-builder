@@ -138,9 +138,9 @@ export const getErrorMsg = (msg, { name, sameAsName, min, max } = {}) => {
   if (!msg) return '';
 
   let temp = msg.replace(':name', name);
-  if (sameAsName) temp = temp.replace(':sameAsName', sameAsName);
-  if (min) temp = temp.replace(':min', min);
-  if (max) temp = temp.replace(':max', max);
+  if (sameAsName != null) temp = temp.replace(':sameAsName', sameAsName);
+  if (min != null) temp = temp.replace(':min', min);
+  if (max != null) temp = temp.replace(':max', max);
 
   return temp;
 };

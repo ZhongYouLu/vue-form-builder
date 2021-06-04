@@ -22,7 +22,7 @@
         <input ref="el" v-model.trim="mutableValue" v-bind="bindAttrs" v-on="bindEvents" />
         <label v-if="label && !icon" class="x-input__label">{{ label }}</label>
         <Button
-          v-if="type === 'password'"
+          v-if="type === 'password' || toggle"
           :icon="eyeclose ? 'mdi-light:eye-off' : 'mdi-light:eye'"
           v-bind="{ class: 'x-input__right', type: 'flat', shape: 'circle' }"
           @click="invokePass"
@@ -81,6 +81,8 @@ export default /*#__PURE__*/ {
     block: { type: Boolean, default: null },
     errordir: { type: String, default: 'top' },
     debounce: { type: Number, default: 50 },
+    toggle: { type: [Boolean, Number], default: null },
+    toggleCallBack: { type: Function, default: null },
     callInput: { type: Function, default: null },
     // ------------
     checkRule: { type: Function, default: null },
@@ -343,6 +345,7 @@ export default /*#__PURE__*/ {
     },
     invokePass() {
       this.eyeclose = !this.eyeclose;
+      this.toggleCallBack && this.toggleCallBack();
       this.focus();
     },
     invokeAdd() {

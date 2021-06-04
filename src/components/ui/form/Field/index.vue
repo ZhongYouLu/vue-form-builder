@@ -101,7 +101,7 @@ export default /*#__PURE__*/ {
       let attrs = {
         ...this.$attrs,
         id: this.id,
-        name: this.name || this.id,
+        name: this.id, // this.name
         type: this.subType || this.type,
         defaultValue: this.selfDefaultValue,
         multiple: !!this.multiple,
@@ -145,14 +145,14 @@ export default /*#__PURE__*/ {
       if (!this.$refs.el?.validity) return false;
 
       const validity = this.$refs.el.validity();
-      console.log('[validity]', this.id, validity);
+      console.log('[validity]', this.name || this.id, validity);
       return validity;
     },
     checkValidity() {
       if (!this.$refs.el?.checkValidity) return false;
 
       const checkValidity = this.$refs.el.checkValidity();
-      console.log('[checkValidity]', this.id, checkValidity);
+      console.log('[checkValidity]', this.name || this.id, checkValidity);
       return checkValidity;
     },
     check() {

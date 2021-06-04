@@ -97,7 +97,7 @@ export default /*#__PURE__*/ {
       return {
         ...this.$attrs,
         id: this.id,
-        name: this.name || this.id,
+        name: this.name,
         required: !!this.required,
         disabled: this.disabled,
         novalidate: !this.canDisplay,

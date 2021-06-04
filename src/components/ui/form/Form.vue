@@ -12,12 +12,13 @@
       }"
     >
       <FormItem
-        v-for="({ id, type, base, rule, item, condition }, idx) in columns"
+        v-for="({ id, name: cname, type, base, rule, item, condition }, idx) in columns"
         :key="id"
         ref="formItem"
         v-bind="{
           idx: idx + 1,
           id,
+          name: cname,
           type,
           ...base,
           ...rule,

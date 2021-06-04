@@ -30,8 +30,11 @@
         v-show="collectShowMsg[k]"
         v-bind="{
           id: `[${id}]-${k}-msg`,
-          value: $props.msg[k],
+          value: !collectShowRealMsg[k] ? $props.msg[k] : invokeGetErrorMsg(k, v.msg),
           placeholder: v.msg,
+          toggle: true,
+          readonly: collectShowRealMsg[k],
+          toggleCallBack: () => toggleShowRealMsg(k),
         }"
         @update:value="updateRule(['msg', k], $event)"
       />
@@ -107,7 +110,7 @@ export default /*#__PURE__*/ {
               iconKey: 'type',
               multiple: true,
             },
-            msg: getErrorMsg(errorMsg.required, { name }),
+            msg: errorMsg.required,
           },
         };
       }
@@ -116,7 +119,7 @@ export default /*#__PURE__*/ {
         ...fields,
         required: {
           props: { desc: '是否必填', label: '必填', type: 'checkbox' },
-          msg: getErrorMsg(errorMsg.required, { name }),
+          msg: errorMsg.required,
         },
         sameAs: {
           props: {
@@ -129,15 +132,15 @@ export default /*#__PURE__*/ {
             iconKey: 'type',
             clearable: true,
           },
-          msg: getErrorMsg(errorMsg.sameAs, { name, sameAsName }),
+          msg: errorMsg.sameAs,
         },
       };
 
       if (this.typeConstraint.isText) {
         fields = {
           ...fields,
-          min: { props: { desc: '字元下限', type: 'number' }, msg: getErrorMsg(errorMsg.min.text, { name }) },
-          max: { props: { desc: '字元上限', type: 'number' }, msg: getErrorMsg(errorMsg.max.text, { name }) },
+          min: { props: { desc: '字元下限', type: 'number' }, msg: errorMsg.min.text },
+          max: { props: { desc: '字元上限', type: 'number' }, msg: errorMsg.max.text },
           regex: {
             props: {
               desc: '驗證格式',
@@ -152,26 +155,26 @@ export default /*#__PURE__*/ {
               handleCreatedCallback: (option) => regexMutations.addRegex(option.text),
               // getOptionLabel: (option) => option,
             },
-            msg: getErrorMsg(errorMsg.regex, { name }),
+            msg: errorMsg.regex,
           },
         };
       } else if (this.typeConstraint.isNumber) {
         fields = {
           ...fields,
-          min: { props: { desc: '數字下限', type: 'number' }, msg: getErrorMsg(errorMsg.min.number, { name }) },
-          max: { props: { desc: '數字上限', type: 'number' }, msg: getErrorMsg(errorMsg.max.number, { name }) },
+          min: { props: { desc: '數字下限', type: 'number' }, msg: errorMsg.min.number },
+          max: { props: { desc: '數字上限', type: 'number' }, msg: errorMsg.max.number },
         };
       } else if (this.typeConstraint.isDate) {
         fields = {
           ...fields,
-          min: { props: { desc: '日期下限', type: 'date' }, msg: getErrorMsg(errorMsg.min.date, { name }) },
-          max: { props: { desc: '日期上限', type: 'date' }, msg: getErrorMsg(errorMsg.max.date, { name }) },
+          min: { props: { desc: '日期下限', type: 'date' }, msg: errorMsg.min.date },
+          max: { props: { desc: '日期上限', type: 'date' }, msg: errorMsg.max.date },
         };
       } else if (this.columnsByKey[this.id].base?.multiple) {
         fields = {
           ...fields,
-          min: { props: { desc: '選擇數量下限', type: 'number' }, msg: getErrorMsg(errorMsg.min.option, { name }) },
-          max: { props: { desc: '選擇數量上限', type: 'number' }, msg: getErrorMsg(errorMsg.max.option, { name }) },
+          min: { props: { desc: '選擇數量下限', type: 'number' }, msg: errorMsg.min.option },
+          max: { props: { desc: '選擇數量上限', type: 'number' }, msg: errorMsg.max.option },
         };
       }
 
@@ -214,14 +217,21 @@ export default /*#__PURE__*/ {
     collectShowMsg() {
       return this.collects[this.id]['showMsg'];
     },
+    collectShowRealMsg() {
+      return this.collects[this.id]['showRealMsg'];
+    },
   },
   created() {
     collectsMutations.setCollect([this.id, 'showMsg']);
+    collectsMutations.setCollect([this.id, 'showRealMsg']);
     this.updateRule(['msg'], this.msg);
   },
   methods: {
     toggleShowMsg(k) {
       collectsMutations.toggleCollect([this.id, 'showMsg', k]);
+    },
+    toggleShowRealMsg(k) {
+      collectsMutations.toggleCollect([this.id, 'showRealMsg', k]);
     },
     updateColumnById(id, path, val) {
       this.$emit('update:column', id, path, val);
@@ -234,6 +244,14 @@ export default /*#__PURE__*/ {
       const requiredPassive = targetColumn.rule?.requiredPassive || [];
       const newValue = isAdd ? [...requiredPassive, this.id] : arrRemoveValue(requiredPassive, this.id);
       this.updateColumnById(id, ['rule', 'requiredPassive'], newValue);
+    },
+    invokeGetErrorMsg(k, msg) {
+      return getErrorMsg(this.$props.msg[k] || msg, {
+        name: this.name,
+        min: this.min,
+        max: this.max,
+        sameAs: this.sameAs,
+      });
     },
   },
 };
