@@ -5,18 +5,22 @@
         v-for="(option, idx) in options"
         :key="option[valueKey]"
         ref="el"
-        :idx="idx"
-        :name="name"
-        :label="option[textKey] || option[valueKey]"
-        :value="localValue[option[valueKey]].flag"
-        :required="localValue[option[valueKey]].required"
-        :yes="yes"
-        :no="no"
-        :disabled="disabled"
-        :novalidate="novalidate"
+        v-bind="{
+          idx,
+          name,
+          label: option[textKey] || option[valueKey],
+          value: localValue[option[valueKey]].flag,
+          required: localValue[option[valueKey]].required,
+          yes,
+          no,
+          disabled,
+          novalidate,
+        }"
+        v-on="{
+          focus: handleFocus,
+          blur: handleBlur,
+        }"
         @update:value="toggle(option[valueKey], $event)"
-        @focus="handleFocus"
-        @blur="handleBlur"
       />
     </Tips>
   </div>
@@ -35,31 +39,34 @@ export default /*#__PURE__*/ {
   },
   inheritAttrs: false,
   props: {
-    name: { type: String, default: null },
     value: { type: Array, default: () => [] },
+    error: { type: String, default: null },
+    // ----------------------------------
+    name: { type: String, default: null },
+    defaultValue: { type: Array, default: () => [] },
+    required: { type: Boolean, default: null },
+    disabled: { type: Boolean, default: null },
+    novalidate: { type: Boolean, default: null },
+    // ----------------------------------
     options: { type: Array, default: () => [] },
     valueKey: { type: String, default: 'id' },
     textKey: { type: String, default: 'text' },
     yes: { type: [String, Number, Boolean], default: 1 },
     no: { type: [String, Number, Boolean], default: null },
     // ----------------------------------
-    required: { type: Boolean, default: null },
     requiredValue: { type: Array, default: () => [] },
-    disabled: { type: Boolean, default: null },
-    novalidate: { type: Boolean, default: null },
     min: { type: Number, default: null },
     max: { type: Number, default: null },
     // ----------------------------------
-    errortips: { type: String, default: null },
+    processRule: { type: Function, default: null },
   },
-  emits: ['update:value', 'focus', 'blur'],
+  emits: ['update:value', 'update:error', 'focus', 'blur'],
   data() {
     return {
       invalid: false,
       tips: null,
       showTips: false,
       errorType: null,
-      defaultValue: [],
     };
   },
   computed: {
@@ -69,6 +76,14 @@ export default /*#__PURE__*/ {
       },
       set(val) {
         this.$emit('update:value', val);
+      },
+    },
+    mutableError: {
+      get() {
+        return this.error;
+      },
+      set(val) {
+        this.$emit('update:error', val);
       },
     },
     localValue() {
@@ -91,9 +106,7 @@ export default /*#__PURE__*/ {
   },
   watch: {
     mutableValue: 'checkValidity',
-  },
-  created() {
-    this.defaultValue = this.value;
+    mutableError: 'checkValidity',
   },
   methods: {
     toggle(key, flag) {
@@ -103,11 +116,8 @@ export default /*#__PURE__*/ {
         this.mutableValue = arrRemoveValue(this.mutableValue, key);
       }
     },
-    reset() {
-      this.mutableValue = this.defaultValue;
-      this.invalid = false;
-      this.tips = null;
-      this.showTips = null;
+    checkAll() {
+      this.mutableValue = Object.keys(this.localValue).map((key) => key);
     },
     focus(idx) {
       if (idx == null || idx < 0 || idx > this.$refs.el.length - 1) idx = 0;
@@ -116,11 +126,18 @@ export default /*#__PURE__*/ {
         this.$nextTick(() => this.$refs.el[idx].focus());
       }
     },
-    checkAll() {
-      this.mutableValue = Object.keys(this.localValue).map((key) => key);
+    reset() {
+      this.mutableValue = this.defaultValue;
+      this.invalid = false;
+      this.showTips = null;
+      this.tips = null;
     },
     validity() {
       this.errorType = null;
+
+      // custom
+      if (this.processRule && !this.processRule()) return false;
+
       const len = (this.value || []).length;
 
       // 非必填且無勾選
@@ -129,14 +146,14 @@ export default /*#__PURE__*/ {
       }
 
       // 數量限制
-      if (len < this.localMin) {
-        this.errorType = 'min';
-        return false;
-      }
-      if (len > this.localMax) {
-        this.errorType = 'max';
-        return false;
-      }
+      // if (len < this.localMin) {
+      //   this.errorType = 'min';
+      //   return false;
+      // }
+      // if (len > this.localMax) {
+      //   this.errorType = 'max';
+      //   return false;
+      // }
 
       // 項目必填
       if (this.requiredValue.length) {
@@ -156,27 +173,21 @@ export default /*#__PURE__*/ {
       }
 
       if (this.validity()) {
-        this.invalid = false;
+        this.invalid = null;
         this.showTips = null;
         this.tips = null;
       } else {
         this.invalid = true;
         this.showTips = true;
-      }
 
-      switch (this.errorType) {
-        case 'min':
-          // this.focus();
-          this.tips = `請至少選擇${this.localMin}項`;
-          break;
-        case 'max':
-          this.tips = `至多選擇${this.localMax}項`;
-          break;
-        case 'item-required':
-          this.tips = null;
-          break;
-        default:
-          break;
+        switch (this.errorType) {
+          case 'item-required':
+            this.tips = null;
+            break;
+          default:
+            this.tips = this.mutableError;
+            break;
+        }
       }
 
       return !this.invalid;

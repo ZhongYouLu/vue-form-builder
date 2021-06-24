@@ -40,18 +40,19 @@ export default /*#__PURE__*/ {
     value: { type: [String, Number, Boolean], default: null },
     error: { type: String, default: null },
     // ----------------------------------
-    id: { type: String, default: null },
     name: { type: String, default: null },
     defaultValue: { type: [String, Number, Boolean], default: null },
+    required: { type: Boolean, default: null },
+    disabled: { type: Boolean, default: null },
+    novalidate: { type: Boolean, default: null },
+    // ----------------------------------
     options: { type: Array, default: () => [] },
     valueKey: { type: String, default: 'id' },
     textKey: { type: String, default: 'text' },
     yes: { type: [String, Number, Boolean], default: 1 },
     no: { type: [String, Number, Boolean], default: null },
     // ----------------------------------
-    required: { type: Boolean, default: null },
-    disabled: { type: Boolean, default: null },
-    novalidate: { type: Boolean, default: null },
+    processRule: { type: Function, default: null },
   },
   emits: ['update:value', 'update:error', 'focus', 'blur'],
   data() {
@@ -59,8 +60,6 @@ export default /*#__PURE__*/ {
       invalid: null,
       tips: null,
       showTips: null,
-      errorType: null,
-      selfDefaultValue: null,
     };
   },
   computed: {
@@ -91,12 +90,6 @@ export default /*#__PURE__*/ {
   watch: {
     mutableValue: 'checkValidity',
     mutableError: 'checkValidity',
-    defaultValue(val) {
-      this.selfDefaultValue = val;
-    },
-  },
-  created() {
-    this.selfDefaultValue = this.defaultValue || this.value;
   },
   methods: {
     toggle(key, flag) {
@@ -112,24 +105,14 @@ export default /*#__PURE__*/ {
       }
     },
     reset() {
-      this.mutableValue = this.selfDefaultValue;
+      this.mutableValue = this.defaultValue;
       this.invalid = null;
       this.showTips = null;
       this.tips = null;
-      this.errorType = null;
     },
     validity() {
-      this.errorType = null;
-
       // custom
-      if (this.mutableError) return false;
-
-      // base (default)
-      // 必填
-      if (this.required && (this.value == null || this.value === '')) {
-        this.errorType = 'required';
-        return false;
-      }
+      if (this.processRule && !this.processRule()) return false;
 
       return true;
     },
@@ -146,16 +129,7 @@ export default /*#__PURE__*/ {
         // this.focus();
         this.invalid = true;
         this.showTips = true;
-      }
-
-      switch (this.errorType) {
-        case 'required':
-          this.focus();
-          this.tips = '必須選擇一項';
-          break;
-        default:
-          this.tips = this.mutableError;
-          break;
+        this.tips = this.mutableError;
       }
 
       return !this.invalid;

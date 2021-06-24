@@ -84,8 +84,7 @@ export default /*#__PURE__*/ {
     toggle: { type: [Boolean, Number], default: null },
     toggleCallBack: { type: Function, default: null },
     callInput: { type: Function, default: null },
-    // ------------
-    checkRule: { type: Function, default: null },
+    // ---------------------------------
     processRule: { type: Function, default: null },
   },
   emits: ['update:value', 'update:error', 'focus', 'blur', 'submit', 'handle:enter'],

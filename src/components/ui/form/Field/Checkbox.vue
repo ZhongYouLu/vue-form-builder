@@ -34,21 +34,22 @@ export default /*#__PURE__*/ {
   },
   inheritAttrs: false,
   props: {
-    idx: { type: Number, default: null },
-    id: { type: String, default: null },
-    name: { type: String, default: null },
     value: { type: [String, Number, Boolean], default: null },
-    label: { type: [String, Number, Boolean], default: '是' },
-    yes: { type: [String, Number, Boolean], default: 1 },
-    no: { type: [String, Number, Boolean], default: null },
+    error: { type: String, default: null },
     // ----------------------------------
+    idx: { type: Number, default: null },
+    name: { type: String, default: null },
     required: { type: Boolean, default: null },
     disabled: { type: Boolean, default: null },
     novalidate: { type: Boolean, default: null },
     // ----------------------------------
-    errortips: { type: String, default: null },
+    label: { type: [String, Number, Boolean], default: '是' },
+    yes: { type: [String, Number, Boolean], default: 1 },
+    no: { type: [String, Number, Boolean], default: null },
+    // ----------------------------------
+    processRule: { type: Function, default: null },
   },
-  emits: ['update:value', 'focus', 'blur'],
+  emits: ['update:value', 'update:error', 'focus', 'blur'],
   data() {
     return {
       invalid: false,
@@ -77,7 +78,6 @@ export default /*#__PURE__*/ {
     },
     bindAttrs() {
       return {
-        id: this.id,
         name: this.name,
         required: this.required,
         disabled: this.disabled,
@@ -93,6 +93,7 @@ export default /*#__PURE__*/ {
   },
   watch: {
     checked: 'checkValidity',
+    error: 'checkValidity',
   },
   created() {
     this.resetSlot();
@@ -112,34 +113,39 @@ export default /*#__PURE__*/ {
         if (!this.$slots.default[0].tag) this.$slots.default[0].tag = 'span';
       }
     },
-    reset() {
-      this.checked = this.no;
-      this.invalid = false;
-      this.tips = null;
-      this.showTips = null;
+    setIndeterminate(flag) {
+      this.indeterminate = flag;
     },
     focus() {
       this.$nextTick(() => this.$refs.el.focus());
     },
-    setIndeterminate(flag) {
-      this.indeterminate = flag;
+    reset() {
+      this.checked = this.no;
+      this.invalid = false;
+      this.showTips = null;
+      this.tips = null;
     },
     validity() {
-      return this.$refs.el.checkValidity();
+      // custom
+      if (this.processRule && !this.processRule()) return false;
+
+      // return this.$refs.el.checkValidity();
+      return true;
     },
     checkValidity() {
       if (this.novalidate || this.disabled) {
         return true;
       }
       if (this.validity()) {
-        this.invalid = false;
+        this.invalid = null;
         this.showTips = null;
         this.tips = null;
       } else {
-        this.focus();
+        // this.focus();
         this.invalid = true;
         this.showTips = true;
-        this.tips = this.errortips || this.$refs.el?.validationMessage;
+        this.tips = this.error;
+        // this.tips = this.errortips || this.$refs.el?.validationMessage;
       }
 
       return !this.invalid;

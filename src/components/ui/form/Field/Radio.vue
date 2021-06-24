@@ -8,12 +8,8 @@
           type="checkbox"
           :true-value="yes"
           :false-value="no"
-          v-bind="{ id, name, required, disabled }"
-          v-on="{
-            keydown: handleKeydown,
-            focus: handleFocus,
-            blur: handleBlur,
-          }"
+          v-bind="bindAttrs"
+          v-on="bindEvents"
         />
         <span class="x-cheked" />
         <slot>
@@ -38,22 +34,23 @@ export default /*#__PURE__*/ {
     error: { type: String, default: null },
     // ----------------------------------
     idx: { type: Number, default: null },
-    id: { type: String, default: null },
     name: { type: String, default: null },
+    required: { type: Boolean, default: null },
+    disabled: { type: Boolean, default: null },
+    novalidate: { type: Boolean, default: null },
+    // ----------------------------------
     label: { type: [String, Number, Boolean], default: '是' },
     yes: { type: [String, Number, Boolean], default: 1 },
     no: { type: [String, Number, Boolean], default: null },
     // ----------------------------------
-    required: { type: Boolean, default: null },
-    disabled: { type: Boolean, default: null },
-    novalidate: { type: Boolean, default: null },
+    processRule: { type: Function, default: null },
   },
-  emits: ['update:value', 'focus', 'blur'],
+  emits: ['update:value', 'update:error', 'focus', 'blur'],
   data() {
     return {
       invalid: null,
-      tips: null,
       showTips: null,
+      tips: null,
       isfocus: false,
     };
   },
@@ -70,9 +67,24 @@ export default /*#__PURE__*/ {
         this.$emit('update:value', val);
       },
     },
+    bindAttrs() {
+      return {
+        name: this.name,
+        required: this.required,
+        disabled: this.disabled,
+      };
+    },
+    bindEvents() {
+      return {
+        keydown: this.handleKeydown,
+        focus: this.handleFocus,
+        blur: this.handleBlur,
+      };
+    },
   },
   watch: {
     checked: 'checkValidity',
+    error: 'checkValidity',
   },
   created() {
     this.resetSlot();
@@ -102,21 +114,26 @@ export default /*#__PURE__*/ {
       this.tips = null;
     },
     validity() {
-      return this.$refs.el.checkValidity();
+      // custom
+      if (this.processRule && !this.processRule()) return false;
+
+      // return this.$refs.el.checkValidity();
+      return true;
     },
     checkValidity() {
       if (this.novalidate || this.disabled) {
         return true;
       }
       if (this.validity()) {
-        this.invalid = false;
+        this.invalid = null;
         this.showTips = null;
         this.tips = null;
       } else {
-        this.focus();
+        // this.focus();
         this.invalid = true;
         this.showTips = true;
-        this.tips = this.errortips || this.$refs.el?.validationMessage;
+        this.tips = this.error;
+        // this.tips = this.errortips || this.$refs.el?.validationMessage;
       }
 
       return !this.invalid;

@@ -128,7 +128,7 @@ export const errorMsg = {
     option: `[:name] 最少選 :min 個。`,
   },
   max: {
-    text: `[:name] 最少 :max 個字。`,
+    text: `[:name] 最多 :max 個字。`,
     number: `[:name] 最多 :max。`,
     date: `[:name] 不得大於 :max。`,
     option: `[:name] 最多選 :max 個。`,

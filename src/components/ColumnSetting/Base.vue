@@ -99,7 +99,9 @@ export default /*#__PURE__*/ {
             fuseKeys: ['id', 'text'],
           },
         };
-        fields['multi'] = { props: { desc: '多行', type: 'checkbox', label: '多行' } };
+        if (!this.subType) {
+          fields['multi'] = { props: { desc: '多行', type: 'checkbox', label: '多行' } };
+        }
       }
 
       // Change defalutValue.props.type
