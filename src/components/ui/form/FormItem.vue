@@ -30,7 +30,7 @@
       <Button @click="reset">reset</Button>
       <Button @click="validity">validity</Button>
       <Button @click="checkValidity">checkValidity</Button>
-      <XSwitch v-model="disabled" />
+      <XSwitch v-model="localDisabled" />
     </div>
   </div>
 </template>
@@ -59,18 +59,19 @@ export default /*#__PURE__*/ {
     desc: { type: String, default: null }, // 欄位說明
     subDesc: { type: String, default: null }, // 欄位子說明
     required: { type: [Boolean, Number], default: null },
-    // disabled: { type: Boolean, default: false },
+    disabled: { type: Boolean, default: false },
     // ------------
     display: { type: Array, default: null }, // Condition's Display
     // ------------
     value: { type: [String, Number, Boolean, Array], default: null },
     error: { type: String, default: null },
     testMode: { type: Boolean, default: null },
+    answerMode: { type: Boolean, default: null },
   },
   emits: ['update:value', 'update:error', 'focus', 'blur'],
   data() {
     return {
-      disabled: false,
+      localDisabled: false,
     };
   },
   computed: {
@@ -96,10 +97,11 @@ export default /*#__PURE__*/ {
     bindAttrs() {
       return {
         ...this.$attrs,
-        id: this.id,
+        id: this.answerMode ? `${this.id}-a` : this.id,
         name: this.name,
+        defaultValue: this.fields ? this.fields[this.id]?.defaultValue : this.value,
         required: !!this.required,
-        disabled: this.disabled,
+        disabled: this.testMode ? this.localDisabled : this.disabled,
         novalidate: !this.canDisplay,
         checkRule: this.invokeCheckRule,
         processRule: this.invokeProcessRule,

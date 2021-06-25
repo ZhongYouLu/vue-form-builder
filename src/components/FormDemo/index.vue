@@ -1,6 +1,15 @@
 <template>
   <div class="form-demo">
-    <Form v-bind="{ name, columns, testMode }" @submit="submit" />
+    <Form
+      v-bind="{
+        name,
+        columns,
+        answer,
+        testMode,
+        answerMode: !!answer || answerMode,
+      }"
+      @submit="submit"
+    />
   </div>
 </template>
 
@@ -16,13 +25,17 @@ export default /*#__PURE__*/ {
     // id: { type: String, required: true },
     name: { type: String, default: 'demo' },
     columns: { type: Array, required: true },
+    answer: { type: Object, default: null },
+    // -----------------------------------
     testMode: { type: Boolean, default: false },
+    answerMode: { type: Boolean, default: false },
   },
+  emits: ['submit'],
   methods: {
     // https://developers.google.com/web/fundamentals/design-and-ux/input/forms
-    submit(values, cb) {
-      console.log(values);
-
+    submit(answer, cb) {
+      console.log(answer);
+      this.$emit('submit', answer);
       setTimeout(cb, 1000);
     },
   },

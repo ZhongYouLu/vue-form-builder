@@ -23,25 +23,30 @@
         </template>
       </FormSetting>
       <div>
+        <h3>Demo</h3>
         testMode: <XSwitch v-model="testMode" />
         <hr />
-        <FormDemo :columns="finalColumns" :test-mode="testMode" />
+        <FormDemo :columns="finalColumns" :test-mode="testMode" @submit="answer = $event" />
       </div>
       <div>
+        <h3>Answer</h3>
+        <FormDemo :columns="finalColumns" :answer="answer" />
+      </div>
+      <!-- <div>
         sync: {{ JSON.stringify(columns) === JSON.stringify(mutableColumns) }}
         <hr />
         <JsonView :data="mutableColumns" :deep="5" />
         <hr />
         <JsonView :data="finalColumns" :deep="5" />
-      </div>
+      </div> -->
     </main>
   </div>
 </template>
 
 <script>
+import RecordControls from '@/components/RecordControls';
 import FormSetting from '@/components/FormSetting';
 import FormDemo from '@/components/FormDemo';
-import RecordControls from '@/components/RecordControls';
 import XSwitch from '@/components/ui/Switch';
 import JsonView from 'vue-json-views';
 import { tunnelEmit } from '@/store/helper';
@@ -54,9 +59,9 @@ import {
 export default /*#__PURE__*/ {
   name: 'FormBuilder',
   components: {
+    RecordControls,
     FormSetting,
     FormDemo,
-    RecordControls,
     XSwitch,
     JsonView,
   },
@@ -68,6 +73,7 @@ export default /*#__PURE__*/ {
   data() {
     return {
       testMode: false,
+      answer: {},
     };
   },
   computed: {

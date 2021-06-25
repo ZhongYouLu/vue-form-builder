@@ -17,7 +17,7 @@
         ref="formItem"
         v-bind="{
           idx: idx + 1,
-          id,
+          id: id,
           name: cname,
           type,
           ...base,
@@ -32,6 +32,7 @@
           fields,
           // -----------
           testMode,
+          answerMode,
         }"
         :value.sync="fields[id].value"
         :error.sync="fields[id].error"
@@ -72,6 +73,7 @@ export default /*#__PURE__*/ {
   },
   props: {
     columns: { type: Array, required: true },
+    answer: { type: Object, default: () => ({}) },
     // -----------------------------------
     name: { type: String, default: null },
     method: { type: String, default: 'GET' },
@@ -80,6 +82,7 @@ export default /*#__PURE__*/ {
     disabled: { type: Boolean, defalut: null },
     // -----------------------------------
     testMode: { type: Boolean, default: null },
+    answerMode: { type: Boolean, default: null },
   },
   emits: ['submit'],
   data() {
@@ -107,33 +110,52 @@ export default /*#__PURE__*/ {
         columns.map((column) => {
           let value = this.fields[column.id]?.value || null;
 
-          const oldColumn = old?.find((c) => c.id === column.id);
+          if (this.answerMode) {
+            value = this.answer[column.id];
+          } else {
+            const oldColumn = old?.find((c) => c.id === column.id);
 
-          const oldDefault = oldColumn?.base?.defaultValue;
-          const newDefault = column.base?.defaultValue;
+            const oldDefault = oldColumn?.base?.defaultValue;
+            const newDefault = column.base?.defaultValue;
 
-          const isDiff =
-            Array.isArray(newDefault) && Array.isArray(oldDefault)
-              ? difference(newDefault, oldDefault).length
-              : newDefault !== oldDefault;
+            const isDiff =
+              Array.isArray(newDefault) && Array.isArray(oldDefault)
+                ? difference(newDefault, oldDefault).length
+                : newDefault !== oldDefault;
 
-          if (isDiff) {
-            value = newDefault || null;
-          }
+            if (isDiff) {
+              value = newDefault || null;
+            }
 
-          if (oldColumn && oldColumn.type !== column.type) {
-            value = null;
+            if (oldColumn && oldColumn.type !== column.type) {
+              value = null;
+            }
           }
 
           this.$set(this.fields, column.id, {
             value: value,
+            defaultValue: value,
             error: null,
-            requiredSync: this.columns.reduce((acc, c) => {
+            requiredSync: columns.reduce((acc, c) => {
               if (c.rule?.requiredPassive?.includes(column.id)) {
                 acc.push(c.id);
               }
               return acc;
             }, []),
+          });
+        });
+      },
+      immediate: true,
+    },
+    answer: {
+      handler: function (answer) {
+        this.columns.map((column) => {
+          const value = answer[column.id] || null;
+          this.$set(this.fields, column.id, {
+            value: value,
+            defaultValue: value,
+            error: null,
+            requiredSync: null,
           });
         });
       },
