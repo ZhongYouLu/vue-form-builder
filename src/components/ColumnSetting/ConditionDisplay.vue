@@ -350,6 +350,9 @@ ul {
 }
 
 .trigger-controll {
+  .x-tips {
+    width: 100%;
+  }
   display: flex;
   &__logic {
     flex: 2;
