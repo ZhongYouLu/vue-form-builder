@@ -17,7 +17,7 @@
           <SlideFadeTransitionGroup>
             <div v-for="(option, idx) in $props.options" :key="option.id" class="x-form-item">
               <div class="drag"><Icon icon="mdi:drag" />{{ idx + 1 }}</div>
-              <Field :value.sync="option.text" :placeholder="`(${option.id})`" />
+              <Field ref="option" :value.sync="option.text" :placeholder="`(${option.id})`" />
               <Button icon="mdi:close-thick" type="flat" shape="circle" @click="removeOption(option.id)" />
             </div>
           </SlideFadeTransitionGroup>
@@ -98,6 +98,8 @@ export default /*#__PURE__*/ {
     addOption() {
       const newOptions = this.$props.options.concat({ id: nanoid(6), text: '' });
       this.updateItem(['options'], newOptions);
+
+      this.$nextTick(() => this.$refs.option[this.$refs.option.length - 1].focus());
     },
     removeOption(id) {
       const options = this.$props.options;
