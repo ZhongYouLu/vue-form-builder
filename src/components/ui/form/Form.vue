@@ -45,7 +45,7 @@
         </template>
       </FormItem>
       <div>
-        <Button ref="submitBtn" @click="submit">Send</Button>
+        <Button ref="submitBtn" :loading="loading" @click="submit">Send</Button>
         <Button @click="reset">reset</Button>
         <Button @click="validity">validity</Button>
         <Button @click="checkValidity">checkValidity</Button>
@@ -86,11 +86,19 @@ export default /*#__PURE__*/ {
     return {
       fields: {},
       invalid: null, // 無效的
+      loading: false,
     };
   },
   computed: {
     columnsByKey() {
       return arr2ObjByKey(this.columns, 'id');
+    },
+    formData() {
+      return Object.keys(this.fields).reduce((acc, key) => {
+        const val = this.fields[key].value;
+        acc[key] = Array.isArray(val) ? [...val] : val;
+        return acc;
+      }, {});
     },
   },
   watch: {
@@ -156,74 +164,12 @@ export default /*#__PURE__*/ {
       this.invalid = !validity;
       return validity;
     },
-    formdata() {
-      const formdata = new FormData();
-      const jsondata = {};
-      if (!this.disabled) {
-        this.$refs.formItem.forEach((el) => {
-          formdata.set(el.name, el.value);
-          jsondata[el.name] = el.value;
-        });
-      }
-      formdata.json = jsondata;
-      return formdata;
-    },
-    async submit(e) {
+    submit() {
       // https://developers.google.com/web/fundamentals/design-and-ux/input/forms
       if (!this.disabled && this.checkValidity()) {
-        // validity
-        if (this.action) {
-          this.$refs.submitBtn && (this.$refs.submitBtn.loading = true);
-
-          let data;
-          if (this.method == 'GET') {
-            data = await fetch(`${this.action}?${this.serialized(this.$refs.form)}`);
-          } else {
-            data = await fetch(this.action, {
-              method: 'POST',
-              body: this.formdata,
-            });
-          }
-
-          this.$refs.submitBtn && (this.$refs.submitBtn.loading = false);
-
-          if (data.headers.get('content-type') == 'application/json') {
-            console.log(data.json());
-          }
-        }
-
-        this.$emit('submit', this.values);
+        this.loading = true;
+        this.$emit('submit', this.formData, () => (this.loading = false));
       }
-    },
-    serialized(form) {
-      const serialized = [];
-
-      for (var i = 0, field; (field = form.elements[i]); i++) {
-        // Don't serialize fields without a name, submits, buttons, file and reset inputs, and disabled fields
-        if (
-          !field.name ||
-          field.disabled ||
-          field.type === 'file' ||
-          field.type === 'reset' ||
-          field.type === 'submit' ||
-          field.type === 'button'
-        )
-          continue;
-
-        // If a multi-select, get all selections
-        if (field.type === 'select-multiple') {
-          for (var n = 0; n < field.options.length; n++) {
-            if (!field.options[n].selected) continue;
-            serialized.push(encodeURIComponent(field.name) + '=' + encodeURIComponent(field.options[n].value));
-          }
-        }
-        // Convert field data to a query string
-        else if ((field.type !== 'checkbox' && field.type !== 'radio') || field.checked) {
-          serialized.push(encodeURIComponent(field.name) + '=' + encodeURIComponent(field.value));
-        }
-      }
-
-      return serialized.join('&');
     },
     handleFocus(e) {
       console.log('focus', e);

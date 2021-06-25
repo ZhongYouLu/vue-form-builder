@@ -22,7 +22,11 @@
           <slot :name="slot" v-bind="props" />
         </template>
       </FormSetting>
-      <Form :columns="finalColumns" :test-mode="true" />
+      <div>
+        testMode: <XSwitch v-model="testMode" />
+        <hr />
+        <FormDemo :columns="finalColumns" :test-mode="testMode" />
+      </div>
       <div>
         sync: {{ JSON.stringify(columns) === JSON.stringify(mutableColumns) }}
         <hr />
@@ -36,8 +40,9 @@
 
 <script>
 import FormSetting from '@/components/FormSetting';
+import FormDemo from '@/components/FormDemo';
 import RecordControls from '@/components/RecordControls';
-import Form from '@/components/ui/form/Form';
+import XSwitch from '@/components/ui/Switch';
 import JsonView from 'vue-json-views';
 import { tunnelEmit } from '@/store/helper';
 import {
@@ -50,8 +55,9 @@ export default /*#__PURE__*/ {
   name: 'FormBuilder',
   components: {
     FormSetting,
-    Form,
+    FormDemo,
     RecordControls,
+    XSwitch,
     JsonView,
   },
   props: {
@@ -59,6 +65,11 @@ export default /*#__PURE__*/ {
     columns: { type: Array, default: () => [] },
   },
   emits: ['update:columns'],
+  data() {
+    return {
+      testMode: false,
+    };
+  },
   computed: {
     ...columnsGetters,
   },

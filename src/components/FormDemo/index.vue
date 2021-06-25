@@ -1,6 +1,6 @@
 <template>
   <div class="form-demo">
-    <Form name="demo" :columns="columns" @submit="submit" />
+    <Form v-bind="{ name, columns, testMode }" @submit="submit" />
   </div>
 </template>
 
@@ -14,12 +14,16 @@ export default /*#__PURE__*/ {
   },
   props: {
     // id: { type: String, required: true },
+    name: { type: String, default: 'demo' },
     columns: { type: Array, required: true },
+    testMode: { type: Boolean, default: false },
   },
   methods: {
     // https://developers.google.com/web/fundamentals/design-and-ux/input/forms
-    submit(values) {
+    submit(values, cb) {
       console.log(values);
+
+      setTimeout(cb, 1000);
     },
   },
 };
