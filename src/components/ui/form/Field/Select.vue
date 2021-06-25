@@ -1,4 +1,5 @@
 <template>
+  <Tips v-bind="{ tips, showTips, disabled }">
   <VueSelect
     :value="mutableValue"
     :options="mutableOptions"
@@ -71,12 +72,14 @@
       <slot :name="slot" v-bind="props" />
     </template>
   </VueSelect>
+  </Tips>
 </template>
 
 <script>
 import VueSelect from 'vue-select';
 // import VueSelect from '@/assets/js/vue-select';
 import IconRow from '@/components/ui/IconRow';
+import Tips from '@/components/ui/Tips';
 import Fuse from 'fuse.js';
 import { createPopper } from '@popperjs/core';
 import { nanoid, difference } from '@/assets/js/helper.js';
@@ -86,24 +89,29 @@ export default /*#__PURE__*/ {
   components: {
     VueSelect,
     IconRow,
+    Tips,
   },
   inheritAttrs: false,
   props: {
-    // https://vue-select.org/api/props.html#options
     value: { type: [String, Number, Boolean, Array], default: null },
-    options: { type: Array, default: () => [] },
-    icons: { type: Object, default: () => ({}) },
+    error: { type: String, default: null },
+    // ----------------------------------
     id: { type: String, default: null },
     name: { type: String, default: null },
+    defaultValue: { type: [String, Number, Boolean, Array], default: null },
     placeholder: { type: String, default: null },
-    autocomplete: { type: String, default: 'off' },
-    disabled: { type: Boolean, default: false },
-    multiple: { type: Boolean, default: false },
+    options: { type: Array, default: () => [] },
+    icons: { type: Object, default: () => ({}) },
     required: { type: Boolean, default: false },
-    // ---------------------------------------------
+    disabled: { type: Boolean, default: false },
+    novalidate: { type: Boolean, default: null },
+    multiple: { type: Boolean, default: false },
+    autocomplete: { type: String, default: 'off' },
     valueKey: { type: String, default: 'id' },
     textKey: { type: String, default: 'text' },
     iconKey: { type: String, default: 'icon' },
+    // ---------------------------------------------
+    // https://vue-select.org/api/props.html#options
     selectable: { type: Function, default: null }, // 是否可選處理
     reduce: { type: Function, default: null }, // 轉換對象處理 (傳遞給 v-model binding 或 @input event.)
     getOptionLabel: { type: Function, default: null }, // 生成項目文字處理
@@ -125,9 +133,12 @@ export default /*#__PURE__*/ {
     noDrop: { type: Boolean, default: false }, // Disable the dropdown entirely.
     // ---------------------------------------------
     searchPlaceholder: { type: String, default: '開始嘗試搜尋欄位' },
+    // ----------------------------------
+    processRule: { type: Function, default: null },
   },
   emits: [
     'update:value',
+    'update:error',
     'handle:selecting',
     'handle:selected',
     'handle:deselecting',
@@ -138,6 +149,9 @@ export default /*#__PURE__*/ {
   data() {
     return {
       placement: 'bottom',
+      invalid: null,
+      tips: null,
+      showTips: null,
     };
   },
   computed: {
@@ -147,6 +161,14 @@ export default /*#__PURE__*/ {
       },
       set(value) {
         this.$emit('update:value', value);
+      },
+    },
+    mutableError: {
+      get() {
+        return this.error;
+      },
+      set(val) {
+        this.$emit('update:error', val);
       },
     },
     mutableOptions() {
@@ -196,7 +218,44 @@ export default /*#__PURE__*/ {
       };
     },
   },
+  watch: {
+    mutableValue: 'checkValidity',
+    mutableError: 'checkValidity',
+  },
   methods: {
+    focus() {
+      this.$nextTick(() => this.$refs.el.focus());
+    },
+    reset() {
+      this.mutableValue = this.defaultValue;
+      this.invalid = null;
+      this.showTips = null;
+      this.tips = null;
+    },
+    validity() {
+      // custom
+      if (this.processRule && !this.processRule()) return false;
+
+      return true;
+    },
+    checkValidity() {
+      if (this.novalidate || this.disabled) {
+        return true;
+      }
+
+      if (this.validity()) {
+        this.invalid = null;
+        this.showTips = null;
+        this.tips = null;
+      } else {
+        // this.focus();
+        this.invalid = true;
+        this.showTips = true;
+        this.tips = this.mutableError;
+      }
+
+      return !this.invalid;
+    },
     handleOptionChange(newOptions, oldOptions, pushedTags) {
       const afterIds = newOptions.map((c) => c.id);
       const beforeIds = oldOptions.map((c) => c.id);
@@ -320,23 +379,34 @@ $vs-dropdown-box-shadow: 0px 3px 6px 0px rgba(0, 0, 0, 0.5);
 @import '~vue-select/src/scss/vue-select.scss';
 
 .v-select {
+  .x-tips & {
+    width: 100%;
+  }
+
   line-height: 1.4;
   background-color: #fff;
+
+  .vs__selected {
+    z-index: 2;
+  }
 
   .vs__actions svg {
     transition: fill 300ms, transform 150ms cubic-bezier(1, -0.115, 0.975, 0.855);
   }
 
-  &:hover,
-  &:focus-within {
-    .vs__dropdown-toggle {
-      border-color: var(--themeColor);
-    }
-    .vs__actions svg {
-      fill: var(--themeColor);
+  &:not(.vs--disabled) {
+    &:hover,
+    &:focus-within {
+      .vs__dropdown-toggle {
+        border-color: var(--themeColor);
+      }
+      .vs__actions svg {
+        fill: var(--themeColor);
+      }
     }
   }
 }
+
 .vs {
   &__search,
   &__search:focus {

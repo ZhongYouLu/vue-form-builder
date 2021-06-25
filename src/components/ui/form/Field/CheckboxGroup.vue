@@ -234,10 +234,5 @@ export default /*#__PURE__*/ {
     margin-right: var(--fontSize);
     transition: opacity 0.3s;
   }
-
-  .x-tips[hastips] {
-    --themeColor: var(--errorColor);
-    --borderColor: var(--errorColor);
-  }
 }
 </style>

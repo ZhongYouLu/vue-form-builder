@@ -132,6 +132,11 @@ export default /*#__PURE__*/ {
 <style lang="scss">
 @import '@/assets/scss/utils.scss';
 
+.x-tips[hastips] {
+  --themeColor: var(--errorColor);
+  --borderColor: var(--errorColor);
+}
+
 .x-tips {
   display: inline-flex;
   position: relative;

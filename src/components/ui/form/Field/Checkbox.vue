@@ -317,11 +317,6 @@ export default /*#__PURE__*/ {
     display: block;
     padding-left: 0.575em;
     margin-left: -0.575em;
-
-    &[hastips] {
-      --themeColor: var(--errorColor);
-      --borderColor: var(--errorColor);
-    }
   }
 }
 </style>
