@@ -62,7 +62,7 @@
 <script>
 import FormItem from '@/components/ui/form/FormItem';
 import Button from '@/components/ui/Button';
-import { arr2ObjByKey } from '@/assets/js/helper.js';
+import { arr2ObjByKey, difference } from '@/assets/js/helper.js';
 
 export default /*#__PURE__*/ {
   name: 'Form',
@@ -103,7 +103,13 @@ export default /*#__PURE__*/ {
 
           const oldDefault = oldColumn?.base?.defaultValue;
           const newDefault = column.base?.defaultValue;
-          if (newDefault !== oldDefault) {
+
+          const isDiff =
+            Array.isArray(newDefault) && Array.isArray(oldDefault)
+              ? difference(newDefault, oldDefault).length
+              : newDefault !== oldDefault;
+
+          if (isDiff) {
             value = newDefault || null;
           }
 
