@@ -1,0 +1,6 @@
+{
+  "path-autocomplete.ignoredFilesPattern": "**/*.{js,ts,scss,css}",
+  "path-autocomplete.pathMappings": {
+    "@/": "${folder}/src/"
+  }
+}
