@@ -48,7 +48,7 @@ import RecordControls from '@/components/RecordControls';
 import FormSetting from '@/components/FormSetting';
 import FormDemo from '@/components/FormDemo';
 import XSwitch from '@/components/ui/Switch';
-import JsonView from 'vue-json-views';
+// import JsonView from 'vue-json-views';
 import { tunnelEmit } from '@/store/helper';
 import {
   getters as columnsGetters,
@@ -63,7 +63,7 @@ export default /*#__PURE__*/ {
     FormSetting,
     FormDemo,
     XSwitch,
-    JsonView,
+    // JsonView,
   },
   props: {
     id: { type: String, required: true },

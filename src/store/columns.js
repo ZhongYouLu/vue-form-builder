@@ -231,6 +231,7 @@ const actions = {
 
         // 有增加的IDs
         if (addIds.length) {
+          // do something
         }
 
         // 有減少的IDs

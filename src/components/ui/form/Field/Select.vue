@@ -1,77 +1,77 @@
 <template>
   <Tips v-bind="{ tips, showTips, disabled }">
-  <VueSelect
-    :value="mutableValue"
-    :options="mutableOptions"
-    :placeholder="placeholder"
-    :autocomplete="autocomplete"
-    :disabled="disabled"
-    :multiple="multiple"
-    :label="textKey"
-    :selectable="invokeSelectable"
-    :reduce="invokeReduce"
-    :get-option-label="invokeGetOptionLabel"
-    :clearable="clearable"
-    :searchable="searchable"
-    :filterable="filterable"
-    :filter="fuseSearch"
-    :taggable="taggable"
-    :push-tags="pushTags"
-    :create-option="invokeCreateOption"
-    :close-on-select="closeOnSelect"
-    :no-drop="noDrop"
-    :append-to-body="true"
-    :calculate-position="withPopper"
-    :handle-option-change="handleOptionChange"
-    :reset-on-options-change="invokeResetOnOptionsChange"
-    @input="handleInput"
-    @option:created="handleCreated"
-    @option:selecting="tunnelEmit('handle:selecting', $event)"
-    @option:selected="tunnelEmit('handle:selected', $event)"
-    @option:deselecting="tunnelEmit('handle:deselecting', $event)"
-    @option:deselected="tunnelEmit('handle:deselected', $event)"
-    @search:focus="tunnelEmit('focus', $event)"
-    @search:blur="tunnelEmit('blur', $event)"
-  >
-    <template #search="{ attributes, events }">
-      <input
-        :id="id"
-        ref="el"
-        :name="name"
-        class="vs__search"
-        :required="required && !mutableValue"
-        v-bind="attributes"
-        v-on="events"
-      />
-    </template>
-
-    <!-- 已選項目  -->
-    <template #selected-option="option">
-      <IconRow :icon="icons[option[iconKey]] || option[iconKey]">
-        {{ option[textKey] || `(${option[valueKey]})` }}
-      </IconRow>
-    </template>
-
-    <!-- 項目  -->
-    <template #option="option">
-      <IconRow :icon="icons[option[iconKey]] || option[iconKey]">
-        {{ option[textKey] || `(${option[valueKey]})` }}
-      </IconRow>
-    </template>
-
-    <!-- 無項目 -->
-    <template v-if="searchable" #no-options="{ search, searching }">
-      <template v-if="searching">
-        查無
-        <em>{{ search }}</em> 相關.
+    <VueSelect
+      :value="mutableValue"
+      :options="mutableOptions"
+      :placeholder="placeholder"
+      :autocomplete="autocomplete"
+      :disabled="disabled"
+      :multiple="multiple"
+      :label="textKey"
+      :selectable="invokeSelectable"
+      :reduce="invokeReduce"
+      :get-option-label="invokeGetOptionLabel"
+      :clearable="clearable"
+      :searchable="searchable"
+      :filterable="filterable"
+      :filter="fuseSearch"
+      :taggable="taggable"
+      :push-tags="pushTags"
+      :create-option="invokeCreateOption"
+      :close-on-select="closeOnSelect"
+      :no-drop="noDrop"
+      :append-to-body="true"
+      :calculate-position="withPopper"
+      :handle-option-change="handleOptionChange"
+      :reset-on-options-change="invokeResetOnOptionsChange"
+      @input="handleInput"
+      @option:created="handleCreated"
+      @option:selecting="tunnelEmit('handle:selecting', $event)"
+      @option:selected="tunnelEmit('handle:selected', $event)"
+      @option:deselecting="tunnelEmit('handle:deselecting', $event)"
+      @option:deselected="tunnelEmit('handle:deselected', $event)"
+      @search:focus="tunnelEmit('focus', $event)"
+      @search:blur="tunnelEmit('blur', $event)"
+    >
+      <template #search="{ attributes, events }">
+        <input
+          :id="id"
+          ref="el"
+          :name="name"
+          class="vs__search"
+          :required="required && !mutableValue"
+          v-bind="attributes"
+          v-on="events"
+        />
       </template>
-      <em v-else style="opacity: 0.5">{{ searchPlaceholder }}</em>
-    </template>
 
-    <template v-for="(_, slot) in $scopedSlots" #[slot]="props">
-      <slot :name="slot" v-bind="props" />
-    </template>
-  </VueSelect>
+      <!-- 已選項目  -->
+      <template #selected-option="option">
+        <IconRow :icon="icons[option[iconKey]] || option[iconKey]">
+          {{ option[textKey] || `(${option[valueKey]})` }}
+        </IconRow>
+      </template>
+
+      <!-- 項目  -->
+      <template #option="option">
+        <IconRow :icon="icons[option[iconKey]] || option[iconKey]">
+          {{ option[textKey] || `(${option[valueKey]})` }}
+        </IconRow>
+      </template>
+
+      <!-- 無項目 -->
+      <template v-if="searchable" #no-options="{ search, searching }">
+        <template v-if="searching">
+          查無
+          <em>{{ search }}</em> 相關.
+        </template>
+        <em v-else style="opacity: 0.5">{{ searchPlaceholder }}</em>
+      </template>
+
+      <template v-for="(_, slot) in $scopedSlots" #[slot]="props">
+        <slot :name="slot" v-bind="props" />
+      </template>
+    </VueSelect>
   </Tips>
 </template>
 

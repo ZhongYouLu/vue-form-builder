@@ -92,9 +92,6 @@ export default /*#__PURE__*/ {
     collects: collectsGetters.collects,
     regexOptions: regexGetters.regexOptions,
     fields() {
-      const name = this.name || this.id;
-      const sameAsName = this.sameAs ? this.columnsByKey[this.sameAs].name || this.columnsByKey[this.sameAs].id : '';
-
       let fields = {};
 
       if (!this.required) {
